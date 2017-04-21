@@ -7,11 +7,10 @@ public class ActionRemindersBean {
     private long project;
     private String projectName;
     private String query;
-    private long filterId;
     private String issueAction;
     private String runAuthor;
     private Date lastRun;
-    private long execCount;
+    private int execCount;
     private boolean notifyAssignee;
     private boolean notifyReporter;
     private boolean notifyWatchers;
@@ -60,14 +59,6 @@ public class ActionRemindersBean {
         this.project = project;
     }
 
-    public long getFilterId() {
-        return filterId;
-    }
-
-    public void setFilterId(long filterId) {
-        this.filterId = filterId;
-    }
-
     public String getRunAuthor() {
         return runAuthor;
     }
@@ -92,11 +83,11 @@ public class ActionRemindersBean {
         this.lastRun = lastRun;
     }
 
-    public long getExecCount() {
+    public int getExecCount() {
         return execCount;
     }
 
-    public void setExecCount(long execCount) {
+    public void setExecCount(int execCount) {
         this.execCount = execCount;
     }
 

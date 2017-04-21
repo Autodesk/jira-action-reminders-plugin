@@ -29,8 +29,8 @@ public interface ActionRemindersAO extends Entity {
     public void setRunAuthor(String runAuthor);
     public Date getLastRun();
     public void setLastRun(Date lastRun);
-    public long getExecCount();
-    public void setExecCount(long execCount);
+    public int getExecCount();
+    public void setExecCount(int execCount);
     public boolean getNotifyAssignee();
     public void setNotifyAssignee(boolean notifyAssignee);
     public boolean getNotifyReporter();

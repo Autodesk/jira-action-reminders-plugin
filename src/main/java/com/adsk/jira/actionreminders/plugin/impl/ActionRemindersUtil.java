@@ -13,7 +13,6 @@ import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.web.bean.PagerFilter;
 import com.atlassian.jira.workflow.IssueWorkflowManager;
@@ -22,24 +21,29 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
 import com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr;
+import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.IssueManager;
+import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.mail.Email;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRole;
-import com.atlassian.jira.security.roles.ProjectRoleActor;
 import com.atlassian.jira.security.roles.ProjectRoleActors;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
-import com.atlassian.jira.security.roles.RoleActor;
 import com.atlassian.jira.user.util.UserManager;
+import com.atlassian.jira.workflow.WorkflowManager;
+import com.atlassian.jira.workflow.WorkflowTransitionUtil;
 import com.atlassian.mail.MailException;
 import com.atlassian.mail.server.SMTPMailServer;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.lang.time.DateUtils;
 
 
 /**
@@ -48,18 +52,20 @@ import org.apache.commons.lang.time.DateUtils;
  */
 public class ActionRemindersUtil {
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersUtil.class);
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static ActionRemindersUtil remindUtils = null;        
     private final ProjectManager projectManager = ComponentAccessor.getProjectManager();
+    private final IssueManager issueManager = ComponentAccessor.getIssueManager();
+    private final IssueService issueService = ComponentAccessor.getIssueService();    
     private final ProjectRoleManager projectRoleManager = ComponentAccessor.getComponentOfType(ProjectRoleManager.class);
-    private final JiraAuthenticationContext jiraAuthenticationContext = ComponentAccessor.getJiraAuthenticationContext();
-    private final IssueWorkflowManager issueWorkflowManager = ComponentAccessor.getComponentOfType(IssueWorkflowManager.class);
+    private final WorkflowManager workflowManager = ComponentAccessor.getWorkflowManager();
+    private final IssueWorkflowManager issueWorkflowManager = ComponentAccessor.getComponentOfType(IssueWorkflowManager.class);    
     private final SMTPMailServer mailServer = ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer();
     private final ApplicationProperties properties = ComponentAccessor.getApplicationProperties();
     private final UserManager userManager = ComponentAccessor.getUserManager();
     private final GroupManager groupManager = ComponentAccessor.getGroupManager();
     private final WatcherManager watcherManager = ComponentAccessor.getWatcherManager();
-    private final String BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"
-    private final ApplicationUser loggedInAppUser = jiraAuthenticationContext.getLoggedInUser();
+    private final String BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"   
     private final SearchService searchService = ComponentAccessor.getComponent(SearchService.class);
     private final ActionRemindersAOMgr remindActionsDAO;
     public ActionRemindersUtil() {
@@ -73,6 +79,10 @@ public class ActionRemindersUtil {
         return remindUtils;
     }
     
+    public static String getDateString(Date datetime) {
+        return DATE_FORMAT.format(datetime); // example: 2011-05-26
+    }
+    
     public List<Project> getProjects() {        
        return projectManager.getProjects();
     }
@@ -82,48 +92,105 @@ public class ActionRemindersUtil {
         List<ActionRemindersBean> remindActionList = remindActionsDAO.getActiveActionReminders();
         
         for(ActionRemindersBean map : remindActionList) {
-            LOGGER.info("processing -> "+ map.getQuery());
+            LOGGER.debug("Processing original query -> "+ map.getQuery());
             process(map);
         }
         
     }
     
-    public void process(ActionRemindersBean map) {
-        //List<Issue> issues = null;        
+    public void process(ActionRemindersBean map) {       
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){
             LOGGER.debug(map.getRunAuthor()+" - Run Author is Null/not exists!");
             return;
         }
         
+        Project projectObj = projectManager.getProjectObj(map.getProject());
+        if(projectObj == null){
+            LOGGER.debug(map.getProject()+" - Project is Null/not exists!");
+            return;
+        }
+        
+        boolean is_issue_action = false;
+        if(map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
+            is_issue_action = true;
+        }
+        
         try {
-            SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, map.getQuery());
+            String secureQuery = MessageFormat.format("project = {0} AND {1}", projectObj.getKey(), map.getQuery());
+            
+            SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, secureQuery);
+            
             if (parseResult.isValid()) {
-                //issues = new ArrayList<Issue>();     
+                LOGGER.debug("Processing secure query -> "+ parseResult.getQuery());
+                
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, 1000));
-                for(Issue i : searchResults.getIssues()) {
-                    LOGGER.debug("processing issue -> "+i.getKey());
+                
+                for(Issue issue : searchResults.getIssues()) {
+                    LOGGER.debug("processing issue -> "+ issue.getKey());
                     
-                    if(map.getIssueAction() !=null && !"".equals(map.getIssueAction())) { // Transition Action
-                        LOGGER.debug("processing transition action -> "+ map.getIssueAction());
-                        Collection<ActionDescriptor> statuses = issueWorkflowManager.getAvailableActions(i, runAppUser);
-                        boolean transition = false;
-                        ActionDescriptor tActionDescriptor = null;
-                        for(ActionDescriptor ad : statuses) {
-                            if(ad.getName().equalsIgnoreCase(map.getIssueAction())) {
-                                tActionDescriptor = ad;
-                                transition = true;
+                    if(is_issue_action == true) { // Transition Action
+                        MutableIssue mutableIssue = issueManager.getIssueByCurrentKey(issue.getKey());
+                        LOGGER.debug("processing transition action -> "+ map.getIssueAction());                                                
+                        
+                        Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
+                        for(ActionDescriptor actionDescriptor : ActionDescriptors) {
+                            
+                            if(actionDescriptor.getName().equalsIgnoreCase(map.getIssueAction())) {
+                                LOGGER.info(" ** XX *** "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId());
+                                
+                                if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {                                    
+                                    IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
+                                    issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
+                                    issueInputParameters.setResolutionId("10000");
+                                    issueInputParameters.setComment(map.getMessage());
+                                    
+                                    IssueService.TransitionValidationResult validation = issueService.validateTransition(runAppUser, issue.getId(), 
+                                            actionDescriptor.getId(), issueInputParameters);                                                                        
+                                    
+                                    if (validation.isValid()) {
+                                        IssueService.IssueResult issueResult = issueService.transition(runAppUser, validation);
+                                        if (issueResult.isValid()) {
+                                            LOGGER.debug("Transition successful.");
+                                            for(String e : issueResult.getErrorCollection().getErrorMessages()) {
+                                                LOGGER.debug(e);
+                                            }
+                                        }
+                                    } else {
+                                        LOGGER.debug("Transition validation errors: ");
+                                        for(String e : validation.getErrorCollection().getErrorMessages()) {
+                                            LOGGER.debug(e);
+                                        }
+                                    }                                   
+                                    
+                                } else {
+                                    LOGGER.debug("Transition action is not valid - "+ map.getIssueAction());
+                                }
                             }
                         }
-                        if(transition == true) {
-                            if(tActionDescriptor != null) {
-                                LOGGER.info(tActionDescriptor.getId() +" *** "+ tActionDescriptor.getName());
-                            }
-                        }
                     
-                    }else{                                            
-                        processReminderEmail(map, i); // Remind or re-notify
+                    } else {                        
+                        if(map.getExecCount() == 1) {
+                            if(map.getLastRun() != null) {
+                                LOGGER.debug("Last execution run date time - "+ map.getLastRun().toString());
+                                if(!getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
+                                //if (!DateUtils.isSameDay(map.getLastRun(), new Date())) {
+                                    LOGGER.debug("Last execution run date time not SAME DAY i.e. "+ (new Date()).toString());
+                                    processReminderEmail(map, issue);
+                                } else {
+                                    LOGGER.debug("Last execution run date time is SAME DAY i.e. "+ (new Date()).toString());
+                                }
+                            } else {
+                                LOGGER.debug("Last execution run date is null so sending now.");
+                                processReminderEmail(map, issue);
+                            }
+                        } else {
+                            LOGGER.debug("Execution count is 0 so sending now.");
+                            processReminderEmail(map, issue); // Remind or re-notify
+                        }
                     }
+                    
+                    remindActionsDAO.setActionRemindersLastRun(map.getMapId()); // set last run
                 }
             }
         }
@@ -169,26 +236,8 @@ public class ActionRemindersUtil {
         LOGGER.debug("Total email users size - "+ emailAddrs.size());
         LOGGER.debug("Executions count size - "+ map.getExecCount());
         
-        if(map.getExecCount() == 1) {            
-            if(map.getLastRun() != null) {
-                LOGGER.debug("Last execution run date time - "+ map.getLastRun().toString());
-                if (!DateUtils.isSameDay(map.getLastRun(), new Date())) {
-                    LOGGER.debug("Last execution run date time - SAME DAY i.e. "+ (new Date()).toString());
-                    for(String email : emailAddrs) {
-                        sendMail(email, subject, body, ccfrom);
-                    }
-                }
-            }else{
-                LOGGER.debug("Last execution run date is null so sending now.");
-                for(String email : emailAddrs) {
-                    sendMail(email, subject, body, ccfrom);
-                }
-            }
-        }else{
-            LOGGER.debug("Executions count size is 0 so sending email now");
-            for(String email : emailAddrs) {
-                sendMail(email, subject, body, ccfrom);
-            }
+        for(String email : emailAddrs) {
+            sendMail(email, subject, body, ccfrom);
         }
     }
     
@@ -202,11 +251,20 @@ public class ActionRemindersUtil {
         return users;
     }
     
+    public ProjectRole getProjectRole(String projectRole) {
+        Collection<ProjectRole> projectRoles = projectRoleManager.getProjectRoles();
+        for(ProjectRole role : projectRoles){
+            if(role.getName().equalsIgnoreCase(projectRole)){
+                return role;
+            }
+        }
+        return null;
+    }
     public Set<String> getRoleUsers(long projectId, String projectRole) {                         
         Set<String> users = new HashSet<String>();
         if(!"ADMINISTRATORS".equalsIgnoreCase(projectRole) && !"DEVELOPERS".equalsIgnoreCase(projectRole) && !"USERS".equalsIgnoreCase(projectRole)) {
             Project projectObject = projectManager.getProjectObj(projectId);
-            ProjectRole devRole = projectRoleManager.getProjectRole(projectRole);
+            ProjectRole devRole = getProjectRole(projectRole);
             if(devRole != null) {
                 LOGGER.debug("Project role name: "+ devRole.getName());
                 ProjectRoleActors roleActors = projectRoleManager.getProjectRoleActors(devRole, projectObject);

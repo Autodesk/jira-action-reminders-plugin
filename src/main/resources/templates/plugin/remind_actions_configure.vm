@@ -79,7 +79,7 @@
         $i18n.getText("jira-action-reminders.option.author.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <input type="text" id="runAuthor" name="runAuthor" class="text" placeholder="Your Run Author User ID" />
+    <input type="text" id="runAuthor" name="runAuthor" class="text" placeholder="Your Run Author User ID" value="$!runAuthor" />
     <a href="javascript:openUserPickerWindow('runAuthor');">
          <img title="Ente the user name" name="multiuserImage" src="$!requestContext.canonicalBaseUrl/images/icons/filter_public.gif" hspace="0" height="16" width="16" border="0" align="absmiddle" >
     </a>

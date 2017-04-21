@@ -154,12 +154,14 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
             ao.delete(maps[0]);
         }
     }
-
+    
+    @Override
     public void setActionRemindersLastRun(long mapId) {
         final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", mapId));
         if(maps.length > 0) {
             final ActionRemindersAO map = maps[0];        
             map.setLastRun(new Date());
+            map.save();
         }
     }
 }

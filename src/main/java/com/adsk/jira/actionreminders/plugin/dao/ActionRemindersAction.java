@@ -4,9 +4,11 @@ import com.adsk.jira.actionreminders.plugin.impl.ActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.GlobalPermissionKey;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -17,14 +19,16 @@ import org.apache.log4j.Logger;
 public class ActionRemindersAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersAction.class);
-    private final ActionRemindersAOMgr remindActionsMgr;    
+    private static final Logger LOGGER = Logger.getLogger(ActionRemindersAction.class);    
+    private final ActionRemindersAOMgr remindActionsMgr;
+    private final JiraAuthenticationContext jiraAuthenticationContext;
     private final ActionRemindersBean configBean = new ActionRemindersBean();  
     public static final TextUtils textUtils = new TextUtils();
     private String submitted;
     private String status;
     
-    public ActionRemindersAction(ActionRemindersAOMgr remindActionsMgr) {
+    public ActionRemindersAction(ActionRemindersAOMgr remindActionsMgr, JiraAuthenticationContext jiraAuthenticationContext) {
+        this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.remindActionsMgr = remindActionsMgr;
     }
         
@@ -117,8 +121,9 @@ public class ActionRemindersAction extends JiraWebActionSupport {
         configBean.setQuery(query);
     }
 
-    public String getRunAuthor() {
-        return configBean.getRunAuthor();
+    public String getRunAuthor() {        
+        return jiraAuthenticationContext.getLoggedInUser().getUsername();
+        //return configBean.getRunAuthor();
     }
 
     public void setRunAuthor(String runAuthor) {
@@ -137,11 +142,11 @@ public class ActionRemindersAction extends JiraWebActionSupport {
         configBean.setLastRun(lastRun);
     }
 
-    public long getExecCount() {
+    public int getExecCount() {
         return configBean.getExecCount();
     }
 
-    public void setExecCount(long execCount) {
+    public void setExecCount(int execCount) {
         configBean.setExecCount(execCount);
     }
 
