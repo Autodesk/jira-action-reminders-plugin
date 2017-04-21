@@ -1,0 +1,67 @@
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="configure.url">/secure/ActionRemindersConfigure.jspa</param>
+    </plugin-info>
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="jira-action-reminders-plugin"/>
+    
+    <!-- add our web resources -->
+    <web-resource key="jira-action-reminders-plugin-resources" name="jira-action-reminders-plugin Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        
+        <resource type="download" name="jira-action-reminders-plugin.css" location="/css/jira-action-reminders-plugin.css"/>
+        <resource type="download" name="jira-action-reminders-plugin.js" location="/js/jira-action-reminders-plugin.js"/>
+        <resource type="download" name="images/" location="/images"/>
+
+        <context>jira-action-reminders-plugin</context>
+    </web-resource>
+    
+    <!-- publish our component -->
+    <component key="jira-actionreminders-ao-manager" name="Action Reminders AO Manager" 
+               class="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgrImpl" public="true">
+        <interface>com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr</interface>
+    </component>
+    
+    <component-import key="userManager" i18n-name-key="userManager.name">
+          <description key="userManager.description" />
+          <interface>com.atlassian.sal.api.user.UserManager</interface>
+     </component-import>
+    
+    <!-- Active Objects -->
+    <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
+      <description>Component to access Active Objects service</description>
+    </component-import>
+    <ao key="jira-actionreminders-ao">
+      <description>AO interface for storing Remind Action Map entities</description>
+      <entity>com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAO</entity>
+    </ao>
+    
+    <!-- Web Options panel -->
+    <web-section key="jira-actionreminders-section" name="Remind Actions Plugin" location="admin_plugins_menu" i18n-name-key="jira-actionreminders.section" weight="20" application="jira">
+        <label key="jira-actionreminders.section.label" />
+    </web-section>
+      
+    <webwork1 key="jira-actionreminders-configure-action" name="Action Reminders Configure Action" i18n-name-key="jira-actionreminders-configure-action.name">
+        <actions>
+          <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAction" alias="ActionRemindersConfigure">
+            <view name="success">/templates/plugin/remind_actions_configure.vm</view>
+            <view name="error">/secure/views/permissionviolation.jsp</view>
+          </action>
+        </actions>
+    </webwork1>
+    <web-item key="jira-actionreminders-confgure-item" name="Remind Actions Configure Admin" i18n-name-key="jira-actionreminders-configure-item.name"
+        section="admin_plugins_menu/jira-actionreminders-section" weight="10" application="jira">
+        <label key="jira-actionreminders.configure.label" />
+        <link linkId="jira-actionreminders-configure-link">/secure/ActionRemindersConfigure.jspa</link>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
+	    <param name="permission">admin</param>
+	</condition>
+    </web-item>
+    
+</atlassian-plugin>
