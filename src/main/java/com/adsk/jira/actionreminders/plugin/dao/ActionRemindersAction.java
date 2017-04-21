@@ -41,9 +41,9 @@ public class ActionRemindersAction extends JiraWebActionSupport {
         
         if (this.submitted != null && "ADD".equals(this.submitted)) {            
             LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
-            if(remindActionsMgr.findRemindActionMap(configBean) == false) {
+            if(remindActionsMgr.findActionReminders(configBean) == false) {
                 if(configBean.getProject() != 0 && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
-                    remindActionsMgr.addRemindActionMap(configBean);                    
+                    remindActionsMgr.addActionReminders(configBean);                    
                     status = "Added.";
                 }else{
                     status = "Remind action fields missing!";
@@ -55,9 +55,9 @@ public class ActionRemindersAction extends JiraWebActionSupport {
         }
         if (this.submitted != null && "SAVE".equals(this.submitted)) {            
             LOGGER.debug("Saving map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(remindActionsMgr.findRemindActionMap2(configBean) == false) {
+            if(remindActionsMgr.findActionReminders2(configBean) == false) {
                 if(configBean.getMapId() != 0 && configBean.getProject() != 0 && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
-                    remindActionsMgr.updateRemindActionMap(configBean);                    
+                    remindActionsMgr.updateActionReminders(configBean);                    
                     status = "Saved.";
                 }else{
                     status = "Remind action fields missing!";
@@ -70,7 +70,7 @@ public class ActionRemindersAction extends JiraWebActionSupport {
         if (this.submitted != null && "DEL".equals(this.submitted)) {
             LOGGER.debug("Deleting map Id -> "+ configBean.getMapId());
             if(configBean.getMapId() != 0) {
-                remindActionsMgr.removeRemindActionMap(configBean.getMapId());
+                remindActionsMgr.removeActionReminders(configBean.getMapId());
                 status = "Deleted.";
             }
         }
@@ -203,7 +203,7 @@ public class ActionRemindersAction extends JiraWebActionSupport {
     }
     
     public List<ActionRemindersBean> getMapsList() {
-        return remindActionsMgr.getAllRemindActions();
+        return remindActionsMgr.getAllActionReminders();
     }
     
     public void setSubmitted(String submitted) {

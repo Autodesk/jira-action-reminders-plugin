@@ -15,7 +15,7 @@
             AJS.$("#ActionRemindersAddEditForm input[name='issueAction']").val(issueAction);
             AJS.$("#ActionRemindersAddEditForm input[name='runAuthor']").val(runAuthor);
             AJS.$("#ActionRemindersAddEditForm input[name='lastRun']").val(lastRun);
-            AJS.$("#ActionRemindersAddEditForm input[name='execCount']").val(execCount);
+            AJS.$("#ActionRemindersAddEditForm select[name='execCount']").val(execCount);
             AJS.$("#ActionRemindersAddEditForm input[name='notifyAssignee']").prop('checked', (notifyAssignee == 'true'));
             AJS.$("#ActionRemindersAddEditForm input[name='notifyReporter']").prop('checked', (notifyReporter == 'true'));
             AJS.$("#ActionRemindersAddEditForm input[name='notifyWatchers']").prop('checked', (notifyWatchers == 'true'));
@@ -87,8 +87,12 @@
 <div class="field-group">
     <label for="execCount">
         $i18n.getText("jira-action-reminders.option.execcount.label"):
+        <span class="aui-icon icon-required"></span>
     </label>
-    <input type="text" id="execCount" name="execCount" class="text" placeholder="No of executions a day" />
+    <select id="execCount" name="execCount" class="select" placeholder="No of executions a day">
+        <option value="1">Once a day</option>
+        <option value="0">Any times</option>
+    </select>
 </div>
 
 <fieldset class="group">
@@ -124,6 +128,7 @@
 <div class="field-group">
     <label for="message">
         $i18n.getText("jira-action-reminders.option.message.label"):
+        <span class="aui-icon icon-required"></span>
     </label>
     <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here"></textarea>
 </div>
@@ -152,7 +157,7 @@
 
 <!-- Run Testing -->
 <div id="ActionRemindersRun">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersMap.jspa" >
+<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersConfigure.jspa" >
 <div class="field-group">
     <input class="aui-button" type="submit" name="submitted" value="RUN" />
 </div>
