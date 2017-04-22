@@ -25,7 +25,6 @@ import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.issue.IssueInputParameters;
-import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.mail.Email;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -86,14 +85,31 @@ public class ActionRemindersUtil {
     }
     
     public void run() {
-        System.out.println("Running now....");
-        List<ActionRemindersBean> remindActionList = remindActionsDAO.getActiveActionReminders();
+        long startTime = System.currentTimeMillis();
+        LOGGER.debug("Running service now....");
         
+        List<ActionRemindersBean> remindActionList = remindActionsDAO.getActiveActionReminders();        
         for(ActionRemindersBean map : remindActionList) {
             LOGGER.debug("Processing original query -> "+ map.getQuery());
             process(map);
         }
         
+        long totalTime = System.currentTimeMillis() - startTime;
+        LOGGER.info("Service Finished. Took "+ totalTime/ 1000d +" Seconds");
+    }
+    
+    public void run(long mapId) {
+        long startTime = System.currentTimeMillis();
+        LOGGER.debug("Running map Id: "+ mapId);
+        
+        ActionRemindersBean remindAction = remindActionsDAO.getActiveActionReminderById(mapId);        
+        if(remindAction != null) {
+            LOGGER.debug("Processing original query -> "+ remindAction.getQuery());
+            process(remindAction);
+        }
+        
+        long totalTime = System.currentTimeMillis() - startTime;
+        LOGGER.info("Service Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
     public void process(ActionRemindersBean map) {       

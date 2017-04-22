@@ -42,13 +42,14 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         if ( !hasGlobalPermission(GlobalPermissionKey.SYSTEM_ADMIN) ) {
             return "error";
         }
-        
-        //testing
+                
         if (this.submitted != null && "RUN".equals(this.submitted)) {
-            ActionRemindersUtil.getInstance().run();    
-        }
-        
-        if (this.submitted != null && "ADD".equals(this.submitted)) {            
+            LOGGER.debug("Running map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            if(configBean.getMapId() != 0) {
+                ActionRemindersUtil.getInstance().run(configBean.getMapId());
+            }
+        }        
+        else if (this.submitted != null && "ADD".equals(this.submitted)) {            
             LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders(configBean) == false) {
                 if(configBean.getProject() != 0 && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
@@ -62,7 +63,7 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
                         configBean.getQuery(), configBean.getIssueAction());
             }
         }
-        if (this.submitted != null && "SAVE".equals(this.submitted)) {            
+        else if (this.submitted != null && "SAVE".equals(this.submitted)) {            
             LOGGER.debug("Saving map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders2(configBean) == false) {
                 if(configBean.getMapId() != 0 && configBean.getProject() != 0 && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
@@ -76,7 +77,7 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
                         configBean.getQuery(), configBean.getIssueAction());
             }
         }
-        if (this.submitted != null && "DEL".equals(this.submitted)) {
+        else if (this.submitted != null && "DELETE".equals(this.submitted)) {
             LOGGER.debug("Deleting map Id -> "+ configBean.getMapId());
             if(configBean.getMapId() != 0) {
                 remindActionsMgr.removeActionReminders(configBean.getMapId());
