@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>$i18n.getText("jira-action-reminders.option.label")</title>
+    $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
     <meta name="decorator" content="atl.admin" />
-    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />
-    $webResourceManager.requireResourcesForContext($i18n.getText("jira-action-reminders-plugin-resources.context"))
+    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />    
     <script>
         function prepareEdit(mapId, project, query, issueAction, runAuthor, lastRun, execCount, 
             notifyAssignee, notifyReporter, notifyWatchers, role, group, message, active) {
@@ -35,12 +35,6 @@
             AJS.$("#ActionRemindersAddEditForm").trigger("reset");
             AJS.$("#ActionRemindersAddEdit").stop().show();
             AJS.$("#ActionRemindersDelRun").stop().hide();            
-        }
-        
-        function prepareRefresh() {
-            AJS.$("#ActionRemindersAddEditForm").trigger("reset");
-            AJS.$("#ActionRemindersDelRunForm").trigger("reset");
-            location.reload();
         }
         
         function prepareDelete(mapId) {
@@ -76,8 +70,7 @@
 
 
 <!-- Icons -->
-<a href="#" id="ActionRemindersAddButton" title="Add Action Reminder" onClick="prepareAdd()">Add</a> | 
-<a href="#" id="ActionRemindersRefreshButton" title="Refresh" onClick="prepareRefresh()">Refresh</a>
+<a href="#" id="ActionRemindersAddButton" title="Add Action Reminder" onClick="prepareAdd()"></a>
 
 
 <!-- Add or Edit Form -->

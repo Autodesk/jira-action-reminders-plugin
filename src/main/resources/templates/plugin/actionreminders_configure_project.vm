@@ -2,13 +2,18 @@
 <html>
 <head>
     <title>$i18n.getText("jira-action-reminders.option.label")</title>
+    $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
     <meta name="decorator" content="atl.admin" />
-    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />
-    $webResourceManager.requireResourcesForContext($i18n.getText("jira-action-reminders-plugin-resources.context"))
+    <meta name="admin.active.tab" content="jira-actionreminders-project-configure-link"/>
+    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />    
+    <meta name="project" content="$textutils.htmlEncode($action.project)"/>    
     <script>
         function prepareEdit(mapId, project, query, issueAction, runAuthor, lastRun, execCount, 
             notifyAssignee, notifyReporter, notifyWatchers, role, group, message, active) {
             //alert(notifyAssignee +","+ notifyReporter+","+ notifyWatchers);
+            AJS.$("#ActionRemindersAddEdit").stop().show();
+            AJS.$("#ActionRemindersDelRun").stop().hide();
+            
             AJS.$("#ActionRemindersAddEditForm input[name='mapId']").val(mapId);
             AJS.$("#ActionRemindersAddEditForm select[name='project']").val(project);
             AJS.$("#ActionRemindersAddEditForm textarea[name='query']").val(query);
@@ -28,6 +33,32 @@
             location.hash = "#ActionRemindersAddEdit";
         }
 
+        function prepareAdd() {
+            AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+            AJS.$("#ActionRemindersAddEdit").stop().slideToggle();
+            AJS.$("#ActionRemindersDelRun").stop().hide();            
+        }
+        
+        function prepareDelete(mapId) {
+            AJS.$("#ActionRemindersAddEdit").stop().hide();
+            AJS.$("#ActionRemindersDelRun").stop().show();
+            
+            AJS.$("#ActionRemindersDelRunForm input[name='mapId']").val(mapId);
+            AJS.$("#ActionRemindersDelRunForm input[name='submitted']").val("DELETE");
+            AJS.$("#ActionRemindersTitle").text(" | Deleting Mapping ID #"+mapId);
+            location.hash = "#ActionRemindersDelRun";
+        }
+
+        function prepareRun(mapId) {
+            AJS.$("#ActionRemindersAddEdit").stop().hide();
+            AJS.$("#ActionRemindersDelRun").stop().show();
+            
+            AJS.$("#ActionRemindersDelRunForm input[name='mapId']").val(mapId);
+            AJS.$("#ActionRemindersDelRunForm input[name='submitted']").val("RUN");
+            AJS.$("#ActionRemindersTitle").text(" | Running Mapping ID #"+mapId);
+            location.hash = "#ActionRemindersDelRun";
+        }
+
         function openUserPickerWindow(element){
             var vWinUsers = window.open('$!requestContext.canonicalBaseUrl/secure/popups/UserPickerBrowser.jspa?formName=jiraform&multiSelect=false&element=' + element, 'UserPicker', 'status=yes,resizable=yes,top=100,left=200,width=580,height=750,scrollbars=yes');
             vWinUsers.opener = self;
@@ -37,20 +68,26 @@
 </head>
 <body>
 
-<h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle">#if ( $currentProject ) | $currentProject.name#end</span></h2>
+<h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle"></span></h2>
 
-<!-- options ADD -->
 
-<div id="ActionRemindersAddEdit">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersConfigure.jspa" >
+<!-- Icons -->
+<a href="#" id="ActionRemindersAddButton" title="Add Action Reminder" onClick="prepareAdd()"></a>
+
+
+<!-- Add or Edit Form -->
+
+<div id="ActionRemindersAddEdit" style="display: none">
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersConfig.jspa" >
 <input type="hidden" id="mapId" name="mapId" class="text" value="0" />
-<div class="field-group">
+<input type="hidden" id="project" name="project" class="text" value="$!project" />
+<!--<div class="field-group">
     <label for="project">
         $i18n.getText("jira-action-reminders.option.project.label"):
         <span class="aui-icon icon-required"></span>
-    </label>
+    </label>-->
     <!--<input type="text" id="project" name="project" class="text" placeholder="Your Project ID" />-->
-    <select id="project" name="project" class="select long-field" placeholder="Choose Project">
+    <!--<select id="project" name="project" class="select long-field" placeholder="Choose Project">
     <option value="0">None</option>
     #if (!$projects.empty)
     #foreach($pr in $projects)
@@ -60,7 +97,7 @@
     #end
     #end
     </select>
-</div>
+</div>-->
 <div class="field-group">
     <label for="query">
         $i18n.getText("jira-action-reminders.option.query.label"):
@@ -96,7 +133,6 @@
         <option value="0">Any times</option>
     </select>
 </div>
-
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
     <!--<div class="checkbox">-->
@@ -112,21 +148,18 @@
         <label for="notifyWatchers">Notify Watchers</label>
     <!--</div>-->                        
 </fieldset>
-
 <div class="field-group">
     <label for="notifyProjectrole">
         $i18n.getText("jira-action-reminders.option.role.label"):
     </label>
     <input type="text" id="notifyProjectrole" name="notifyProjectrole" class="text" placeholder="Your Project Role to Notify" />
 </div>
-
 <div class="field-group">
     <label for="notifyGroup">
         $i18n.getText("jira-action-reminders.option.group.label"):
     </label>
     <input type="text" id="notifyGroup" name="notifyGroup" class="text long-field" placeholder="Your Group name to Notify" />
 </div>
-
 <div class="field-group">
     <label for="message">
         $i18n.getText("jira-action-reminders.option.message.label"):
@@ -134,7 +167,6 @@
     </label>
     <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here"></textarea>
 </div>
-
 <div class="field-group">
     <label for="active">
         $i18n.getText("jira-action-reminders.option.active.label"):
@@ -153,18 +185,23 @@
 </div>
 
 
-<!-- config status -->
-<p style="background-color:#E0FFFF;">$!status</p>
-
-
-<!-- Run Testing -->
-<div id="ActionRemindersRun">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersConfigure.jspa" >
+<!-- Delete or Run Mapping ID -->
+<div id="ActionRemindersDelRun" style="display: none">
+<form id="ActionRemindersDelRunForm" class="aui" method="post" action="ActionRemindersConfig.jspa" >
 <div class="field-group">
-    <input class="aui-button" type="submit" name="submitted" value="RUN" />
+    <label for="mapId">
+        $i18n.getText("jira-action-reminders.option.map_id.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="text" id="mapId" name="mapId" class="text" />
+    <input class="aui-button" type="submit" name="submitted" value="Submit" />
 </div>
 </form>
 </div>
+
+
+<!-- config status -->
+<p style="background-color:#E0FFFF;">$!status</p>
 
 
 <br/>
@@ -173,33 +210,20 @@
 
 <div id="ActionRemindersDisplay">
 <table class="aui">
-    <tr><th>Mapping ID</th><th>Project</th><th>JQL Query</th><th>Action</th><th>Author</th><th>Last Run</th><th>Exec</th><th>Active?</th><th></th></tr>
+    <tr><th>Map ID</th><th>Project</th><th>JQL Query</th><th>Action</th><th>Author</th><th>Last Run</th><th>Exec</th><th>Active?</th><th></th></tr>
     #foreach ($entry in $mapsList)
         <tr><td>$entry.mapId</td><td>$entry.project</td><td>$entry.query</td><td>$entry.issueAction</td>
             <td>$entry.runAuthor</td><td>$entry.lastRun</td><td>$entry.execCount</td><td>$entry.active</td>
-            <td><button class="aui-button" onClick="prepareEdit('$entry.mapId', '$entry.project', '$textutils.htmlEncode($entry.query)', '$entry.issueAction', 
+            <td>
+            <button class="aui-button" onClick="prepareEdit('$entry.mapId', '$entry.project', '$textutils.htmlEncode($entry.query)', '$entry.issueAction', 
             '$entry.runAuthor', '$entry.lastRun', '$entry.execCount', '$entry.notifyAssignee', '$entry.notifyReporter', 
-            '$entry.notifyWatchers', '$entry.notifyProjectrole', '$entry.notifyGroup', '$textutils.htmlEncode($entry.message)', '$entry.active')">Edit</button></td>
+            '$entry.notifyWatchers', '$entry.notifyProjectrole', '$entry.notifyGroup', '$textutils.htmlEncode($entry.message)', '$entry.active')">Edit</button>
+            <button class="aui-button" onClick="prepareDelete('$entry.mapId')">Del</button>
+            #if ($entry.active)<button class="aui-button" onClick="prepareRun('$entry.mapId')">Run</button>#end
+            </td>
         </tr>
     #end
 </table>
-</div>
-
-
-<br/>
-
-<!-- Delete Mapping ID -->
-<div id="ActionRemindersDelete">
-<form id="ActionRemindersDeleteForm" class="aui" method="post" action="ActionRemindersConfigure.jspa" >
-<div class="field-group">
-    <label for="mapId">
-        $i18n.getText("jira-action-reminders.option.map_id.label"):
-        <span class="aui-icon icon-required"></span>
-    </label>
-    <input type="text" id="mapId" name="mapId" class="text" />
-    <input class="aui-button" type="submit" name="submitted" value="DEL" />
-</div>
-</form>
 </div>
 
 </body>

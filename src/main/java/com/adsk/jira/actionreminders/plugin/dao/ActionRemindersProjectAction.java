@@ -7,11 +7,13 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.UserProjectHistoryManager;
+import com.atlassian.jira.web.ExecutingHttpRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
@@ -20,7 +22,7 @@ import org.apache.log4j.Logger;
 public class ActionRemindersProjectAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersProjectAction.class);    
+    private static final Logger LOGGER = Logger.getLogger(ActionRemindersConfigAction.class);    
     private final ActionRemindersAOMgr remindActionsMgr;
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final UserProjectHistoryManager userProjectHistoryManager;
@@ -38,17 +40,23 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         
     @Override
     public String doExecute() throws Exception {
+        Project projectObj = getProjectManager().getProjectObj(configBean.getProject());
+        HttpServletRequest request = ExecutingHttpRequest.get();
+        request.setAttribute((new StringBuilder())
+            .append("com.atlassian.jira.projectconfig.util.ServletRequestProjectConfigRequestCache")
+            .append(":project").toString(), projectObj);
         
-        if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, getCurrentProject()) ) {
+        if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, projectObj) ) {
             return "error";
         }
-        
-        //testing
+                
         if (this.submitted != null && "RUN".equals(this.submitted)) {
-            ActionRemindersUtil.getInstance().run();    
-        }
-        
-        if (this.submitted != null && "ADD".equals(this.submitted)) {            
+            LOGGER.debug("Running map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            if(configBean.getMapId() != 0) {
+                ActionRemindersUtil.getInstance().run(configBean.getMapId());
+            }
+        }        
+        else if (this.submitted != null && "ADD".equals(this.submitted)) {            
             LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders(configBean) == false) {
                 if(configBean.getProject() != 0 && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
@@ -62,7 +70,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
                         configBean.getQuery(), configBean.getIssueAction());
             }
         }
-        if (this.submitted != null && "SAVE".equals(this.submitted)) {            
+        else if (this.submitted != null && "SAVE".equals(this.submitted)) {            
             LOGGER.debug("Saving map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders2(configBean) == false) {
                 if(configBean.getMapId() != 0 && configBean.getProject() != 0 && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
@@ -76,7 +84,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
                         configBean.getQuery(), configBean.getIssueAction());
             }
         }
-        if (this.submitted != null && "DEL".equals(this.submitted)) {
+        else if (this.submitted != null && "DELETE".equals(this.submitted)) {
             LOGGER.debug("Deleting map Id -> "+ configBean.getMapId());
             if(configBean.getMapId() != 0) {
                 remindActionsMgr.removeActionReminders(configBean.getMapId());
@@ -115,8 +123,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     }
     
     public long getProject() {        
-        return getCurrentProject().getId();
-        //return configBean.getProject();
+        return configBean.getProject();
     }
 
     public void setProject(long project) {        
@@ -214,7 +221,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     }
     
     public List<ActionRemindersBean> getMapsList() {
-        return remindActionsMgr.getAllActionRemindersByProject(getCurrentProject().getId());
+        return remindActionsMgr.getAllActionRemindersByProject(getProject());
     }
     
     public void setSubmitted(String submitted) {
@@ -223,5 +230,5 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     
     public String getStatus() {
         return status;
-    }    
+    }        
 }

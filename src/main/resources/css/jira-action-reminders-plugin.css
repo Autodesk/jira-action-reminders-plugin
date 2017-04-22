@@ -2,20 +2,8 @@
     background-image: url('images/add.jpg');
     background-repeat: no-repeat;
     background-size: 100%;
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    vertical-align: middle;
-    background-position: 50% 50%;
-    float: right;
-}
-
-#ActionRemindersRefreshButton {
-    background-image: url('images/refresh.jpg');
-    background-repeat: no-repeat;
-    background-size: 100%;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     display: inline-block;
     vertical-align: middle;
     background-position: 50% 50%;
