@@ -22,9 +22,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr;
 import com.atlassian.jira.bc.issue.IssueService;
+import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.issue.IssueInputParameters;
+import com.atlassian.jira.issue.resolution.Resolution;
 import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.mail.Email;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -46,13 +48,15 @@ import java.util.Set;
  *
  * @author prasadve
  */
-public class ActionRemindersUtil {
+public final class ActionRemindersUtil {
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersUtil.class);
     
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static ActionRemindersUtil remindUtils = null;    
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");    
+    private static ActionRemindersUtil remindUtils = null;
+    private static String defaultResolution = "1";
     private final ProjectManager projectManager = ComponentAccessor.getProjectManager();
-    private final IssueService issueService = ComponentAccessor.getIssueService();    
+    private final IssueService issueService = ComponentAccessor.getIssueService();
+    private final ConstantsManager constantsManager = ComponentAccessor.getConstantsManager();
     private final ProjectRoleManager projectRoleManager = ComponentAccessor.getComponentOfType(ProjectRoleManager.class);
     private final WorkflowManager workflowManager = ComponentAccessor.getWorkflowManager();
     private final IssueWorkflowManager issueWorkflowManager = ComponentAccessor.getComponentOfType(IssueWorkflowManager.class);    
@@ -67,6 +71,7 @@ public class ActionRemindersUtil {
     private final ActionRemindersAOMgr remindActionsDAO;
     public ActionRemindersUtil() {
         remindActionsDAO = ComponentAccessor.getOSGiComponentInstanceOfType(ActionRemindersAOMgr.class);
+        defaultResolution = getResolutionId();
     }
     
     public static ActionRemindersUtil getInstance() {
@@ -163,8 +168,8 @@ public class ActionRemindersUtil {
                                 LOGGER.info("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
                                 is_action_exists = true;
                                 IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
-                                issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
-                                issueInputParameters.setResolutionId("10000");
+                                issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);                                                                
+                                issueInputParameters.setResolutionId(defaultResolution);
                                 issueInputParameters.setComment(map.getMessage());
 
                                 IssueService.TransitionValidationResult validation = issueService.validateTransition(runAppUser, issue.getId(), 
@@ -205,6 +210,14 @@ public class ActionRemindersUtil {
         catch(SearchException e) {
             LOGGER.error(e.getLocalizedMessage());
         }                
+    }
+    
+    public String getResolutionId() {
+        Collection<Resolution> resolutions = constantsManager.getResolutions();
+        for(Resolution r : resolutions){
+            return r.getId();
+        }
+        return "1";
     }
     
     public void sendReminders(ActionRemindersBean map, Issue issue, ApplicationUser runUser) {
