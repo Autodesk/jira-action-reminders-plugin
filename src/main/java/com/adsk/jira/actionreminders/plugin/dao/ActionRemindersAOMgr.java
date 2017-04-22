@@ -17,6 +17,7 @@ public interface ActionRemindersAOMgr {
     public ActiveObjects getActiveObjects();
     public List<ActionRemindersBean> getActiveActionReminders();
     public List<ActionRemindersBean> getAllActionReminders();
+    public List<ActionRemindersBean> getAllActionRemindersByProject(long projectId);
     public void addActionReminders(ActionRemindersBean configBean);
     public void updateActionReminders(ActionRemindersBean configBean);
     public boolean findActionReminders(ActionRemindersBean configBean);

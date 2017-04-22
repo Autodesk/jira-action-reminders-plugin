@@ -26,8 +26,6 @@ import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.issue.IssueInputParameters;
 import com.atlassian.jira.issue.IssueManager;
-import com.atlassian.jira.issue.MutableIssue;
-import com.atlassian.jira.issue.comments.CommentManager;
 import com.atlassian.jira.issue.watchers.WatcherManager;
 import com.atlassian.jira.mail.Email;
 import com.atlassian.jira.security.groups.GroupManager;
@@ -36,7 +34,6 @@ import com.atlassian.jira.security.roles.ProjectRoleActors;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
-import com.atlassian.jira.workflow.WorkflowTransitionUtil;
 import com.atlassian.mail.MailException;
 import com.atlassian.mail.server.SMTPMailServer;
 import java.text.MessageFormat;
@@ -52,10 +49,10 @@ import java.util.Set;
  */
 public class ActionRemindersUtil {
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersUtil.class);
+    
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    private static ActionRemindersUtil remindUtils = null;        
+    private static ActionRemindersUtil remindUtils = null;    
     private final ProjectManager projectManager = ComponentAccessor.getProjectManager();
-    private final IssueManager issueManager = ComponentAccessor.getIssueManager();
     private final IssueService issueService = ComponentAccessor.getIssueService();    
     private final ProjectRoleManager projectRoleManager = ComponentAccessor.getComponentOfType(ProjectRoleManager.class);
     private final WorkflowManager workflowManager = ComponentAccessor.getWorkflowManager();
@@ -67,6 +64,7 @@ public class ActionRemindersUtil {
     private final WatcherManager watcherManager = ComponentAccessor.getWatcherManager();
     private final String BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"   
     private final SearchService searchService = ComponentAccessor.getComponent(SearchService.class);
+    
     private final ActionRemindersAOMgr remindActionsDAO;
     public ActionRemindersUtil() {
         remindActionsDAO = ComponentAccessor.getOSGiComponentInstanceOfType(ActionRemindersAOMgr.class);
@@ -111,6 +109,15 @@ public class ActionRemindersUtil {
             return;
         }
         
+        if(map.getExecCount() == 1) {
+            if(map.getLastRun() != null) {
+                if(getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
+                    LOGGER.debug("+++Last execution run date time is SAME DAY i.e. "+ map.getLastRun().toString());
+                    return;
+                }
+            }
+        }
+        
         boolean is_issue_action = false;
         if(map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
             is_issue_action = true;
@@ -128,16 +135,15 @@ public class ActionRemindersUtil {
                 
                 for(Issue issue : searchResults.getIssues()) {
                     LOGGER.debug("processing issue -> "+ issue.getKey());
-                    
-                    if(is_issue_action == true) { // Transition Action
-                        MutableIssue mutableIssue = issueManager.getIssueByCurrentKey(issue.getKey());
+                                        
+                    if(is_issue_action == true) { // Transition Action                        
                         LOGGER.debug("processing transition action -> "+ map.getIssueAction());                                                
                         
                         Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
                         for(ActionDescriptor actionDescriptor : ActionDescriptors) {
                             
                             if(actionDescriptor.getName().equalsIgnoreCase(map.getIssueAction())) {
-                                LOGGER.info(" ** XX *** "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId());
+                                LOGGER.info("action - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId());
                                 
                                 if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {                                    
                                     IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
@@ -169,25 +175,10 @@ public class ActionRemindersUtil {
                             }
                         }
                     
-                    } else {                        
-                        if(map.getExecCount() == 1) {
-                            if(map.getLastRun() != null) {
-                                LOGGER.debug("Last execution run date time - "+ map.getLastRun().toString());
-                                if(!getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
-                                //if (!DateUtils.isSameDay(map.getLastRun(), new Date())) {
-                                    LOGGER.debug("Last execution run date time not SAME DAY i.e. "+ (new Date()).toString());
-                                    processReminderEmail(map, issue);
-                                } else {
-                                    LOGGER.debug("Last execution run date time is SAME DAY i.e. "+ (new Date()).toString());
-                                }
-                            } else {
-                                LOGGER.debug("Last execution run date is null so sending now.");
-                                processReminderEmail(map, issue);
-                            }
-                        } else {
-                            LOGGER.debug("Execution count is 0 so sending now.");
-                            processReminderEmail(map, issue); // Remind or re-notify
-                        }
+                    } else {
+                        
+                        LOGGER.debug("Execution count is 0 so sending now.");
+                        sendReminders(map, issue, runAppUser); // Remind or re-notify
                     }
                     
                     remindActionsDAO.setActionRemindersLastRun(map.getMapId()); // set last run
@@ -196,17 +187,14 @@ public class ActionRemindersUtil {
         }
         catch(SearchException e) {
             LOGGER.error(e.getLocalizedMessage());
-        }
-        
-        //return issues;
+        }                
     }
     
-    public void processReminderEmail(ActionRemindersBean map, Issue issue) {
+    public void sendReminders(ActionRemindersBean map, Issue issue, ApplicationUser runUser) {
         String subject = MessageFormat.format("({0}) {1}", issue.getKey(), issue.getSummary());
         String issueLink = MessageFormat.format("{0}/browse/{1}", BaseUrl, issue.getKey());
-        String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);
-        ApplicationUser user = userManager.getUserByName(map.getRunAuthor());
-        String ccfrom = user != null ? user.getEmailAddress() : "";
+        String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);        
+        String ccfrom = runUser != null ? runUser.getEmailAddress() : "";
         Set<String> emailAddrs = new HashSet<String>();
         
         if(map.isNotifyAssignee()) {
@@ -234,7 +222,6 @@ public class ActionRemindersUtil {
         }
         
         LOGGER.debug("Total email users size - "+ emailAddrs.size());
-        LOGGER.debug("Executions count size - "+ map.getExecCount());
         
         for(String email : emailAddrs) {
             sendMail(email, subject, body, ccfrom);
@@ -243,10 +230,14 @@ public class ActionRemindersUtil {
     
     public Set<String> getGroupUsers(String group) {
         Set<String> users = new HashSet<String>();
-        Collection<ApplicationUser> groupUsers = groupManager.getUsersInGroup(group);
-        LOGGER.debug("Group users size - "+ group +" : "+ groupUsers.size());
-        for(ApplicationUser au : groupUsers){
-            users.add(au.getEmailAddress());
+        if(!"jira-administrators".equalsIgnoreCase(group) && !"jira-developers".equalsIgnoreCase(group) && !"jira-users".equalsIgnoreCase(group)) {
+            Collection<ApplicationUser> groupUsers = groupManager.getUsersInGroup(group);
+            LOGGER.debug("Group users size - "+ group +" : "+ groupUsers.size());
+            for(ApplicationUser au : groupUsers){
+                users.add(au.getEmailAddress());
+            }
+        }else{
+            LOGGER.warn(group +" - Default jira groups are not supported!");
         }
         return users;
     }
@@ -260,6 +251,7 @@ public class ActionRemindersUtil {
         }
         return null;
     }
+    
     public Set<String> getRoleUsers(long projectId, String projectRole) {                         
         Set<String> users = new HashSet<String>();
         if(!"ADMINISTRATORS".equalsIgnoreCase(projectRole) && !"DEVELOPERS".equalsIgnoreCase(projectRole) && !"USERS".equalsIgnoreCase(projectRole)) {

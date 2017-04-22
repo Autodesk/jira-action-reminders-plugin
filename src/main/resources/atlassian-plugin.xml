@@ -5,7 +5,7 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <param name="plugin-icon">images/pluginIcon.png</param>
         <param name="plugin-logo">images/pluginLogo.png</param>
-        <param name="configure.url">/secure/ActionRemindersConfigure.jspa</param>
+        <param name="configure.url">/secure/ActionRemindersConfig.jspa</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
@@ -18,8 +18,9 @@
         <resource type="download" name="jira-action-reminders-plugin.css" location="/css/jira-action-reminders-plugin.css"/>
         <resource type="download" name="jira-action-reminders-plugin.js" location="/js/jira-action-reminders-plugin.js"/>
         <resource type="download" name="images/" location="/images"/>
-
+        <context>atl.general</context>
         <context>jira-action-reminders-plugin</context>
+        <context>$i18n.getText("jira-action-reminders-plugin-resources.context")</context>
     </web-resource>
     
     <!-- publish our component -->
@@ -44,13 +45,15 @@
     
     <!-- Web Options panel -->
     <web-section key="jira-actionreminders-section" name="Remind Actions Plugin" location="admin_plugins_menu" i18n-name-key="jira-actionreminders.section" weight="20" application="jira">
-        <label key="jira-actionreminders.section.label" />
+         <label key="jira-actionreminders.section.label" />
+    </web-section>
+    <web-section key="jira-actionreminders-project-section" name="Remind Actions Project Plugin" location="atl.jira.proj.config" i18n-name-key="jira-actionreminders.project.section" weight="20" application="jira">        
     </web-section>
       
     <webwork1 key="jira-actionreminders-configure-action" name="Action Reminders Configure Action" i18n-name-key="jira-actionreminders-configure-action.name">
         <actions>
-          <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAction" alias="ActionRemindersConfigure">
-            <view name="success">/templates/plugin/remind_actions_configure.vm</view>
+          <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersConfigAction" alias="ActionRemindersConfig">
+            <view name="success">/templates/plugin/actionreminders_configure.vm</view>
             <view name="error">/secure/views/permissionviolation.jsp</view>
           </action>
         </actions>
@@ -58,10 +61,33 @@
     <web-item key="jira-actionreminders-confgure-item" name="Remind Actions Configure Admin" i18n-name-key="jira-actionreminders-configure-item.name"
         section="admin_plugins_menu/jira-actionreminders-section" weight="10" application="jira">
         <label key="jira-actionreminders.configure.label" />
-        <link linkId="jira-actionreminders-configure-link">/secure/ActionRemindersConfigure.jspa</link>
+        <link linkId="jira-actionreminders-configure-link">/secure/ActionRemindersConfig.jspa</link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
 	    <param name="permission">admin</param>
 	</condition>
+    </web-item>
+    
+    
+    <webwork1 key="jira-actionreminders-project-configure-action" name="Action Reminders Project Configure Action" i18n-name-key="jira-actionreminders-project-configure-action.name">
+        <actions>
+          <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersProjectAction" alias="ActionRemindersProjectConfig">
+            <view name="success">/templates/plugin/actionreminders_configure_project.vm</view>
+            <view name="error">/secure/views/permissionviolation.jsp</view>
+          </action>
+        </actions>
+    </webwork1>
+    <web-item key="jira-actionreminders-project-confgure-item" name="Remind Actions Project Configure Admin" i18n-name-key="jira-actionreminders-project-configure-item.name"
+        section="atl.jira.proj.config/jira-actionreminders-project-section" weight="10" application="jira">
+        <label key="jira-actionreminders.project.configure.label" />
+        <link linkId="jira-actionreminders-project-configure-link">/secure/ActionRemindersProjectConfig.jspa</link>
+        <conditions type="OR">
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
+            <param name="permission">admin</param>
+        </condition>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserHasVisibleProjectsCondition">
+            <param name="permission">project</param>
+        </condition>
+        </conditions>
     </web-item>
     
 </atlassian-plugin>

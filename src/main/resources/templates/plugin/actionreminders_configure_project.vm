@@ -37,7 +37,7 @@
 </head>
 <body>
 
-<h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle"></span></h2>
+<h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle">#if ( $currentProject ) | $currentProject.name#end</span></h2>
 
 <!-- options ADD -->
 
@@ -54,7 +54,9 @@
     <option value="0">None</option>
     #if (!$projects.empty)
     #foreach($pr in $projects)
-        <option value="$pr.id">$pr.name ($pr.key)</option>
+        <option value="$pr.id"
+            #if ($pr.id == $project)selected#end
+        >$pr.name ($pr.key)</option>
     #end
     #end
     </select>
@@ -97,18 +99,18 @@
 
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
-    <div class="checkbox">
+    <!--<div class="checkbox">-->
         <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="true" />
         <label for="notifyAssignee">Notify Assignee</label>
-    </div>                                
-    <div class="checkbox">
+    <!--</div>-->                          
+    <!--<div class="checkbox">-->
         <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="true" />
         <label for="notifyReporter">Notify Reporter</label>
-    </div>                                
-    <div class="checkbox">
+    <!--</div>-->                           
+    <!--<div class="checkbox">-->
         <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="true" />
         <label for="notifyWatchers">Notify Watchers</label>
-    </div>                                
+    <!--</div>-->                        
 </fieldset>
 
 <div class="field-group">
@@ -171,8 +173,7 @@
 
 <div id="ActionRemindersDisplay">
 <table class="aui">
-    <tr><th>Mapping ID</th><th>Project</th><th>JQL Query</th><th>Issue Action</th><th>Run Author</th><th>Last Run</th>
-    <th>Executions</th><th>Active?</th><th></th></tr>
+    <tr><th>Mapping ID</th><th>Project</th><th>JQL Query</th><th>Action</th><th>Author</th><th>Last Run</th><th>Exec</th><th>Active?</th><th></th></tr>
     #foreach ($entry in $mapsList)
         <tr><td>$entry.mapId</td><td>$entry.project</td><td>$entry.query</td><td>$entry.issueAction</td>
             <td>$entry.runAuthor</td><td>$entry.lastRun</td><td>$entry.execCount</td><td>$entry.active</td>

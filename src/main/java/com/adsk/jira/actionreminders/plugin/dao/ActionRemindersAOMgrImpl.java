@@ -92,6 +92,31 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         }
         return map_lists;
     }
+    
+    @Override
+    public List<ActionRemindersBean> getAllActionRemindersByProject(long projectId) {
+        List<ActionRemindersBean> map_lists = new ArrayList<ActionRemindersBean>();
+        for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select()
+                .where("PROJECT = ?", projectId).order("ID DESC"))) {
+            ActionRemindersBean bean = new ActionRemindersBean();
+            bean.setMapId(map.getID());
+            bean.setProject(map.getProject());
+            bean.setQuery(map.getQuery());
+            bean.setIssueAction(map.getIssueAction());           
+            bean.setRunAuthor(map.getRunAuthor());
+            bean.setLastRun(map.getLastRun());
+            bean.setExecCount(map.getExecCount());
+            bean.setNotifyAssignee(map.getNotifyAssignee());
+            bean.setNotifyReporter(map.getNotifyReporter());
+            bean.setNotifyWatchers(map.getNotifyWatchers());
+            bean.setNotifyProjectrole(map.getNotifyProjectrole());
+            bean.setNotifyGroup(map.getNotifyGroup());
+            bean.setMessage(map.getMessage());
+            bean.setActive(map.getActive());
+            map_lists.add(bean);
+        }
+        return map_lists;
+    }
 
     @Override
     public void addActionReminders(ActionRemindersBean configBean) {
