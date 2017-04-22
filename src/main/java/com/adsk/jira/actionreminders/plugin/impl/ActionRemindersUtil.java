@@ -156,39 +156,40 @@ public class ActionRemindersUtil {
                         LOGGER.debug("processing transition action -> "+ map.getIssueAction());                                                
                         
                         Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
-                        for(ActionDescriptor actionDescriptor : ActionDescriptors) {
-                            
-                            if(actionDescriptor.getName().equalsIgnoreCase(map.getIssueAction())) {
-                                LOGGER.info("action - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId());
-                                
-                                if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {                                    
-                                    IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
-                                    issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
-                                    issueInputParameters.setResolutionId("10000");
-                                    issueInputParameters.setComment(map.getMessage());
-                                    
-                                    IssueService.TransitionValidationResult validation = issueService.validateTransition(runAppUser, issue.getId(), 
-                                            actionDescriptor.getId(), issueInputParameters);                                                                        
-                                    
-                                    if (validation.isValid()) {
-                                        IssueService.IssueResult issueResult = issueService.transition(runAppUser, validation);
-                                        if (issueResult.isValid()) {
-                                            LOGGER.debug("Transition successful.");
-                                            for(String e : issueResult.getErrorCollection().getErrorMessages()) {
-                                                LOGGER.debug(e);
-                                            }
-                                        }
-                                    } else {
-                                        LOGGER.debug("Transition validation errors: ");
-                                        for(String e : validation.getErrorCollection().getErrorMessages()) {
+                        boolean is_action_exists = false;
+                        
+                        for(ActionDescriptor actionDescriptor : ActionDescriptors) {                            
+                            if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {
+                                LOGGER.info("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
+                                is_action_exists = true;
+                                IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
+                                issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);
+                                issueInputParameters.setResolutionId("10000");
+                                issueInputParameters.setComment(map.getMessage());
+
+                                IssueService.TransitionValidationResult validation = issueService.validateTransition(runAppUser, issue.getId(), 
+                                        actionDescriptor.getId(), issueInputParameters);                                                                        
+
+                                if (validation.isValid()) {
+                                    IssueService.IssueResult issueResult = issueService.transition(runAppUser, validation);
+                                    if (issueResult.isValid()) {
+                                        LOGGER.debug("Transition successful.");
+                                        for(String e : issueResult.getErrorCollection().getErrorMessages()) {
                                             LOGGER.debug(e);
                                         }
-                                    }                                   
-                                    
+                                    }
                                 } else {
-                                    LOGGER.debug("Transition action is not valid - "+ map.getIssueAction());
+                                    LOGGER.debug("Transition validation errors: ");
+                                    for(String e : validation.getErrorCollection().getErrorMessages()) {
+                                        LOGGER.debug(e);
+                                    }
                                 }
-                            }
+                                break;
+                            }                            
+                        }
+                        
+                        if( is_action_exists == false ) {    
+                            LOGGER.debug("Transition action is not valid - "+ map.getIssueAction());
                         }
                     
                     } else {
