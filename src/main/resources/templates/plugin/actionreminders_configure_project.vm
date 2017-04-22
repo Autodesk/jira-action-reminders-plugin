@@ -8,6 +8,21 @@
     <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />    
     <meta name="project" content="$textutils.htmlEncode($action.project)"/>    
     <script>
+        AJS.$(document).ready(function(){
+            AJS.$("#ActionRemindersAddButton").click(function(){
+                AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+                AJS.$("#ActionRemindersAddEdit").stop().hide().slideToggle();
+                AJS.$("#ActionRemindersTitle").text("");
+                AJS.$("#ActionRemindersDelRun").stop().hide();
+            });
+
+            AJS.$("#ActionRemindersRefreshButton").click(function(){
+                AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+                AJS.$("#ActionRemindersDelRunFrom").trigger("reset");
+                location.reload();                
+            });
+        });
+
         function prepareEdit(mapId, project, query, issueAction, runAuthor, lastRun, execCount, 
             notifyAssignee, notifyReporter, notifyWatchers, role, group, message, active) {
             //alert(notifyAssignee +","+ notifyReporter+","+ notifyWatchers);
@@ -32,13 +47,13 @@
             AJS.$("#ActionRemindersTitle").text(" | Edit Mapping ID #"+mapId);
             location.hash = "#ActionRemindersAddEdit";
         }
-
+        
         function prepareAdd() {
             AJS.$("#ActionRemindersAddEditForm").trigger("reset");
-            AJS.$("#ActionRemindersAddEdit").stop().slideToggle();
+            AJS.$("#ActionRemindersAddEdit").stop().show();
             AJS.$("#ActionRemindersDelRun").stop().hide();            
         }
-        
+
         function prepareDelete(mapId) {
             AJS.$("#ActionRemindersAddEdit").stop().hide();
             AJS.$("#ActionRemindersDelRun").stop().show();
@@ -68,17 +83,15 @@
 </head>
 <body>
 
+<a href="#" id="ActionRemindersAddButton" title="Add Action Reminder"></a>  <a href="#" id="ActionRemindersRefreshButton" title="Refresh or reload Action Reminders"></a>
+
 <h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle"></span></h2>
-
-
-<!-- Icons -->
-<a href="#" id="ActionRemindersAddButton" title="Add Action Reminder" onClick="prepareAdd()"></a>
 
 
 <!-- Add or Edit Form -->
 
 <div id="ActionRemindersAddEdit" style="display: none">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersConfig.jspa" >
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa" >
 <input type="hidden" id="mapId" name="mapId" class="text" value="0" />
 <input type="hidden" id="project" name="project" class="text" value="$!project" />
 <!--<div class="field-group">
@@ -187,7 +200,7 @@
 
 <!-- Delete or Run Mapping ID -->
 <div id="ActionRemindersDelRun" style="display: none">
-<form id="ActionRemindersDelRunForm" class="aui" method="post" action="ActionRemindersConfig.jspa" >
+<form id="ActionRemindersDelRunForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa" >
 <div class="field-group">
     <label for="mapId">
         $i18n.getText("jira-action-reminders.option.map_id.label"):

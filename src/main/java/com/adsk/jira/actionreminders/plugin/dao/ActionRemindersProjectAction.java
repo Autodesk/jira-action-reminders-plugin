@@ -5,15 +5,11 @@ import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.user.UserProjectHistoryManager;
-import com.atlassian.jira.web.ExecutingHttpRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
@@ -25,26 +21,23 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersConfigAction.class);    
     private final ActionRemindersAOMgr remindActionsMgr;
     private final JiraAuthenticationContext jiraAuthenticationContext;
-    private final UserProjectHistoryManager userProjectHistoryManager;
     private final ActionRemindersBean configBean = new ActionRemindersBean();  
     public static final TextUtils textUtils = new TextUtils();
     private String submitted;
     private String status;
     
-    public ActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, JiraAuthenticationContext jiraAuthenticationContext,
-            UserProjectHistoryManager userProjectHistoryManager) {
+    public ActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, JiraAuthenticationContext jiraAuthenticationContext) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
-        this.userProjectHistoryManager = userProjectHistoryManager;
         this.remindActionsMgr = remindActionsMgr;
     }
         
     @Override
     public String doExecute() throws Exception {
         Project projectObj = getProjectManager().getProjectObj(configBean.getProject());
-        HttpServletRequest request = ExecutingHttpRequest.get();
+        /*HttpServletRequest request = ExecutingHttpRequest.get();
         request.setAttribute((new StringBuilder())
             .append("com.atlassian.jira.projectconfig.util.ServletRequestProjectConfigRequestCache")
-            .append(":project").toString(), projectObj);
+            .append(":project").toString(), projectObj);*/
         
         if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, projectObj) ) {
             return "error";
@@ -116,10 +109,6 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
 
     public void setActive(boolean active) {
         configBean.setActive(active);
-    }
-    
-    public Project getCurrentProject() {
-        return userProjectHistoryManager.getCurrentProject(Permissions.BROWSE, jiraAuthenticationContext.getLoggedInUser());
     }
     
     public long getProject() {        

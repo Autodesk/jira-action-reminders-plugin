@@ -4,8 +4,21 @@
     background-size: 100%;
     width: 18px;
     height: 18px;
-    display: inline-block;
+    display: inline;
     vertical-align: middle;
     background-position: 50% 50%;
     float: right;
+}
+
+#ActionRemindersRefreshButton {
+    background-image: url('images/re.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 18px;
+    height: 18px;
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+    margin-right: 10px;
 }
