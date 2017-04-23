@@ -46,15 +46,15 @@ public class ActionRemindersResource {
     
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/map")
+    @Path("/config")
     public Response runActionReminder(ActionRemindersRun actionRemindersRun) {
-        LOGGER.debug("running action reminder - "+actionRemindersRun.getMapId());
+        LOGGER.debug("running action reminder - "+actionRemindersRun.getId());
         
         //message object
         MessageBean messageBean = new MessageBean();
         
         //check required paramaters
-        if( actionRemindersRun.getMapId() == 0 ) {
+        if( actionRemindersRun.getId() == 0 ) {
             messageBean.setMessage("[Error] Required mapId number field is missing.");
             return Response.status(Response.Status.BAD_REQUEST).entity(messageBean).build();
         }
@@ -63,12 +63,12 @@ public class ActionRemindersResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(messageBean).build();
         }
         
-        ActionRemindersBean actionReminder = aremindersao.getActionReminderById(actionRemindersRun.getMapId());
+        ActionRemindersBean actionReminder = aremindersao.getActionReminderById(actionRemindersRun.getId());
         
         //check project permissions 
         ApplicationUser loggedInAppUser = jiraAuthenticationContext.getLoggedInUser();
-        Project project = projectManager.getProjectObj(actionRemindersRun.getMapId());
-        if(project != null) {
+        Project project = projectManager.getProjectObj(actionReminder.getProject());
+        if( project != null ) {
             if( permissionManager.hasPermission(ProjectPermissions.ADMINISTER_PROJECTS, project, loggedInAppUser) == false ) {
                 messageBean.setMessage("[Error] Permission denied. Project access is required.");
                 return Response.status(Response.Status.FORBIDDEN).entity(messageBean).build();
@@ -81,7 +81,7 @@ public class ActionRemindersResource {
         ActionRemindersUtil.getInstance().process(actionReminder, 
                 actionRemindersRun.isReminders(), actionRemindersRun.isActions());
         
-        messageBean.setMessage("triggered");
+        messageBean.setMessage("successful.");
         messageBean.setStatus(1);
         
         return Response.ok(messageBean).build();

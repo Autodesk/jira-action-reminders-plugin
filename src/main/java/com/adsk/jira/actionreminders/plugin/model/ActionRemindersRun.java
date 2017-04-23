@@ -16,19 +16,19 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @JsonAutoDetect
 public class ActionRemindersRun {
     @JsonProperty
-    private long mapId;
+    private long id;
     @JsonProperty
     private boolean actions;
     @JsonProperty
     private boolean reminders;
 
-    public long getMapId() {
-        return mapId;
+    public long getId() {
+        return id;
     }
 
-    public void setMapId(long mapId) {
-        this.mapId = mapId;
-    }
+    public void setId(long id) {
+        this.id = id;
+    }    
 
     public boolean isActions() {
         return actions;
