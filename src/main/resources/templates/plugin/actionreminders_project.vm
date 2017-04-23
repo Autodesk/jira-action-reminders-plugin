@@ -14,7 +14,6 @@
                 if ( show == true) {
                     AJS.$("#ActionRemindersAddEditForm").trigger("reset");
                     AJS.$("#ActionRemindersAddEdit").stop().slideDown();
-                    AJS.$("#ActionRemindersTitle").text("");
                     AJS.$("#ActionRemindersDel").stop().slideUp();
                     AJS.$("#ActionRemindersRun").stop().slideUp();
                     show = false;
@@ -25,11 +24,11 @@
             });
 
             AJS.$("#ActionRemindersRefreshButton").click(function(){
-                AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+                /*AJS.$("#ActionRemindersAddEditForm").trigger("reset");
                 AJS.$("#ActionRemindersDelFrom").trigger("reset");
                 AJS.$("#ActionRemindersRunFrom").trigger("reset");
-                #set( $status = "" )
-                location.reload();                
+                #set( $status = "" )*/
+                window.open("/secure/ActionRemindersProjectConfig.jspa?project=$project","_self");
             });
         });
 
@@ -55,7 +54,6 @@
             AJS.$("#ActionRemindersAddEditForm textarea[name='message']").val(message);
             AJS.$("#ActionRemindersAddEditForm select[name='active']").val(active);
             AJS.$("#ActionRemindersAddEditForm input[name='submitted']").val("SAVE");
-            AJS.$("#ActionRemindersTitle").text(" | Edit Mapping ID #"+mapId);
             location.hash = "#ActionRemindersAddEdit";
         }
         
@@ -72,7 +70,6 @@
             AJS.$("#ActionRemindersRun").stop().slideUp();            
             
             AJS.$("#ActionRemindersDelForm input[name='mapId']").val(mapId);
-            AJS.$("#ActionRemindersTitle").text(" | Deleting Mapping ID #"+mapId);
             location.hash = "#ActionRemindersDel";
         }
 
@@ -82,7 +79,6 @@
             AJS.$("#ActionRemindersDel").stop().slideUp();            
             
             AJS.$("#ActionRemindersRunForm input[name='mapId']").val(mapId);
-            AJS.$("#ActionRemindersTitle").text(" | Running Mapping ID #"+mapId);
             location.hash = "#ActionRemindersRun";
         }
 
@@ -97,13 +93,13 @@
 
 <a href="#" id="ActionRemindersAddButton" title="Add Action Reminder"></a>  <a href="#" id="ActionRemindersRefreshButton" title="Refresh or reload Action Reminders"></a>
 
-<h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle"></span></h2>
+<h2>$i18n.getText("jira-action-reminders.option.label")#if($projectName) | $projectName#end</h2>
 
 
 <!-- Add or Edit Form -->
 
 <div id="ActionRemindersAddEdit" style="display: none">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa" >
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?project=$project" >
 <input type="hidden" id="mapId" name="mapId" class="text" value="0" />
 <input type="hidden" id="project" name="project" class="text" value="$!project" />
 <!--<div class="field-group">
@@ -212,7 +208,7 @@
 
 <!-- Delete form with Mapping ID -->
 <div id="ActionRemindersDel" style="display: none">
-<form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa" >
+<form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?project=$project" >
 <div class="field-group">
     <label for="mapId">
         $i18n.getText("jira-action-reminders.option.map_id.label"):
@@ -228,7 +224,7 @@
 
 <!-- Run form with Mapping ID -->
 <div id="ActionRemindersRun" style="display: none">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa" >
+<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?project=$project" >
 <div class="field-group">
     <label for="mapId">
         $i18n.getText("jira-action-reminders.option.map_id.label"):
@@ -239,11 +235,11 @@
 <fieldset class="group">
     <legend><span>Options:</span></legend>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="emailReminders" id="emailReminders" value="true" checked/>
+        <input class="checkbox" type="checkbox" name="reminders" id="reminders" value="true" checked/>
         <label for="emailReminder">Reminders</label>
     </div>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="issueActions" id="issueActions" value="true" />
+        <input class="checkbox" type="checkbox" name="actions" id="actions" value="true" />
         <label for="issueActions">Actions</label>
     </div>    
 </fieldset>

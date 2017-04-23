@@ -5,11 +5,13 @@ import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.web.ExecutingHttpRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
@@ -34,10 +36,15 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     @Override
     public String doExecute() throws Exception {
         Project projectObj = getProjectManager().getProjectObj(configBean.getProject());
-        /*HttpServletRequest request = ExecutingHttpRequest.get();
+        if(projectObj == null) {
+            return "error";
+        }
+        configBean.setProjectName(projectObj.getName());
+        
+        HttpServletRequest request = ExecutingHttpRequest.get();
         request.setAttribute((new StringBuilder())
             .append("com.atlassian.jira.projectconfig.util.ServletRequestProjectConfigRequestCache")
-            .append(":project").toString(), projectObj);*/
+            .append(":project").toString(), projectObj);
         
         if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, projectObj) ) {
             return "error";
@@ -118,6 +125,10 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
 
     public void setProject(long project) {        
         configBean.setProject(project);
+    }
+    
+    public String getProjectName() {        
+        return configBean.getProjectName();
     }
 
     public String getQuery() {
