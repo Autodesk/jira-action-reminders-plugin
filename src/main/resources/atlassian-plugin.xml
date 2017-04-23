@@ -29,7 +29,12 @@
     <component-import key="userManager" i18n-name-key="userManager.name">
           <description key="userManager.description" />
           <interface>com.atlassian.sal.api.user.UserManager</interface>
-     </component-import>
+    </component-import>
+     
+    <!-- Rest API --> 
+    <rest key="jira-actionreminders-rest-resource" name="jira-actionreminders-rest-resource" i18n-name-key="jira-actionreminders-rest-resource.name" 
+        path="/actionreminders" version="1.0">
+    </rest>
     
     <!-- Active Objects -->
     <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects">
@@ -67,7 +72,7 @@
     <webwork1 key="jira-actionreminders-project-configure-action" name="Action Reminders Project Configure Action" i18n-name-key="jira-actionreminders-project-configure-action.name">
         <actions>
           <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersProjectAction" alias="ActionRemindersProjectConfig">
-            <view name="success">/templates/plugin/actionreminders_configure_project.vm</view>
+            <view name="success">/templates/plugin/actionreminders_project.vm</view>
             <view name="error">/secure/views/permissionviolation.jsp</view>
           </action>
         </actions>

@@ -18,6 +18,8 @@ public class ActionRemindersBean {
     private String notifyGroup;
     private String message;
     private boolean active;
+    private boolean reminders;
+    private boolean actions;
     
     public long getMapId() {
         return mapId;
@@ -137,5 +139,21 @@ public class ActionRemindersBean {
 
     public void setMessage(String message) {
         this.message = message;
-    }        
+    }
+
+    public boolean isReminders() {
+        return reminders;
+    }
+
+    public void setReminders(boolean reminders) {
+        this.reminders = reminders;
+    }
+
+    public boolean isActions() {
+        return actions;
+    }
+
+    public void setActions(boolean actions) {
+        this.actions = actions;
+    }
 }

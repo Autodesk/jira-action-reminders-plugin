@@ -89,35 +89,53 @@ public final class ActionRemindersUtil {
        return projectManager.getProjects();
     }
     
-    public void run() {
+    public void run(boolean reminders, boolean actions) {
         long startTime = System.currentTimeMillis();
         LOGGER.debug("Running service now....");
         
         List<ActionRemindersBean> remindActionList = remindActionsDAO.getActiveActionReminders();        
         for(ActionRemindersBean map : remindActionList) {
             LOGGER.debug("Processing original query -> "+ map.getQuery());
-            process(map);
+            process(map, reminders, actions);
         }
         
         long totalTime = System.currentTimeMillis() - startTime;
         LOGGER.info("Service Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
-    public void run(long mapId) {
-        long startTime = System.currentTimeMillis();
+    public void run(long mapId, boolean reminders, boolean actions) {
         LOGGER.debug("Running map Id: "+ mapId);
         
-        ActionRemindersBean remindAction = remindActionsDAO.getActiveActionReminderById(mapId);        
+        ActionRemindersBean remindAction = remindActionsDAO.getActionReminderById(mapId);        
         if(remindAction != null) {
             LOGGER.debug("Processing original query -> "+ remindAction.getQuery());
-            process(remindAction);
+            process(remindAction, reminders, actions);
         }
-        
-        long totalTime = System.currentTimeMillis() - startTime;
-        LOGGER.info("Service Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
-    public void process(ActionRemindersBean map) {       
+    public void process(ActionRemindersBean map, boolean reminders, boolean actions) {
+        if(reminders == false && actions == false) {
+            LOGGER.debug(map.getMapId()+" - Both reminders and actions are set false. Skipping!");
+            return;
+        }
+        
+        boolean is_issue_action = false;
+        if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
+            is_issue_action = true;
+        }else if(reminders == false && is_issue_action == false){
+            LOGGER.debug(map.getMapId()+" - Both reminders and actions are set false. Skipping!");
+            return;
+        }        
+        
+        if(map.getExecCount() == 1) {
+            if(map.getLastRun() != null) {
+                if(getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
+                    LOGGER.debug("+++Last execution run date time is SAME DAY i.e. "+ map.getLastRun().toString());
+                    return;
+                }
+            }
+        }                
+        
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){
             LOGGER.debug(map.getRunAuthor()+" - Run Author is Null/not exists!");
@@ -130,19 +148,8 @@ public final class ActionRemindersUtil {
             return;
         }
         
-        if(map.getExecCount() == 1) {
-            if(map.getLastRun() != null) {
-                if(getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
-                    LOGGER.debug("+++Last execution run date time is SAME DAY i.e. "+ map.getLastRun().toString());
-                    return;
-                }
-            }
-        }
         
-        boolean is_issue_action = false;
-        if(map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
-            is_issue_action = true;
-        }
+        long startTime = System.currentTimeMillis();
         
         try {
             String secureQuery = MessageFormat.format("project = {0} AND {1}", projectObj.getKey(), map.getQuery());
@@ -200,7 +207,9 @@ public final class ActionRemindersUtil {
                     } else {
                         
                         LOGGER.debug("Execution count is 0 so sending now.");
-                        sendReminders(map, issue, runAppUser); // Remind or re-notify
+                        if( reminders ) { // Remind or re-notify
+                            sendReminders(map, issue, runAppUser);
+                        }
                     }
                     
                     remindActionsDAO.setActionRemindersLastRun(map.getMapId()); // set last run
@@ -209,7 +218,10 @@ public final class ActionRemindersUtil {
         }
         catch(SearchException e) {
             LOGGER.error(e.getLocalizedMessage());
-        }                
+        }
+        
+        long totalTime = System.currentTimeMillis() - startTime;
+        LOGGER.info("Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
     public String getResolutionId() {

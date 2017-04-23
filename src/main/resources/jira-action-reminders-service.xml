@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<root id="ActionRemindersService0001">
+    <description>Action Reminders for JIRA Service</description>
+    <properties>
+        <property>
+            <key>enable_reminders</key>
+            <name>Reminders</name>
+            <type>select</type>
+            <values>
+                <value>
+                    <key>true</key>
+                    <value>TRUE</value>
+                </value>
+                <value>
+                    <key>false</key>
+                    <value>FALSE</value>
+                </value>
+            </values>
+        </property>
+        <property>
+            <key>enable_actions</key>
+            <name>Actions</name>
+            <type>select</type>
+            <values>
+                <value>
+                    <key>true</key>
+                    <value>TRUE</value>
+                </value>
+                <value>
+                    <key>false</key>
+                    <value>FALSE</value>
+                </value>
+            </values>
+        </property>       
+    </properties>
+</root>

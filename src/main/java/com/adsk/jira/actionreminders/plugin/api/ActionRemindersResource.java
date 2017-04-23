@@ -5,10 +5,85 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
+import com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr;
+import com.adsk.jira.actionreminders.plugin.impl.ActionRemindersUtil;
+import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
+import com.adsk.jira.actionreminders.plugin.model.ActionRemindersRun;
+import com.adsk.jira.actionreminders.plugin.model.MessageBean;
+import com.atlassian.jira.permission.ProjectPermissions;
+import com.atlassian.jira.project.Project;
+import com.atlassian.jira.project.ProjectManager;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.user.ApplicationUser;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.log4j.Logger;
+
 /**
  *
  * @author prasadve
  */
+
+@Path("/run")
 public class ActionRemindersResource {
+    private static final Logger LOGGER = Logger.getLogger(ActionRemindersResource.class);    
+    private final JiraAuthenticationContext jiraAuthenticationContext;
+    private final PermissionManager permissionManager;
+    private final ProjectManager projectManager;
+    private final ActionRemindersAOMgr aremindersao;
     
+    public ActionRemindersResource(JiraAuthenticationContext jiraAuthenticationContext, PermissionManager permissionManager, 
+            ProjectManager projectManager, ActionRemindersAOMgr aremindersao) {
+        this.jiraAuthenticationContext = jiraAuthenticationContext;
+        this.permissionManager = permissionManager;
+        this.projectManager = projectManager;
+        this.aremindersao = aremindersao;
+    }
+    
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/map")
+    public Response runActionReminder(ActionRemindersRun actionRemindersRun) {
+        LOGGER.debug("running action reminder - "+actionRemindersRun.getMapId());
+        
+        //message object
+        MessageBean messageBean = new MessageBean();
+        
+        //check required paramaters
+        if( actionRemindersRun.getMapId() == 0 ) {
+            messageBean.setMessage("[Error] Required mapId number field is missing.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(messageBean).build();
+        }
+        if( actionRemindersRun.isActions() == false && actionRemindersRun.isReminders() == false ) {
+            messageBean.setMessage("[Error] Required either options actions or reminders.");
+            return Response.status(Response.Status.BAD_REQUEST).entity(messageBean).build();
+        }
+        
+        ActionRemindersBean actionReminder = aremindersao.getActionReminderById(actionRemindersRun.getMapId());
+        
+        //check project permissions 
+        ApplicationUser loggedInAppUser = jiraAuthenticationContext.getLoggedInUser();
+        Project project = projectManager.getProjectObj(actionRemindersRun.getMapId());
+        if(project != null) {
+            if( permissionManager.hasPermission(ProjectPermissions.ADMINISTER_PROJECTS, project, loggedInAppUser) == false ) {
+                messageBean.setMessage("[Error] Permission denied. Project access is required.");
+                return Response.status(Response.Status.FORBIDDEN).entity(messageBean).build();
+            }
+        } else {
+            messageBean.setMessage("[Error] Permission denied. Project is invalid.");
+            return Response.status(Response.Status.FORBIDDEN).entity(messageBean).build();
+        }
+        
+        ActionRemindersUtil.getInstance().process(actionReminder, 
+                actionRemindersRun.isReminders(), actionRemindersRun.isActions());
+        
+        messageBean.setMessage("triggered");
+        messageBean.setStatus(1);
+        
+        return Response.ok(messageBean).build();
+    }
 }

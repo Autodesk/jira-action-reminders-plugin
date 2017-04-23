@@ -119,8 +119,8 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     }
     
     @Override
-    public ActionRemindersBean getActiveActionReminderById(long mapId) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ? AND ACTIVE = ?", mapId, true));
+    public ActionRemindersBean getActionReminderById(long mapId) {
+        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", mapId));
         if(maps.length > 0) {
             final ActionRemindersAO map = maps[0]; 
             ActionRemindersBean bean = new ActionRemindersBean();

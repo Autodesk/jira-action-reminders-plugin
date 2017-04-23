@@ -46,7 +46,8 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         if (this.submitted != null && "RUN".equals(this.submitted)) {
             LOGGER.debug("Running map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(configBean.getMapId() != 0) {
-                ActionRemindersUtil.getInstance().run(configBean.getMapId());
+                ActionRemindersUtil.getInstance().run(configBean.getMapId(), 
+                        configBean.isReminders(), configBean.isActions());
             }
         }        
         else if (this.submitted != null && "ADD".equals(this.submitted)) {            
@@ -203,6 +204,22 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
 
     public void setMessage(String message) {
         configBean.setMessage(message);
+    }
+    
+    public boolean isReminders() {
+        return configBean.isReminders();
+    }
+
+    public void setReminders(boolean reminders) {
+        configBean.setReminders(reminders);
+    }
+
+    public boolean isActions() {
+        return configBean.isActions();
+    }
+
+    public void setActions(boolean actions) {
+        configBean.setActions(actions);
     }
     
     
