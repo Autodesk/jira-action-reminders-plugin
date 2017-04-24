@@ -24,10 +24,8 @@
             });
 
             AJS.$("#ActionRemindersRefreshButton").click(function(){
-                /*AJS.$("#ActionRemindersAddEditForm").trigger("reset");
-                AJS.$("#ActionRemindersDelFrom").trigger("reset");
-                AJS.$("#ActionRemindersRunFrom").trigger("reset");
-                #set( $status = "" )*/
+                AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+                AJS.$("#ActionRemindersDelForm").trigger("reset");
                 window.open("/secure/ActionRemindersProjectConfig.jspa?project=$project","_self");
             });
         });
@@ -102,23 +100,6 @@
 <form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?project=$project" >
 <input type="hidden" id="mapId" name="mapId" class="text" value="0" />
 <input type="hidden" id="project" name="project" class="text" value="$!project" />
-<!--<div class="field-group">
-    <label for="project">
-        $i18n.getText("jira-action-reminders.option.project.label"):
-        <span class="aui-icon icon-required"></span>
-    </label>-->
-    <!--<input type="text" id="project" name="project" class="text" placeholder="Your Project ID" />-->
-    <!--<select id="project" name="project" class="select long-field" placeholder="Choose Project">
-    <option value="0">None</option>
-    #if (!$projects.empty)
-    #foreach($pr in $projects)
-        <option value="$pr.id"
-            #if ($pr.id == $project)selected#end
-        >$pr.name ($pr.key)</option>
-    #end
-    #end
-    </select>
-</div>-->
 <div class="field-group">
     <label for="query">
         $i18n.getText("jira-action-reminders.option.query.label"):
@@ -126,6 +107,7 @@
     </label>
     <textarea id="query" name="query" class="textfield" rows="2" cols="60" 
         placeholder="Your JQL Query here $i18n.getText('jira-action-reminders.option.query.description')"></textarea>
+    <div class="description">$i18n.getText("jira-action-reminders.option.query.description")</div>
 </div>
 <div class="field-group">
     <label for="issueAction">
@@ -143,6 +125,7 @@
     <a href="javascript:openUserPickerWindow('runAuthor');">
          <img title="Ente the user name" name="multiuserImage" src="$!requestContext.canonicalBaseUrl/images/icons/filter_public.gif" hspace="0" height="16" width="16" border="0" align="absmiddle" >
     </a>
+    <div class="description">$i18n.getText("jira-action-reminders.option.author.description")</div>
 </div>
 <div class="field-group">
     <label for="execCount">
@@ -153,6 +136,7 @@
         <option value="1">Once a day</option>
         <option value="0">Any times</option>
     </select>
+    <div class="description">$i18n.getText("jira-action-reminders.option.execcount.description")</div>
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
@@ -187,6 +171,7 @@
         <span class="aui-icon icon-required"></span>
     </label>
     <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here"></textarea>
+    <div class="description">$i18n.getText("jira-action-reminders.option.message.description")</div>
 </div>
 <div class="field-group">
     <label for="active">

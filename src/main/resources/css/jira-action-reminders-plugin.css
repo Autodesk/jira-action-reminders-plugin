@@ -22,3 +22,15 @@
     float: right;
     margin-right: 10px;
 }
+
+#ActionRemindersSearchButton {
+    background-image: url('images/search.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    width: 24px;
+    height: 24px;
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}

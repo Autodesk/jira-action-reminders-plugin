@@ -7,7 +7,7 @@
     <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />    
     <script>
         AJS.$(document).ready(function(){
-            var show = true;
+            /*var show = true;
             AJS.$("#ActionRemindersAddButton").click(function(){
                 if ( show == true) {
                     AJS.$("#ActionRemindersAddEditForm").trigger("reset");
@@ -20,14 +20,19 @@
                     $("#ActionRemindersAddEdit").stop().slideUp();
                     show = true;
                 }
-            });
+            });*/
 
             AJS.$("#ActionRemindersRefreshButton").click(function(){
                 AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+                AJS.$("#ActionRemindersDelForm").trigger("reset");
+                window.open("/secure/ActionRemindersConfig.jspa","_self");
+            });
+
+            AJS.$("#ActionRemindersSearchButton").click(function(){
+                AJS.$("#ActionRemindersAddEditForm").trigger("reset");
                 AJS.$("#ActionRemindersDelFrom").trigger("reset");
                 AJS.$("#ActionRemindersRunFrom").trigger("reset");
-                #set( $status = "" )
-                location.reload();                
+                alert("Comming soon");
             });
         });
         
@@ -57,12 +62,12 @@
             location.hash = "#ActionRemindersAddEdit";
         }
 
-        function prepareAdd() {
+        /*function prepareAdd() {
             AJS.$("#ActionRemindersAddEditForm").trigger("reset");
             AJS.$("#ActionRemindersAddEdit").stop().slideDown();
             AJS.$("#ActionRemindersDel").stop().slideUp(); 
             AJS.$("#ActionRemindersRun").stop().slideUp();
-        }
+        }*/
 
         function prepareDelete(mapId) {
             AJS.$("#ActionRemindersDel").stop().slideDown();
@@ -93,7 +98,8 @@
 </head>
 <body>
 
-<a href="#" id="ActionRemindersAddButton" title="Add Action Reminder"></a>  <a href="#" id="ActionRemindersRefreshButton" title="Refresh or reload Action Reminders"></a>
+<a href="#" id="ActionRemindersSearchButton" title="Search for Action Reminders"></a>
+<a href="#" id="ActionRemindersRefreshButton" title="Refresh or reload Action Reminders"></a>
 
 <h2>$i18n.getText("jira-action-reminders.option.label")<span id="ActionRemindersTitle"></span></h2>
 
@@ -157,18 +163,18 @@
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
-    <!--<div class="checkbox">-->
+    <div class="checkbox">
         <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="true" />
         <label for="notifyAssignee">Notify Assignee</label>
-    <!--</div>-->                          
-    <!--<div class="checkbox">-->
+    </div>
+    <div class="checkbox">
         <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="true" />
         <label for="notifyReporter">Notify Reporter</label>
-    <!--</div>-->                           
-    <!--<div class="checkbox">-->
+    </div>
+    <div class="checkbox">
         <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="true" />
         <label for="notifyWatchers">Notify Watchers</label>
-    <!--</div>-->                        
+    </div>
 </fieldset>
 <div class="field-group">
     <label for="notifyProjectrole">
@@ -223,33 +229,6 @@
 </form>
 </div>
 
-<!-- Run form with Mapping ID -->
-<div id="ActionRemindersRun" style="display: none">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersConfig.jspa" >
-<div class="field-group">
-    <label for="mapId">
-        $i18n.getText("jira-action-reminders.option.map_id.label"):
-        <span class="aui-icon icon-required"></span>
-    </label>
-    <input type="text" id="mapId" name="mapId" class="text" />
-</div>
-<fieldset class="group">
-    <legend><span>Options:</span></legend>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="emailReminders" id="emailReminders" value="true" checked/>
-        <label for="emailReminder">Reminders</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="issueActions" id="issueActions" value="true" />
-        <label for="issueActions">Actions</label>
-    </div>    
-</fieldset>
-<div class="aui-buttons">
-    <input class="aui-button" type="submit" name="submitted" value="RUN" />
-</div>
-</form>
-</div>
-
 
 <!-- config status -->
 <p id="ActionRemindersStatus" style="background-color:#E0FFFF;">$!status</p>
@@ -270,7 +249,6 @@
             '$entry.runAuthor', '$entry.lastRun', '$entry.execCount', '$entry.notifyAssignee', '$entry.notifyReporter', 
             '$entry.notifyWatchers', '$entry.notifyProjectrole', '$entry.notifyGroup', '$textutils.htmlEncode($entry.message)', '$entry.active')">Edit</button>
             <button class="aui-button" onClick="prepareDelete('$entry.mapId')">Del</button>
-            <button class="aui-button" onClick="prepareRun('$entry.mapId')">Run</button>
             </td>
         </tr>
     #end

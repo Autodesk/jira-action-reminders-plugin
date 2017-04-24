@@ -4,13 +4,9 @@ import com.adsk.jira.actionreminders.plugin.impl.ActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.GlobalPermissionKey;
 import com.atlassian.jira.project.Project;
-import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.user.UserProjectHistoryManager;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -23,17 +19,12 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersConfigAction.class);    
     private final ActionRemindersAOMgr remindActionsMgr;
-    private final JiraAuthenticationContext jiraAuthenticationContext;
-    private final UserProjectHistoryManager userProjectHistoryManager;
     private final ActionRemindersBean configBean = new ActionRemindersBean();  
     public static final TextUtils textUtils = new TextUtils();
     private String submitted;
     private String status;
     
-    public ActionRemindersConfigAction(ActionRemindersAOMgr remindActionsMgr, JiraAuthenticationContext jiraAuthenticationContext,
-            UserProjectHistoryManager userProjectHistoryManager) {
-        this.jiraAuthenticationContext = jiraAuthenticationContext;
-        this.userProjectHistoryManager = userProjectHistoryManager;
+    public ActionRemindersConfigAction(ActionRemindersAOMgr remindActionsMgr) {
         this.remindActionsMgr = remindActionsMgr;
     }
         
@@ -42,29 +33,8 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         if ( !hasGlobalPermission(GlobalPermissionKey.SYSTEM_ADMIN) ) {
             return "error";
         }
-                
-        if (this.submitted != null && "RUN".equals(this.submitted)) {
-            LOGGER.debug("Running map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(configBean.getMapId() != 0) {
-                ActionRemindersUtil.getInstance().run(configBean.getMapId(), 
-                        configBean.isReminders(), configBean.isActions());
-            }
-        }        
-        else if (this.submitted != null && "ADD".equals(this.submitted)) {            
-            LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
-            if(remindActionsMgr.findActionReminders(configBean) == false) {
-                if(configBean.getProject() != 0 && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
-                    remindActionsMgr.addActionReminders(configBean);                    
-                    status = "Added.";
-                }else{
-                    status = "Remind action fields missing!";
-                }
-            }else{
-                status = MessageFormat.format("{0} && {1} alredy exists in mapping!",
-                        configBean.getQuery(), configBean.getIssueAction());
-            }
-        }
-        else if (this.submitted != null && "SAVE".equals(this.submitted)) {            
+        
+        if (this.submitted != null && "SAVE".equals(this.submitted)) {            
             LOGGER.debug("Saving map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders2(configBean) == false) {
                 if(configBean.getMapId() != 0 && configBean.getProject() != 0 && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
@@ -112,13 +82,8 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         configBean.setActive(active);
     }
     
-    public Project getCurrentProject() {
-        return userProjectHistoryManager.getCurrentProject(Permissions.BROWSE, jiraAuthenticationContext.getLoggedInUser());
-    }
-    
     public long getProject() {        
-        return getCurrentProject().getId();
-        //return configBean.getProject();
+        return configBean.getProject();
     }
 
     public void setProject(long project) {        
@@ -134,8 +99,7 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
     }
 
     public String getRunAuthor() {        
-        return jiraAuthenticationContext.getLoggedInUser().getUsername();
-        //return configBean.getRunAuthor();
+        return configBean.getRunAuthor();
     }
 
     public void setRunAuthor(String runAuthor) {
