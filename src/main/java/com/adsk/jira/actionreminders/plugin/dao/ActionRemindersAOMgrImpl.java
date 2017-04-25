@@ -157,6 +157,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         map.setNotifyWatchers(configBean.isNotifyWatchers());
         map.setNotifyProjectrole(configBean.getNotifyProjectrole());
         map.setNotifyGroup(configBean.getNotifyGroup());
+        map.setMessage(configBean.getMessage());
         map.setActive(configBean.isActive());
         map.save();
     }
