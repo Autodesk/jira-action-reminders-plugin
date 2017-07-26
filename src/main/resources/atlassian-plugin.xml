@@ -22,8 +22,8 @@
     
     <!-- publish our component -->
     <component key="jira-actionreminders-ao-manager" name="Action Reminders AO Manager" 
-               class="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgrImpl" public="true">
-        <interface>com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr</interface>
+               class="com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgrImpl" public="true">
+        <interface>com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr</interface>
     </component>
     
     <component-import key="userManager" i18n-name-key="userManager.name">
@@ -42,13 +42,13 @@
     </component-import>
     <ao key="jira-actionreminders-ao">
       <description>AO interface for storing Remind Action Map entities</description>
-      <entity>com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAO</entity>
+      <entity>com.adsk.jira.actionreminders.plugin.model.ActionRemindersAO</entity>
     </ao>
     
     <!-- Admin Web Link -->
     <webwork1 key="jira-actionreminders-configure-action" name="Action Reminders Configure Action" i18n-name-key="jira-actionreminders-configure-action.name">
         <actions>
-          <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersConfigAction" alias="ActionRemindersConfig">
+          <action name="com.adsk.jira.actionreminders.plugin.api.ActionRemindersConfigAction" alias="ActionRemindersConfig">
             <view name="success">/templates/plugin/actionreminders_configure.vm</view>
             <view name="error">/secure/views/permissionviolation.jsp</view>
           </action>
@@ -59,7 +59,7 @@
     <web-section key="jira-actionreminders-project-section" name="Remind Actions Project Plugin" location="atl.jira.proj.config" i18n-name-key="jira-actionreminders.project.section" weight="20" application="jira"/>
     <webwork1 key="jira-actionreminders-project-configure-action" name="Action Reminders Project Configure Action" i18n-name-key="jira-actionreminders-project-configure-action.name">
         <actions>
-          <action name="com.adsk.jira.actionreminders.plugin.dao.ActionRemindersProjectAction" alias="ActionRemindersProjectConfig">
+          <action name="com.adsk.jira.actionreminders.plugin.api.ActionRemindersProjectAction" alias="ActionRemindersProjectConfig">
             <view name="success">/templates/plugin/actionreminders_project.vm</view>
             <view name="error">/secure/views/permissionviolation.jsp</view>
           </action>

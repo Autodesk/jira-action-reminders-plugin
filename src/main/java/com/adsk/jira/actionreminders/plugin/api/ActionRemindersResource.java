@@ -5,7 +5,6 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
-import com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr;
 import com.adsk.jira.actionreminders.plugin.impl.ActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersRun;

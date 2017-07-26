@@ -20,7 +20,7 @@ import com.opensymphony.workflow.loader.ActionDescriptor;
 import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
-import com.adsk.jira.actionreminders.plugin.dao.ActionRemindersAOMgr;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.config.properties.APKeys;
