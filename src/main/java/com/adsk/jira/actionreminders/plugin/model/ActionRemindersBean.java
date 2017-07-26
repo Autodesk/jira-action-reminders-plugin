@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class ActionRemindersBean {
     private long mapId;
-    private long project;
+    private String projectKey;
     private String projectName;
     private String query;
     private String issueAction;
@@ -53,13 +53,13 @@ public class ActionRemindersBean {
         this.active = active;
     }
 
-    public long getProject() {
-        return project;
+    public String getProjectKey() {
+        return projectKey;
     }
 
-    public void setProject(long project) {
-        this.project = project;
-    }
+    public void setProjectKey(String projectKey) {
+        this.projectKey = projectKey;
+    }    
 
     public String getRunAuthor() {
         return runAuthor;

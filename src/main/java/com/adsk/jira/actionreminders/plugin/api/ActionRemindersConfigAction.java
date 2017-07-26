@@ -37,7 +37,7 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         if (this.submitted != null && "SAVE".equals(this.submitted)) {            
             LOGGER.debug("Saving map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders2(configBean) == false) {
-                if(configBean.getMapId() != 0 && configBean.getProject() != 0 && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
+                if(configBean.getMapId() != 0 && configBean.getProjectKey() != null && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
                     remindActionsMgr.updateActionReminders(configBean);                    
                     status = "Saved.";
                 }else{
@@ -82,12 +82,12 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         configBean.setActive(active);
     }
     
-    public long getProject() {        
-        return configBean.getProject();
+    public String getProjectKey() {        
+        return configBean.getProjectKey();
     }
 
-    public void setProject(long project) {        
-        configBean.setProject(project);
+    public void setProjectId(String projectKey) {        
+        configBean.setProjectKey(projectKey);
     }
 
     public String getQuery() {

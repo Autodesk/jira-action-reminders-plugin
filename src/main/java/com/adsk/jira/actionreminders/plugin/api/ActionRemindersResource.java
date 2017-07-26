@@ -66,7 +66,7 @@ public class ActionRemindersResource {
         
         //check project permissions 
         ApplicationUser loggedInAppUser = jiraAuthenticationContext.getLoggedInUser();
-        Project project = projectManager.getProjectObj(actionReminder.getProject());
+        Project project = projectManager.getProjectObjByKey(actionReminder.getProjectKey());
         if( project != null ) {
             if( permissionManager.hasPermission(ProjectPermissions.ADMINISTER_PROJECTS, project, loggedInAppUser) == false ) {
                 messageBean.setMessage("[Error] Permission denied. Project access is required.");

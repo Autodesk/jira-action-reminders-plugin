@@ -52,7 +52,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select().where("ACTIVE = ?", true))) {
             ActionRemindersBean bean = new ActionRemindersBean();
             bean.setMapId(map.getID());
-            bean.setProject(map.getProject());
+            bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());
             bean.setRunAuthor(map.getRunAuthor());
@@ -76,7 +76,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select().order("ID DESC"))) {
             ActionRemindersBean bean = new ActionRemindersBean();
             bean.setMapId(map.getID());
-            bean.setProject(map.getProject());
+            bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());           
             bean.setRunAuthor(map.getRunAuthor());
@@ -95,13 +95,13 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     }
     
     @Override
-    public List<ActionRemindersBean> getAllActionRemindersByProject(long projectId) {
+    public List<ActionRemindersBean> getAllActionRemindersByProjectKey(String projectKey) {
         List<ActionRemindersBean> map_lists = new ArrayList<ActionRemindersBean>();
         for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select()
-                .where("PROJECT = ?", projectId).order("ID DESC"))) {
+                .where("PROJECT_KEY = ?", projectKey).order("ID DESC"))) {
             ActionRemindersBean bean = new ActionRemindersBean();
             bean.setMapId(map.getID());
-            bean.setProject(map.getProject());
+            bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());           
             bean.setRunAuthor(map.getRunAuthor());
@@ -126,7 +126,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
             final ActionRemindersAO map = maps[0]; 
             ActionRemindersBean bean = new ActionRemindersBean();
             bean.setMapId(map.getID());
-            bean.setProject(map.getProject());
+            bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());           
             bean.setRunAuthor(map.getRunAuthor());
@@ -147,7 +147,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     @Override
     public void addActionReminders(ActionRemindersBean configBean) {
         final ActionRemindersAO map = ao.create(ActionRemindersAO.class);        
-        map.setProject(configBean.getProject());
+        map.setProjectKey(configBean.getProjectKey());
         map.setQuery(configBean.getQuery());
         map.setIssueAction(configBean.getIssueAction());
         map.setRunAuthor(configBean.getRunAuthor());
@@ -168,7 +168,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", configBean.getMapId()));
         if(maps.length > 0) {
             final ActionRemindersAO map = maps[0];        
-            map.setProject(configBean.getProject());
+            map.setProjectKey(configBean.getProjectKey());
             map.setQuery(configBean.getQuery());
             map.setIssueAction(configBean.getIssueAction());
             map.setRunAuthor(configBean.getRunAuthor());
@@ -187,15 +187,15 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     
     @Override
     public boolean findActionReminders(ActionRemindersBean configBean) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("QUERY = ? AND PROJECT = ?", 
-                configBean.getQuery(), configBean.getProject()));
+        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("QUERY = ? AND PROJECT_KEY = ?", 
+                configBean.getQuery(), configBean.getProjectKey()));
         return maps.length > 0;
     }
     
     @Override
     public boolean findActionReminders2(ActionRemindersBean configBean) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID != ? AND QUERY = ? AND PROJECT = ?", 
-                configBean.getMapId(), configBean.getQuery(), configBean.getProject()));
+        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID != ? AND QUERY = ? AND PROJECT_KEY = ?", 
+                configBean.getMapId(), configBean.getQuery(), configBean.getProjectKey()));
         return maps.length > 0;
     }
 

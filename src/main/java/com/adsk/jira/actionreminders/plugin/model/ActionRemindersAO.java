@@ -17,8 +17,8 @@ import net.java.ao.schema.StringLength;
  */
 @Preload
 public interface ActionRemindersAO extends Entity {
-    public long getProject();
-    public void setProject(long project);
+    public String getProjectKey();
+    public void setProjectKey(String projectKey);
     public String getIssueAction();
     public void setIssueAction(String issueAction);
     @StringLength(StringLength.UNLIMITED)

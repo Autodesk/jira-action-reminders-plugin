@@ -5,11 +5,13 @@ import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.web.ExecutingHttpRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
 /**
@@ -33,18 +35,18 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         
     @Override
     public String doExecute() throws Exception {
-        Project projectObj = getProjectManager().getProjectObj(configBean.getProject());
-        if(projectObj == null) {
+        Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
+        if(project == null) {
             return "error";
         }
-        configBean.setProjectName(projectObj.getName());
+        configBean.setProjectName(project.getName());
         
-        /*HttpServletRequest request = ExecutingHttpRequest.get();
+        HttpServletRequest request = ExecutingHttpRequest.get();
         request.setAttribute((new StringBuilder())
             .append("com.atlassian.jira.projectconfig.util.ServletRequestProjectConfigRequestCache")
-            .append(":project").toString(), projectObj);*/
+            .append(":project").toString(), project);        
         
-        if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, projectObj) ) {
+        if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
             return "error";
         }
                 
@@ -58,7 +60,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         else if (this.submitted != null && "ADD".equals(this.submitted)) {            
             LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders(configBean) == false) {
-                if(configBean.getProject() != 0 && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
+                if(configBean.getProjectKey() != null && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
                     remindActionsMgr.addActionReminders(configBean);                    
                     status = "Added.";
                 }else{
@@ -72,7 +74,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         else if (this.submitted != null && "SAVE".equals(this.submitted)) {            
             LOGGER.debug("Saving map -> "+ configBean.getMapId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders2(configBean) == false) {
-                if(configBean.getMapId() != 0 && configBean.getProject() != 0 && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
+                if(configBean.getMapId() != 0 && configBean.getProjectKey() != null && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
                     remindActionsMgr.updateActionReminders(configBean);                    
                     status = "Saved.";
                 }else{
@@ -117,12 +119,12 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         configBean.setActive(active);
     }
     
-    public long getProject() {        
-        return configBean.getProject();
+    public String getProjectKey() {        
+        return configBean.getProjectKey();
     }
 
-    public void setProject(long project) {        
-        configBean.setProject(project);
+    public void setProjectKey(String projectKey) {        
+        configBean.setProjectKey(projectKey);
     }
     
     public String getProjectName() {        
@@ -236,7 +238,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     }
     
     public List<ActionRemindersBean> getMapsList() {
-        return remindActionsMgr.getAllActionRemindersByProject(getProject());
+        return remindActionsMgr.getAllActionRemindersByProjectKey(getProjectKey());
     }
     
     public void setSubmitted(String submitted) {

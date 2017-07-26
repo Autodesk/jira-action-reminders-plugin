@@ -142,9 +142,9 @@ public final class ActionRemindersUtil {
             return;
         }
         
-        Project projectObj = projectManager.getProjectObj(map.getProject());
+        Project projectObj = projectManager.getProjectObjByKey(map.getProjectKey());
         if(projectObj == null){
-            LOGGER.debug(map.getProject()+" - Project is Null/not exists!");
+            LOGGER.debug(map.getProjectKey()+" - Project is Null/not exists!");
             return;
         }
         
@@ -256,7 +256,7 @@ public final class ActionRemindersUtil {
         }
         
         if(map.getNotifyProjectrole() != null && !"".equals(map.getNotifyProjectrole())) {
-            emailAddrs.addAll(getRoleUsers(map.getProject(), map.getNotifyProjectrole()));
+            emailAddrs.addAll(getRoleUsers(map.getProjectKey(), map.getNotifyProjectrole()));
         }
         
         if(map.getNotifyGroup()!= null && !"".equals(map.getNotifyGroup())) {
@@ -294,10 +294,10 @@ public final class ActionRemindersUtil {
         return null;
     }
     
-    public Set<String> getRoleUsers(long projectId, String projectRole) {                         
+    public Set<String> getRoleUsers(String projectKey, String projectRole) {                         
         Set<String> users = new HashSet<String>();
         if(!"ADMINISTRATORS".equalsIgnoreCase(projectRole) && !"DEVELOPERS".equalsIgnoreCase(projectRole) && !"USERS".equalsIgnoreCase(projectRole)) {
-            Project projectObject = projectManager.getProjectObj(projectId);
+            Project projectObject = projectManager.getProjectObjByKey(projectKey);
             ProjectRole devRole = getProjectRole(projectRole);
             if(devRole != null) {
                 LOGGER.debug("Project role name: "+ devRole.getName());
@@ -311,7 +311,7 @@ public final class ActionRemindersUtil {
                 LOGGER.debug("Project role is not exists! "+ projectRole);
             }
         }else{
-            LOGGER.warn(projectId +":"+ projectRole +" - Default project role does not supported!");
+            LOGGER.warn(projectKey +":"+ projectRole +" - Default project role does not supported!");
         }
         return users;
     }
