@@ -49,7 +49,7 @@
     <webwork1 key="jira-actionreminders-configure-action" name="Action Reminders Configure Action" i18n-name-key="jira-actionreminders-configure-action.name">
         <actions>
           <action name="com.adsk.jira.actionreminders.plugin.api.ActionRemindersConfigAction" alias="ActionRemindersConfig">
-            <view name="success">/templates/actionreminders_configure.vm</view>
+            <view name="success">/templates/admin.vm</view>
             <view name="error">/secure/views/permissionviolation.jsp</view>
           </action>
         </actions>
@@ -60,7 +60,7 @@
     <webwork1 key="jira-actionreminders-project-configure-action" name="Action Reminders Project Configure Action" i18n-name-key="jira-actionreminders-project-configure-action.name">
         <actions>
           <action name="com.adsk.jira.actionreminders.plugin.api.ActionRemindersProjectAction" alias="ActionRemindersProjectConfig">
-            <view name="success">/templates/actionreminders_project.vm</view>
+            <view name="success">/templates/project.vm</view>
             <view name="error">/secure/views/permissionviolation.jsp</view>
           </action>
         </actions>
