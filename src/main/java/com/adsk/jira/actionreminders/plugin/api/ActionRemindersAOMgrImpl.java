@@ -51,7 +51,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         List<ActionRemindersBean> map_lists = new ArrayList<ActionRemindersBean>();
         for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select().where("ACTIVE = ?", true))) {
             ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setMapId(map.getID());
+            bean.setConfigId(map.getID());
             bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());
@@ -75,7 +75,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         List<ActionRemindersBean> map_lists = new ArrayList<ActionRemindersBean>();
         for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select().order("ID DESC"))) {
             ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setMapId(map.getID());
+            bean.setConfigId(map.getID());
             bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());           
@@ -100,7 +100,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select()
                 .where("PROJECT_KEY = ?", projectKey).order("ID DESC"))) {
             ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setMapId(map.getID());
+            bean.setConfigId(map.getID());
             bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());           
@@ -125,7 +125,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         if(maps.length > 0) {
             final ActionRemindersAO map = maps[0]; 
             ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setMapId(map.getID());
+            bean.setConfigId(map.getID());
             bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
             bean.setIssueAction(map.getIssueAction());           
@@ -165,7 +165,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     
     @Override
     public void updateActionReminders(ActionRemindersBean configBean) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", configBean.getMapId()));
+        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", configBean.getConfigId()));
         if(maps.length > 0) {
             final ActionRemindersAO map = maps[0];        
             map.setProjectKey(configBean.getProjectKey());
@@ -195,7 +195,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     @Override
     public boolean findActionReminders2(ActionRemindersBean configBean) {
         final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID != ? AND QUERY = ? AND PROJECT_KEY = ?", 
-                configBean.getMapId(), configBean.getQuery(), configBean.getProjectKey()));
+                configBean.getConfigId(), configBean.getQuery(), configBean.getProjectKey()));
         return maps.length > 0;
     }
 

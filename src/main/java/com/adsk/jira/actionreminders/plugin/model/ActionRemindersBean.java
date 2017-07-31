@@ -3,7 +3,7 @@ package com.adsk.jira.actionreminders.plugin.model;
 import java.util.Date;
 
 public class ActionRemindersBean {
-    private long mapId;
+    private long configId;
     private String projectKey;
     private String projectName;
     private String query;
@@ -20,14 +20,14 @@ public class ActionRemindersBean {
     private boolean active;
     private boolean reminders;
     private boolean actions;
-    
-    public long getMapId() {
-        return mapId;
+
+    public long getConfigId() {
+        return configId;
     }
 
-    public void setMapId(long mapId) {
-        this.mapId = mapId;
-    }
+    public void setConfigId(long configId) {
+        this.configId = configId;
+    }        
 
     public String getQuery() {
         return query;

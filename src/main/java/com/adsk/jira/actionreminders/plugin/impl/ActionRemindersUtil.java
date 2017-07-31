@@ -103,10 +103,10 @@ public final class ActionRemindersUtil {
         LOGGER.info("Service Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
-    public void run(long mapId, boolean reminders, boolean actions) {
-        LOGGER.debug("Running map Id: "+ mapId);
+    public void run(long configId, boolean reminders, boolean actions) {
+        LOGGER.debug("Running map Id: "+ configId);
         
-        ActionRemindersBean remindAction = remindActionsDAO.getActionReminderById(mapId);        
+        ActionRemindersBean remindAction = remindActionsDAO.getActionReminderById(configId);        
         if(remindAction != null) {
             LOGGER.debug("Processing original query -> "+ remindAction.getQuery());
             process(remindAction, reminders, actions);
@@ -115,7 +115,7 @@ public final class ActionRemindersUtil {
     
     public void process(ActionRemindersBean map, boolean reminders, boolean actions) {
         if(reminders == false && actions == false) {
-            LOGGER.debug(map.getMapId()+" - Both reminders and actions are set false. Skipping!");
+            LOGGER.debug(map.getConfigId()+" - Both reminders and actions are set false. Skipping!");
             return;
         }
         
@@ -123,7 +123,7 @@ public final class ActionRemindersUtil {
         if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
             is_issue_action = true;
         }else if(reminders == false && is_issue_action == false){
-            LOGGER.debug(map.getMapId()+" - Both reminders and actions are set false. Skipping!");
+            LOGGER.debug(map.getConfigId()+" - Both reminders and actions are set false. Skipping!");
             return;
         }        
         
@@ -212,7 +212,7 @@ public final class ActionRemindersUtil {
                         }
                     }
                     
-                    remindActionsDAO.setActionRemindersLastRun(map.getMapId()); // set last run
+                    remindActionsDAO.setActionRemindersLastRun(map.getConfigId()); // set last run
                 }
             }
         }

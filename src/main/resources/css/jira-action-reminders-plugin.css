@@ -34,3 +34,130 @@
     background-position: 50% 50%;
     float: right;
 }
+
+.actionreminders_question {
+    background-image: url('images/question.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline-block;
+    vertical-align: middle;
+    background-position: 50% 50%;
+}
+
+.actionreminders_recache {
+    background-image: url('images/cache.gif');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_execute {
+    background-image: url('images/automation.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_schedule {
+    background-image: url('images/calendar.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_config_edit {
+    background-image: url('images/cache.gif');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_edit {
+    background-image: url('images/edit.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_delete {
+    background-image: url('images/delete.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_run {
+    background-image: url('images/play.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.actionreminders_help {
+    background-image: url('images/help.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline-block;
+    vertical-align: middle;
+    background-position: 50% 50%;
+}
+
+.actionremindersconfig_count_span {
+    float: right;
+    border-radius: 3px;
+    background-color: green;
+    height: 15px;
+    color: #fff;
+    padding: 5px;
+    margin: 2px;
+}
+
+.actionremindersconfig_search_div {
+    border-radius: 2px;
+    display: inline;
+    float: right;
+    margin: 2px;
+}
+
+.actionremindersconfig_search_div input {    
+    height: 20px;
+}
