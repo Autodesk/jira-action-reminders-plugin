@@ -1,5 +1,5 @@
 #ActionRemindersAddButton {
-    background-image: url('images/add.jpg');
+    background-image: url('images/file_add.png');
     background-repeat: no-repeat;
     background-size: 100%;
     width: 24px;
@@ -76,7 +76,7 @@
     background-size: 100%;
     height: 24px;
     width: 24px;    
-    display: inline;
+    /*display: inline;*/
     vertical-align: middle;
     background-position: 50% 50%;
     float: right;
@@ -119,7 +119,7 @@
 }
 
 .actionreminders_run {
-    background-image: url('images/play.png');
+    background-image: url('images/run.png');
     background-repeat: no-repeat;
     background-size: 100%;
     height: 24px;
@@ -145,16 +145,14 @@
     float: right;
     border-radius: 3px;
     background-color: green;
-    height: 15px;
+    padding: 2px;
     color: #fff;
-    padding: 5px;
-    margin: 2px;
 }
 
 .actionremindersconfig_search_div {
     border-radius: 2px;
     display: inline;
-    float: right;
+    /*float: right;*/
     margin: 2px;
 }
 

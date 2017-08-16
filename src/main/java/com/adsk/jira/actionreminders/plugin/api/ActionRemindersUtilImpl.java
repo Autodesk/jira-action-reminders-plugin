@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.adsk.jira.actionreminders.plugin.impl;
+package com.adsk.jira.actionreminders.plugin.api;
 
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.bc.issue.search.SearchService;
@@ -48,11 +48,10 @@ import java.util.Set;
  *
  * @author prasadve
  */
-public final class ActionRemindersUtil {
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersUtil.class);
+public final class ActionRemindersUtilImpl implements ActionRemindersUtil {
+    private static final Logger LOGGER = Logger.getLogger(ActionRemindersUtilImpl.class);
     
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");    
-    private static ActionRemindersUtil remindUtils = null;
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static String defaultResolution = "1";
     private final ProjectManager projectManager = ComponentAccessor.getProjectManager();
     private final IssueService issueService = ComponentAccessor.getIssueService();
@@ -68,20 +67,13 @@ public final class ActionRemindersUtil {
     private final String BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"   
     private final SearchService searchService = ComponentAccessor.getComponent(SearchService.class);
     
-    private final ActionRemindersAOMgr remindActionsDAO;
-    public ActionRemindersUtil() {
-        remindActionsDAO = ComponentAccessor.getOSGiComponentInstanceOfType(ActionRemindersAOMgr.class);
+    private final ActionRemindersAOMgr actionRemindersAOMgr;
+    public ActionRemindersUtilImpl(ActionRemindersAOMgr actionRemindersAOMgr) {
+        this.actionRemindersAOMgr = actionRemindersAOMgr;
         defaultResolution = getResolutionId();
     }
     
-    public static ActionRemindersUtil getInstance() {
-        if( remindUtils == null ) {
-            remindUtils = new ActionRemindersUtil();
-        }
-        return remindUtils;
-    }
-    
-    public static String getDateString(Date datetime) {
+    public String getDateString(Date datetime) {
         return DATE_FORMAT.format(datetime); // example: 2011-05-26
     }
     
@@ -93,7 +85,7 @@ public final class ActionRemindersUtil {
         long startTime = System.currentTimeMillis();
         LOGGER.debug("Running service now....");
         
-        List<ActionRemindersBean> remindActionList = remindActionsDAO.getActiveActionReminders();        
+        List<ActionRemindersBean> remindActionList = actionRemindersAOMgr.getActiveActionReminders();        
         for(ActionRemindersBean map : remindActionList) {
             LOGGER.debug("Processing original query -> "+ map.getQuery());
             process(map, reminders, actions);
@@ -106,7 +98,7 @@ public final class ActionRemindersUtil {
     public void run(long configId, boolean reminders, boolean actions) {
         LOGGER.debug("Running map Id: "+ configId);
         
-        ActionRemindersBean remindAction = remindActionsDAO.getActionReminderById(configId);        
+        ActionRemindersBean remindAction = actionRemindersAOMgr.getActionReminderById(configId);        
         if(remindAction != null) {
             LOGGER.debug("Processing original query -> "+ remindAction.getQuery());
             process(remindAction, reminders, actions);
@@ -212,7 +204,7 @@ public final class ActionRemindersUtil {
                         }
                     }
                     
-                    remindActionsDAO.setActionRemindersLastRun(map.getConfigId()); // set last run
+                    actionRemindersAOMgr.setActionRemindersLastRun(map.getConfigId()); // set last run
                 }
             }
         }

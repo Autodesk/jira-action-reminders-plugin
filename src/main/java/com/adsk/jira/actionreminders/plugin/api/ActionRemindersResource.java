@@ -5,7 +5,6 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
-import com.adsk.jira.actionreminders.plugin.impl.ActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersRun;
 import com.adsk.jira.actionreminders.plugin.model.MessageBean;
@@ -34,13 +33,16 @@ public class ActionRemindersResource {
     private final PermissionManager permissionManager;
     private final ProjectManager projectManager;
     private final ActionRemindersAOMgr aremindersao;
+    private final ActionRemindersUtil actionRemindersUtil;
     
     public ActionRemindersResource(JiraAuthenticationContext jiraAuthenticationContext, PermissionManager permissionManager, 
-            ProjectManager projectManager, ActionRemindersAOMgr aremindersao) {
+            ProjectManager projectManager, ActionRemindersAOMgr aremindersao, 
+            ActionRemindersUtil actionRemindersUtil) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.permissionManager = permissionManager;
         this.projectManager = projectManager;
         this.aremindersao = aremindersao;
+        this.actionRemindersUtil = actionRemindersUtil;
     }
     
     @POST
@@ -77,7 +79,7 @@ public class ActionRemindersResource {
             return Response.status(Response.Status.FORBIDDEN).entity(messageBean).build();
         }
         
-        ActionRemindersUtil.getInstance().process(actionReminder, 
+        actionRemindersUtil.process(actionReminder, 
                 actionRemindersRun.isReminders(), actionRemindersRun.isActions());
         
         messageBean.setMessage("successful.");

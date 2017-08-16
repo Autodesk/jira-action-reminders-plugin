@@ -30,6 +30,22 @@
           <description key="userManager.description" />
           <interface>com.atlassian.sal.api.user.UserManager</interface>
     </component-import>
+    
+    <component key="jira-actionreminders-util-manager" name="Action Reminders Util Manager" 
+               class="com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtilImpl">
+        <interface>com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtil</interface>
+    </component>
+    
+    <component-import key="pluginScheduler" name="Okta Groups Sync Plugin Scheduler">
+        <interface>com.atlassian.sal.api.scheduling.PluginScheduler</interface>
+    </component-import>
+    
+    <component key="jira-actionreminders-scheduler" name="Action Reminders Plugin Scheduler Manager" 
+               class="com.adsk.jira.actionreminders.plugin.schedule.ActionRemindersSchedulerImpl" 
+               system="true" public="true">        
+        <interface>com.adsk.jira.actionreminders.plugin.schedule.ActionRemindersScheduler</interface>
+        <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
+    </component>
      
     <!-- Rest API --> 
     <rest key="jira-actionreminders-rest-resource" name="jira-actionreminders-rest-resource" i18n-name-key="jira-actionreminders-rest-resource.name" 
@@ -44,6 +60,23 @@
       <description>AO interface for storing Remind Action Map entities</description>
       <entity>com.adsk.jira.actionreminders.plugin.model.ActionRemindersAO</entity>
     </ao>
+    
+    <!-- Web Options panel -->
+    <web-section key="jira-actionreminders.section" name="Action Reminders Section" 
+        location="admin_plugins_menu" i18n-name-key="jira-actionreminders.section" weight="20" application="jira">
+        <label key="jira-actionreminders.section.label" />
+    </web-section>
+    
+    <web-item key="jira-actionreminders-confgure-item" name="Action Reminders Configure Admin" 
+        i18n-name-key="jira-actionreminders-configure-item.name"
+        section="admin_plugins_menu/jira-actionreminders.section" weight="10" application="jira">
+        <label key="jira-actionreminders-configure.label" />
+        <link linkId="jira-actionreminders-configure-link">/secure/ActionRemindersConfig.jspa</link>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
+	    <param name="permission">admin</param>
+	</condition>
+    </web-item>
+    
     
     <!-- Admin Web Link -->
     <webwork1 key="jira-actionreminders-configure-action" name="Action Reminders Configure Action" i18n-name-key="jira-actionreminders-configure-action.name">
@@ -78,5 +111,14 @@
         </condition>
         </conditions>
     </web-item>
+    
+    <webwork1 key="jira-actionreminders-project-edit-action" name="Action Reminders Project Edit Action" i18n-name-key="jira-actionreminders-project-edit-action.name">
+        <actions>
+          <action name="com.adsk.jira.actionreminders.plugin.web.ActionRemindersProjectEditAction" alias="ActionRemindersProjectEditConfig">
+            <view name="success">/templates/aredit.vm</view>
+            <view name="error">/secure/views/permissionviolation.jsp</view>
+          </action>
+        </actions>
+    </webwork1>
     
 </atlassian-plugin>

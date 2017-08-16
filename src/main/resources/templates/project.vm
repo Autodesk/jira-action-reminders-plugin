@@ -200,7 +200,7 @@
 <form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?projectKey=$projectKey" >
 <div class="field-group">
     <label for="configId">
-        $i18n.getText("jira-action-reminders.option.map_id.label"):
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
         <span class="aui-icon icon-required"></span>
     </label>
     <input type="text" id="configId" name="configId" class="text" />
@@ -216,7 +216,7 @@
 <form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?projectKey=$projectKey" >
 <div class="field-group">
     <label for="configId">
-        $i18n.getText("jira-action-reminders.option.map_id.label"):
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
         <span class="aui-icon icon-required"></span>
     </label>
     <input type="text" id="configId" name="configId" class="text" />
@@ -245,18 +245,25 @@
 
 <br/>
 
+<span class="actionremindersconfig_count_span">Count &diams; <span id="actionremindersconfig_count">$configList.size()</span></span>
+<div class="actionremindersconfig_search_div">
+    <input type="text" id="actionremindersconfig_search" placeholder=" Search" onkeyup="actionremindersconfig_filter(this)" />
+</div>
+
+<br/>
+
 <!-- config display -->
 
 <div id="ActionRemindersDisplay">
-<table class="aui">
-    <tr><th>Map ID</th><th>Project</th><th>JQL Query</th><th>Action</th><th>Author</th><th>Last Run</th><th>Exec</th><th>Active?</th><th></th></tr>
+<table class="aui" id="actionreminders_configs">
+    <tr><th>Config ID</th><th>Project</th><th>JQL Query</th><th>Action</th><th>Author</th><th>Last Run</th><th>Exec</th><th>Active?</th><th></th></tr>
     #foreach ($entry in $configList)
         <tr><td>$entry.configId</td><td>$entry.projectKey</td><td>$entry.query</td><td>$entry.issueAction</td>
             <td>$entry.runAuthor</td><td>$entry.lastRun</td><td>$entry.execCount</td><td>$entry.active</td>
             <td>
             <a href="#" class="actionreminders_run" onClick="prepareRun('$entry.configId')"></a>
             <a class="actionreminders_edit" href="#"
-                onClick="window.location.href='ActionRemindersProjectConfig.jspa?projectKey=$projectKey&configId=$entry.configId'"></a>
+                onClick="window.location.href='ActionRemindersProjectEditConfig.jspa?projectKey=$projectKey&configId=$entry.configId'"></a>
             <a href="#" class="actionreminders_delete" onClick="prepareDelete('$entry.configId')"></a>            
             </td>
         </tr>

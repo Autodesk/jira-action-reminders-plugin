@@ -8,26 +8,17 @@
     <script>        
         function prepareDelete(configId) {
             AJS.$("#ActionRemindersDel").stop().slideDown();
-            AJS.$("#ActionRemindersRun").stop().slideUp();            
+            AJS.$("#ActionRemindersSchedule").stop().slideUp();
             
             AJS.$("#ActionRemindersDelForm input[name='configId']").val(configId);
-            AJS.$("#ActionRemindersTitle").text(" | Deleting Mapping ID #"+configId);
+            AJS.$("#ActionRemindersTitle").text(" | Deleting Config Id #"+configId);
             location.hash = "#ActionRemindersDel";
-        }
-
-        function prepareRun(configId) {
-            AJS.$("#ActionRemindersRun").stop().slideDown();
-            AJS.$("#ActionRemindersDel").stop().slideUp();            
-            
-            AJS.$("#ActionRemindersRunForm input[name='configId']").val(configId);
-            AJS.$("#ActionRemindersTitle").text(" | Running Mapping ID #"+configId);
-            location.hash = "#ActionRemindersRun";
         }
 
         function prepareSchedule() {
             AJS.$("#ActionRemindersDel").stop().slideUp();
-            AJS.$("#ActionRemindersRun").stop().slideUp();            
             AJS.$("#ActionRemindersSchedule").stop().slideDown();
+            AJS.$("#ActionRemindersTitle").text(" | Configuring run schedule");
             location.hash = "#ActionRemindersSchedule";
         }
     </script>
@@ -45,40 +36,13 @@
 <form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersConfig.jspa" >
 <div class="field-group">
     <label for="configId">
-        $i18n.getText("jira-action-reminders.option.map_id.label"):
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
         <span class="aui-icon icon-required"></span>
     </label>
     <input type="text" id="configId" name="configId" class="text" />
 </div>
 <div class="aui-buttons">
     <input class="aui-button" type="submit" name="submitted" value="DELETE" />
-</div>
-</form>
-</div>
-
-<!-- Run form with Mapping ID -->
-<div id="ActionRemindersRun" style="display: none">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?projectKey=$projectKey" >
-<div class="field-group">
-    <label for="configId">
-        $i18n.getText("jira-action-reminders.option.map_id.label"):
-        <span class="aui-icon icon-required"></span>
-    </label>
-    <input type="text" id="configId" name="configId" class="text" />
-</div>
-<fieldset class="group">
-    <legend><span>Options:</span></legend>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="reminders" id="reminders" value="true" checked/>
-        <label for="emailReminder">Reminders</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="actions" id="actions" value="true" />
-        <label for="issueActions">Actions</label>
-    </div>    
-</fieldset>
-<div class="aui-buttons">
-    <input class="aui-button" type="submit" name="submitted" value="RUN" />
 </div>
 </form>
 </div>
@@ -122,7 +86,6 @@
         <tr><td>$entry.configId</td><td>$entry.projectKey</td><td>$entry.query</td><td>$entry.issueAction</td>
             <td>$entry.runAuthor</td><td>$entry.lastRun</td><td>$entry.execCount</td><td>$entry.active</td>
             <td>
-                <a href="#" class="actionreminders_run" onClick="prepareRun('$entry.configId')"></a>
                 <a href="#" class="actionreminders_delete" onClick="prepareDelete('$entry.configId')"></a>
             </td>
         </tr>

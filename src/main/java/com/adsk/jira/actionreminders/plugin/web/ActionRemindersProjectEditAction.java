@@ -1,76 +1,68 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtil;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtilImpl;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
-import com.adsk.jira.actionreminders.plugin.schedule.ActionRemindersScheduler;
-import com.atlassian.jira.config.properties.ApplicationProperties;
-import com.atlassian.jira.permission.GlobalPermissionKey;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.util.Date;
-import java.util.List;
 import org.apache.log4j.Logger;
+import org.apache.velocity.util.StringUtils;
 
 /**
  * @author scmenthusiast@gmail.com
  */
-public class ActionRemindersConfigAction extends JiraWebActionSupport {
+public class ActionRemindersProjectEditAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersConfigAction.class);       
-    private final ActionRemindersBean configBean = new ActionRemindersBean();  
+    private static final Logger LOGGER = Logger.getLogger(ActionRemindersProjectEditAction.class);    
+    
+    private final ActionRemindersBean configBean = new ActionRemindersBean();
+    public static final StringUtils stringUtils = new StringUtils();
     public static final TextUtils textUtils = new TextUtils();
-    private long interval;
     private String submitted;
     private String status;
     
-    private final ApplicationProperties properties;
-    private final ActionRemindersScheduler pluginSchedule;
     private final ActionRemindersAOMgr remindActionsMgr;
-    private final ActionRemindersUtil actionRemindersUtil;
     
-    public ActionRemindersConfigAction(ActionRemindersScheduler pluginSchedule, 
-            ApplicationProperties properties, ActionRemindersAOMgr remindActionsMgr, 
-            ActionRemindersUtil actionRemindersUtil) {
-        this.pluginSchedule = pluginSchedule;
-        this.properties = properties;
+    public ActionRemindersProjectEditAction(ActionRemindersAOMgr remindActionsMgr) {
         this.remindActionsMgr = remindActionsMgr;
-        this.actionRemindersUtil = actionRemindersUtil;
     }
         
     @Override
     public String doExecute() throws Exception {
-        if ( !hasGlobalPermission(GlobalPermissionKey.SYSTEM_ADMIN) ) {
+        Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
+        if(project == null) {
             return "error";
         }
+        configBean.setProjectName(project.getName());
         
-        if (this.submitted != null && "Schedule".equals(this.submitted)) {
-            LOGGER.debug("Re-Scheduling Sync with interval -> "+ interval);           
-            if(interval > 0) {
-                properties.setString(ActionRemindersScheduler.SYNC_INTERVAL, ""+interval);
-                status = "Re-scheduled Sync with interval: "+ interval;
-                pluginSchedule.reschedule();
-            }            
+        if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
+            return "error";
         }
-        else if (this.submitted != null && "DELETE".equals(this.submitted)) {
-            LOGGER.debug("Deleting map Id -> "+ configBean.getConfigId());
-            if(configBean.getConfigId() != 0) {
-                remindActionsMgr.removeActionReminders(configBean.getConfigId());
-                status = "Deleted.";
-            }
+                
+        LOGGER.info("ConfigId: "+ configBean.getConfigId());
+        if(configBean.getConfigId() > 0) {
+            ActionRemindersBean map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
+            configBean.setProjectKey(map.getProjectKey());
+            configBean.setQuery(map.getQuery());
+            configBean.setIssueAction(map.getIssueAction());           
+            configBean.setRunAuthor(map.getRunAuthor());
+            configBean.setLastRun(map.getLastRun());
+            configBean.setExecCount(map.getExecCount());
+            configBean.setNotifyAssignee(map.isNotifyAssignee());
+            configBean.setNotifyReporter(map.isNotifyReporter());
+            configBean.setNotifyWatchers(map.isNotifyWatchers());
+            configBean.setNotifyProjectrole(map.getNotifyProjectrole());
+            configBean.setNotifyGroup(map.getNotifyGroup());
+            configBean.setMessage(map.getMessage());
+            configBean.setActive(map.isActive());
         }
+        
+        LOGGER.info("QUERY: "+ configBean.getQuery());
+        
         return "success";
-    }
-    
-    public long getInterval() {
-        return pluginSchedule.getInterval();
-    }
-
-    public void setInterval(long interval) {
-        this.interval = interval;
     }
     
     public long getConfigId() {
@@ -101,8 +93,12 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         return configBean.getProjectKey();
     }
 
-    public void setProjectId(String projectKey) {        
+    public void setProjectKey(String projectKey) {        
         configBean.setProjectKey(projectKey);
+    }
+    
+    public String getProjectName() {        
+        return configBean.getProjectName();
     }
 
     public String getQuery() {
@@ -201,17 +197,12 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
         configBean.setActions(actions);
     }
     
-    
-    public List<Project> getProjects() {
-        return actionRemindersUtil.getProjects();
-    }
-    
     public TextUtils getTextUtils() {
         return textUtils;
     }
-    
-    public List<ActionRemindersBean> getConfigList() {
-        return remindActionsMgr.getAllActionReminders();
+
+    public static StringUtils getStringUtils() {
+        return stringUtils;
     }
     
     public void setSubmitted(String submitted) {
@@ -220,5 +211,5 @@ public class ActionRemindersConfigAction extends JiraWebActionSupport {
     
     public String getStatus() {
         return status;
-    }    
+    }        
 }

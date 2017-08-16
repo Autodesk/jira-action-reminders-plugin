@@ -1,7 +1,7 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
-import com.adsk.jira.actionreminders.plugin.impl.ActionRemindersUtil;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
+import org.apache.velocity.util.StringUtils;
 
 /**
  * @author scmenthusiast@gmail.com
@@ -22,16 +23,22 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersConfigAction.class);    
-    private final ActionRemindersAOMgr remindActionsMgr;
-    private final JiraAuthenticationContext jiraAuthenticationContext;
-    private final ActionRemindersBean configBean = new ActionRemindersBean();  
+    
+    private final ActionRemindersBean configBean = new ActionRemindersBean();
+    public static final StringUtils stringUtils = new StringUtils();
     public static final TextUtils textUtils = new TextUtils();
     private String submitted;
     private String status;
     
-    public ActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, JiraAuthenticationContext jiraAuthenticationContext) {
+    private final ActionRemindersAOMgr remindActionsMgr;
+    private final JiraAuthenticationContext jiraAuthenticationContext;
+    private final ActionRemindersUtil actionRemindersUtil;
+    
+    public ActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, 
+            JiraAuthenticationContext jiraAuthenticationContext, ActionRemindersUtil actionRemindersUtil) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.remindActionsMgr = remindActionsMgr;
+        this.actionRemindersUtil = actionRemindersUtil;
     }
         
     @Override
@@ -42,10 +49,10 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         }
         configBean.setProjectName(project.getName());
         
-        HttpServletRequest request = ExecutingHttpRequest.get();
+        /*HttpServletRequest request = ExecutingHttpRequest.get();
         request.setAttribute((new StringBuilder())
             .append("com.atlassian.jira.projectconfig.util.ServletRequestProjectConfigRequestCache")
-            .append(":project").toString(), project);        
+            .append(":project").toString(), project);*/
         
         if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
             return "error";
@@ -54,7 +61,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         if (this.submitted != null && "RUN".equals(this.submitted)) {
             LOGGER.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(configBean.getConfigId() != 0) {
-                ActionRemindersUtil.getInstance().run(configBean.getConfigId(), 
+                actionRemindersUtil.run(configBean.getConfigId(), 
                         configBean.isReminders(), configBean.isActions());
             }
         }        
@@ -94,6 +101,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
             }
         }
         else {
+            LOGGER.info("ConfigId: "+ configBean.getConfigId());
             if(configBean.getConfigId() > 0) {
                 ActionRemindersBean map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
                 configBean.setProjectKey(map.getProjectKey());
@@ -247,14 +255,13 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
         configBean.setActions(actions);
     }
     
-    
-    public List<Project> getProjects() {
-        return ActionRemindersUtil.getInstance().getProjects();
-    }
-    
     public TextUtils getTextUtils() {
         return textUtils;
     }
+
+    public static StringUtils getStringUtils() {
+        return stringUtils;
+    }        
     
     public List<ActionRemindersBean> getConfigList() {
         return remindActionsMgr.getAllActionRemindersByProjectKey(getProjectKey());
