@@ -14,13 +14,13 @@ import org.apache.log4j.Logger;
  *
  * @author prasadve
  */
-public class ActionRemindersService implements PluginJob {
-    private static final Logger logger = Logger.getLogger(ActionRemindersService.class);
+public class AdskActionRemindersService implements PluginJob {
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersService.class);
     
     public void execute(Map<String, Object> jobDataMap) {
         
-        final ActionRemindersScheduler sch = (ActionRemindersSchedulerImpl) 
-                jobDataMap.get(ActionRemindersSchedulerImpl.KEY);
+        final AdskActionRemindersScheduler sch = (AdskActionRemindersSchedulerImpl) 
+                jobDataMap.get(AdskActionRemindersSchedulerImpl.KEY);
         
         assert sch != null;
         

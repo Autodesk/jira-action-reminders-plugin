@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
  *
  * @author prasadve
  */
-public class ActionRemindersSchedulerImpl implements ActionRemindersScheduler, LifecycleAware {
+public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersScheduler, LifecycleAware {
 
-    private static final Logger logger = Logger.getLogger(ActionRemindersSchedulerImpl.class);
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersSchedulerImpl.class);
     
     private Date lastRun = null;
     
@@ -31,7 +31,7 @@ public class ActionRemindersSchedulerImpl implements ActionRemindersScheduler, L
     private final ActionRemindersAOMgr actionRemindersAOMgr;
     private final ActionRemindersUtilImpl actionRemindersUtil;
     
-    public ActionRemindersSchedulerImpl(ApplicationProperties applicationProperties, 
+    public AdskActionRemindersSchedulerImpl(ApplicationProperties applicationProperties, 
             PluginScheduler pluginScheduler, ActionRemindersAOMgr actionRemindersAOMgr, 
             ActionRemindersUtilImpl actionRemindersUtil) {
         this.applicationProperties = applicationProperties;
@@ -44,17 +44,17 @@ public class ActionRemindersSchedulerImpl implements ActionRemindersScheduler, L
         long interval = 1L;
         try {
             long sync_interval = Long.parseLong(applicationProperties
-                    .getString(ActionRemindersScheduler.SYNC_INTERVAL));
+                    .getString(AdskActionRemindersScheduler.SYNC_INTERVAL));
             if(sync_interval > 0) {
                 interval = sync_interval;
             }else{
-                interval = ActionRemindersScheduler.DEFAULT_INTERVAL;
+                interval = AdskActionRemindersScheduler.DEFAULT_INTERVAL;
             }
         } catch (NumberFormatException e) {
             logger.debug("Action Reminders interval property is null so using default: "+ 
-                    ActionRemindersScheduler.DEFAULT_INTERVAL);
+                    AdskActionRemindersScheduler.DEFAULT_INTERVAL);
             
-            interval = ActionRemindersScheduler.DEFAULT_INTERVAL;
+            interval = AdskActionRemindersScheduler.DEFAULT_INTERVAL;
         }
         return interval;
     }
@@ -80,9 +80,9 @@ public class ActionRemindersSchedulerImpl implements ActionRemindersScheduler, L
         long time_interval = TimeUnit.MINUTES.toMillis(getInterval());
                 
         pluginScheduler.scheduleJob(JOB_NAME,                   // unique name of the job
-                ActionRemindersService.class,            // class of the job
+                AdskActionRemindersService.class,            // class of the job
                 new HashMap<String,Object>() {{
-                    put(ActionRemindersScheduler.KEY, ActionRemindersSchedulerImpl.this);
+                    put(AdskActionRemindersScheduler.KEY, AdskActionRemindersSchedulerImpl.this);
                 }},                    // data that needs to be passed to the job
                 getNextRun(),          // the time the job is to start
                 time_interval);             // interval between repeats, in milliseconds

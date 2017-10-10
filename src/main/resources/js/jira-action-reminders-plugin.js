@@ -1,10 +1,10 @@
-function actionremindersconfig_filter(element) {
+function adsk_actionremindersconfig_filter(element) {
   // Declare variables 
   var count, input, filter, table, tr, td, i;
-  count = document.getElementById("actionremindersconfig_count");
-  input = document.getElementById("actionremindersconfig_search");
+  count = document.getElementById("adsk_actionremindersconfig_count");
+  input = document.getElementById("adsk_actionremindersconfig_search");
   filter = input.value.toUpperCase();
-  table = document.getElementById("actionreminders_configs");
+  table = document.getElementById("adsk_actionreminders_configs");
   tr = table.getElementsByTagName("tr");
 
   // Loop through all table rows, and hide those who don't match the search query

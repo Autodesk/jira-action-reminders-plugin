@@ -6,23 +6,21 @@ import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-import com.atlassian.jira.web.ExecutingHttpRequest;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
 
 /**
  * @author scmenthusiast@gmail.com
  */
-public class ActionRemindersProjectAction extends JiraWebActionSupport {
+public class AdskActionRemindersAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersConfigAction.class);    
+    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersAction.class);    
     
     private final ActionRemindersBean configBean = new ActionRemindersBean();
     public static final StringUtils stringUtils = new StringUtils();
@@ -34,7 +32,7 @@ public class ActionRemindersProjectAction extends JiraWebActionSupport {
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final ActionRemindersUtil actionRemindersUtil;
     
-    public ActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, 
+    public AdskActionRemindersAction(ActionRemindersAOMgr remindActionsMgr, 
             JiraAuthenticationContext jiraAuthenticationContext, ActionRemindersUtil actionRemindersUtil) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.remindActionsMgr = remindActionsMgr;

@@ -1,0 +1,191 @@
+#disable_html_escaping()
+<html>
+<head>
+    <title>$i18n.getText("jira-action-reminders.option.label")</title>
+    $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
+    <meta name="decorator" content="atl.admin" />
+    <meta name="admin.active.section" content="atl.jira.proj.config">
+    <meta name="admin.active.tab" content="jira-actionreminders-project-configure-link"/>
+    <meta name="projectKey" content="$textutils.htmlEncode($action.projectKey)"/>
+    <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>
+    <script>
+        
+        function prepareAdd() {
+            AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+            AJS.$("#ActionRemindersAddEdit").stop().slideDown();
+            AJS.$("#ActionRemindersDel").stop().slideUp();
+        }
+
+        function prepareDelete(configId) {
+            AJS.$("#ActionRemindersDel").stop().slideDown();
+            AJS.$("#ActionRemindersAddEdit").stop().slideUp();          
+            AJS.$("#ActionRemindersDelForm input[name='configId']").val(configId);
+            AJS.$("#ActionRemindersDelForm input[name='configIds']").val(configId);
+            location.hash = "#ActionRemindersDel";
+        }
+
+        function openUserPickerWindow(element){
+            var vWinUsers = window.open('$!requestContext.canonicalBaseUrl/secure/popups/UserPickerBrowser.jspa?formName=jiraform&multiSelect=false&element=' + element, 'UserPicker', 'status=yes,resizable=yes,top=100,left=200,width=580,height=750,scrollbars=yes');
+            vWinUsers.opener = self;
+            vWinUsers.focus();    
+         }
+    </script>
+</head>
+<body>
+
+<p>
+<span class="AdskActionRemindersHeading">
+    $i18n.getText("jira-action-reminders.option.label")#if($projectName) | $projectName#end</span>
+<a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank"
+    class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
+<a href="#" class="AdskActionRemindersAddButton" onClick="prepareAdd()" title="Add Action Reminder"></a>
+</p>
+
+<!-- Add or Edit Form -->
+
+<div id="ActionRemindersAddEdit" style="display: none">
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<input type="hidden" id="configId" name="configId" class="text" value="0" />
+<input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
+<div class="field-group">
+    <label for="query">
+        $i18n.getText("jira-action-reminders.option.query.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <textarea id="query" name="query" class="textfield" rows="2" cols="60" 
+        placeholder="Your JQL Query here $i18n.getText('jira-action-reminders.option.query.description')"></textarea>
+    <div class="description">$i18n.getText("jira-action-reminders.option.query.description")</div>
+</div>
+<div class="field-group">
+    <label for="issueAction">
+        $i18n.getText("jira-action-reminders.option.action.label"):
+    </label>
+    <input type="text" id="issueAction" name="issueAction" class="text" placeholder="Your Action Name" />
+    <div class="description">$i18n.getText("jira-action-reminders.option.action.description")</div>
+</div>
+<div class="field-group">
+    <label for="runAuthor">
+        $i18n.getText("jira-action-reminders.option.author.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="text" id="runAuthor" name="runAuthor" class="text" placeholder="Your Run Author User ID" value="$!runAuthor" />
+    <a href="javascript:openUserPickerWindow('runAuthor');">
+         <img title="Ente the user name" name="multiuserImage" src="$!requestContext.canonicalBaseUrl/images/icons/filter_public.gif" hspace="0" height="16" width="16" border="0" align="absmiddle" >
+    </a>
+    <div class="description">$i18n.getText("jira-action-reminders.option.author.description")</div>
+</div>
+<div class="field-group">
+    <label for="execCount">
+        $i18n.getText("jira-action-reminders.option.execcount.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <select id="execCount" name="execCount" class="select" placeholder="No of executions a day">
+        <option value="1">Once a day</option>
+        <option value="0">Any times</option>
+    </select>
+    <div class="description">$i18n.getText("jira-action-reminders.option.execcount.description")</div>
+</div>
+<fieldset class="group">
+    <legend><span>Reminders:</span></legend>
+    <div class="checkbox">
+        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="true" />
+        <label for="notifyAssignee">Notify Assignee</label>
+    </div>
+    <div class="checkbox">
+        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="true" />
+        <label for="notifyReporter">Notify Reporter</label>
+    </div>
+    <div class="checkbox">
+        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="true" />
+        <label for="notifyWatchers">Notify Watchers</label>
+    </div>
+</fieldset>
+<div class="field-group">
+    <label for="notifyProjectrole">
+        $i18n.getText("jira-action-reminders.option.role.label"):
+    </label>
+    <input type="text" id="notifyProjectrole" name="notifyProjectrole" class="text" placeholder="Your Project Role to Notify" />
+</div>
+<div class="field-group">
+    <label for="notifyGroup">
+        $i18n.getText("jira-action-reminders.option.group.label"):
+    </label>
+    <input type="text" id="notifyGroup" name="notifyGroup" class="text long-field" placeholder="Your Group name to Notify" />
+</div>
+<div class="field-group">
+    <label for="message">
+        $i18n.getText("jira-action-reminders.option.message.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here"></textarea>
+    <div class="description">$i18n.getText("jira-action-reminders.option.message.description")</div>
+</div>
+<div class="field-group">
+    <label for="active">
+        $i18n.getText("jira-action-reminders.option.active.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <select id="active" name="active" class="text">
+        <option value="true">TRUE</option>
+        <option value="false">FALSE</option>        
+    </select>
+    <div class="description">$i18n.getText("jira-action-reminders.option.active.description")</div>
+</div>
+<div class="aui-buttons">
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="ADD" />
+</div>
+</form>
+</div>
+
+
+<!-- Delete form with Mapping ID -->
+<div id="ActionRemindersDel" style="display: none">
+<form id="ActionRemindersDelForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<input type="hidden" id="configId" name="configId" class="text" value="0" />
+<div class="field-group">
+    <label for="configIds">
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="text" id="configIds" name="configIds" class="text" disabled=""/>
+</div>
+<div class="aui-buttons">
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="DELETE" />
+</div>
+</form>
+</div>
+
+
+<!-- config status -->
+#if( $!status )
+    <p class="aui-message">$!status</p>
+#end
+
+
+<p>
+<span class="adsk_actionremindersconfig_count_span">Count &diams; 
+    <span id="adsk_actionremindersconfig_count">$configList.size()</span></span>
+<div class="adsk_actionremindersconfig_search_div">
+    <input type="text" id="adsk_actionremindersconfig_search" placeholder=" Search" 
+        onkeyup="adsk_actionremindersconfig_filter(this)" />
+</div>
+</p>
+
+
+<!-- config display -->
+
+<table class="aui" id="adsk_actionreminders_configs">
+    <tr><th>Config ID</th><th>JQL Query</th><th>Active?</th><th></th></tr>
+    #foreach ($entry in $configList)
+        <tr><td>$entry.configId</td><td>$entry.query</td><td title="$entry.lastRun">$entry.active</td>
+            <td>
+            <a class="adsk_actionreminders_edit" title="Configure Action Reminder" 
+                href="AdskActionRemindersConfigure.jspa?configId=$entry.configId"></a>
+            <a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$entry.configId')"></a> 
+            </td>
+        </tr>
+    #end
+</table>
+
+</body>
+</html>

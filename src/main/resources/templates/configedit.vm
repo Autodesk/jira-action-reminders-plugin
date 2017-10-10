@@ -4,22 +4,44 @@
     <title>$i18n.getText("jira-action-reminders.option.label")</title>
     $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
     <meta name="decorator" content="atl.admin" />
-    <!--<meta name="admin.active.section" content="atl.jira.proj.config">
-    <meta name="admin.active.tab" content="jira-actionreminders-project-configure-link"/>-->
-    <meta name="projectKey" content="$textutils.htmlEncode($action.projectKey)"/>
-    <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>    
+    <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>
+    <script>        
+
+        function prepareRun(configId) {
+            AJS.$("#ActionRemindersRun").stop().slideDown();
+            AJS.$("#ActionRemindersAddEdit").stop().slideUp();         
+            AJS.$("#ActionRemindersRunForm input[name='configId']").val(configId);
+            AJS.$("#ActionRemindersRunForm input[name='configIds']").val(configId);
+            location.hash = "#ActionRemindersRun";
+        }
+
+        function openUserPickerWindow(element){
+            var vWinUsers = window.open('$!requestContext.canonicalBaseUrl/secure/popups/UserPickerBrowser.jspa?formName=jiraform&multiSelect=false&element=' + element, 'UserPicker', 'status=yes,resizable=yes,top=100,left=200,width=580,height=750,scrollbars=yes');
+            vWinUsers.opener = self;
+            vWinUsers.focus();    
+         }
+    </script>  
 </head>
 <body>
 
 
-<h2>$i18n.getText("jira-action-reminders.option.label")#if($projectName) | $projectName#end</h2>
+<p>
+    <a class="aui-button" href="AdskActionReminders.jspa?projectKey=$projectKey">Back to Action Reminders</a>
+<p>
 
+<p>
+<span class="AdskActionRemindersHeading">
+    $i18n.getText("jira-action-reminders.option.label")#if($projectName) | $projectName#end</span>
+<a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank"
+    class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
+<a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$entry.configId')"></a>
+</p>
 
 <!-- Add or Edit Form -->
 
-<div id="ActionRemindersAddEdit">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectConfig.jspa?projectKey=$projectKey" >
-<input type="hidden" id="configId" name="configId" class="text" value="$!configId" />
+<div id="ActionRemindersAddEdit" style="display: none">
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<input type="hidden" id="configId" name="configId" class="text" value="0" />
 <input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
 <div class="field-group">
     <label for="query">
@@ -106,10 +128,44 @@
     <div class="description">$i18n.getText("jira-action-reminders.option.active.description")</div>
 </div>
 <div class="aui-buttons">
-    <input class="aui-button" type="submit" name="submitted" value="SAVE" />
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="ADD" />
 </div>
 </form>
 </div>
+
+<!-- Run form with Mapping ID -->
+<div id="ActionRemindersRun" style="display: none">
+<form id="ActionRemindersRunForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<input type="hidden" id="configId" name="configId" class="text" value="0" />
+<div class="field-group">
+    <label for="configIds">
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="text" id="configIds" name="configIds" class="text" disabled=""/>
+</div>
+<fieldset class="group">
+    <legend><span>Options:</span></legend>
+    <div class="checkbox">
+        <input class="checkbox" type="checkbox" name="reminders" id="reminders" value="true" checked/>
+        <label for="emailReminder">Reminders</label>
+    </div>
+    <div class="checkbox">
+        <input class="checkbox" type="checkbox" name="actions" id="actions" value="true" />
+        <label for="issueActions">Actions</label>
+    </div>    
+</fieldset>
+<div class="aui-buttons">
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="RUN" />
+</div>
+</form>
+</div>
+
+
+<!-- config status -->
+#if( $!status )
+    <p class="aui-message">$!status</p>
+#end
 
 </body>
 </html>

@@ -13,13 +13,13 @@ import java.util.Date;
  *
  * @author prasadve
  */
-public interface ActionRemindersScheduler {
+public interface AdskActionRemindersScheduler {
     
     public static final String SYNC_INTERVAL = "com.adsk.jira.actionreminders.plugin.syncInterval";
     
-    public static final String KEY = ActionRemindersScheduler.class.getName() + ":instance";
+    public static final String KEY = AdskActionRemindersScheduler.class.getName() + ":instance";
     
-    public static final String JOB_NAME = ActionRemindersScheduler.class.getName() + ":job";
+    public static final String JOB_NAME = AdskActionRemindersScheduler.class.getName() + ":job";
     
     public static final long DEFAULT_INTERVAL = 1L;
     

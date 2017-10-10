@@ -1,13 +1,18 @@
-#ActionRemindersAddButton {
-    background-image: url('images/file_add.png');
+.AdskActionRemindersHeading {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.AdskActionRemindersAddButton {
+    background-image: url('images/add.jpg');
     background-repeat: no-repeat;
     background-size: 100%;
-    width: 24px;
-    height: 24px;
-    display: inline;
+    width: 23px;
+    height: 23px;
+    display: inline-block;
+    margin-left: 2px;
     vertical-align: middle;
     background-position: 50% 50%;
-    float: right;
 }
 
 #ActionRemindersRefreshButton {
@@ -35,7 +40,7 @@
     float: right;
 }
 
-.actionreminders_question {
+.adsk_actionreminders_question {
     background-image: url('images/question.png');
     background-repeat: no-repeat;
     background-size: 100%;
@@ -70,7 +75,7 @@
     float: right;
 }
 
-.actionreminders_schedule {
+.adsk_actionreminders_schedule {
     background-image: url('images/calendar.png');
     background-repeat: no-repeat;
     background-size: 100%;
@@ -94,7 +99,7 @@
     float: right;
 }
 
-.actionreminders_edit {
+.adsk_actionreminders_edit {
     background-image: url('images/edit.png');
     background-repeat: no-repeat;
     background-size: 100%;
@@ -106,7 +111,7 @@
     float: right;
 }
 
-.actionreminders_delete {
+.adsk_actionreminders_delete {
     background-image: url('images/delete.png');
     background-repeat: no-repeat;
     background-size: 100%;
@@ -118,7 +123,19 @@
     float: right;
 }
 
-.actionreminders_run {
+.adsk_actionreminders_view {
+    background-image: url('images/view.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline;
+    vertical-align: middle;
+    background-position: 50% 50%;
+    float: right;
+}
+
+.adsk_actionreminders_run {
     background-image: url('images/run.png');
     background-repeat: no-repeat;
     background-size: 100%;
@@ -130,7 +147,7 @@
     float: right;
 }
 
-.actionreminders_help {
+.adsk_actionreminders_help {
     background-image: url('images/help.png');
     background-repeat: no-repeat;
     background-size: 100%;
@@ -141,7 +158,7 @@
     background-position: 50% 50%;
 }
 
-.actionremindersconfig_count_span {
+.adsk_actionremindersconfig_count_span {
     float: right;
     border-radius: 3px;
     background-color: green;
@@ -149,13 +166,14 @@
     color: #fff;
 }
 
-.actionremindersconfig_search_div {
+.adsk_actionremindersconfig_search_div {
     border-radius: 2px;
     display: inline;
     /*float: right;*/
-    margin: 2px;
 }
 
-.actionremindersconfig_search_div input {    
-    height: 20px;
+.adsk_actionremindersconfig_search_div input {    
+    height: 16px;
+    padding: 2px;
+    width: 250px;
 }
