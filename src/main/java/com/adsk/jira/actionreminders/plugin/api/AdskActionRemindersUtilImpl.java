@@ -5,7 +5,6 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
-import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.bc.issue.search.SearchService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
@@ -37,10 +36,12 @@ import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.mail.MailException;
 import com.atlassian.mail.server.SMTPMailServer;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.quartz.CronExpression;
 
 
 /**
@@ -48,7 +49,7 @@ import java.util.Set;
  * @author prasadve
  */
 public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUtil {
-    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersUtilImpl.class);
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersUtilImpl.class);
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static String defaultResolution = "1";
@@ -80,33 +81,55 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
        return projectManager.getProjects();
     }
     
-    public void run(boolean reminders, boolean actions) {
+    /**
+     * Method being triggered by Scheduler
+     * @param last_run_datetime
+     * @param next_run_datetime 
+     * Status: Active
+     */
+    public void run(Date last_run_datetime, Date next_run_datetime) {
         long startTime = System.currentTimeMillis();
-        LOGGER.debug("Running service now....");
+        logger.debug("######## Action Reminder Scheduler - START ##########");        
         
-        List<ActionRemindersBean> remindActionList = actionRemindersAOMgr.getActiveActionReminders();        
-        for(ActionRemindersBean map : remindActionList) {
-            LOGGER.debug("Processing original query -> "+ map.getQuery());
-            process(map, reminders, actions);
+        for(ActionRemindersAO action : actionRemindersAOMgr.getActiveActionReminders()) {
+            if(isValidCronExp(action.getCronSchedule())) {
+                Date nextValidTimeAfter = getNextValidTimeAfter(action.getCronSchedule(), last_run_datetime);
+                logger.debug("*** Processing Action Reminder Config Id #"+ action.getID());
+                logger.debug("Last Service Run Date:: "+ last_run_datetime.toString());
+                logger.debug("Next Service Run Date:: "+ next_run_datetime.toString());
+                logger.debug("Next Valid Action Reminder Run Date:: "+ nextValidTimeAfter.toString());
+                
+                if(nextValidTimeAfter.before(next_run_datetime)) {
+                    logger.debug("* Cron schedule Valid - running");
+                    process(action, true, true);
+                }else{
+                    logger.debug("Skipping Action Reminder Config Id #"+ action.getID());
+                }
+            }
         }
-        
+                
         long totalTime = System.currentTimeMillis() - startTime;
-        LOGGER.info("Service Finished. Took "+ totalTime/ 1000d +" Seconds");
+        logger.debug("######## Action Reminder Scheduler - END. Took "+ totalTime/ 1000d +" Seconds ##########");
     }
     
-    public void run(long configId, boolean reminders, boolean actions) {
-        LOGGER.debug("Running map Id: "+ configId);
-        
-        ActionRemindersBean remindAction = actionRemindersAOMgr.getActionReminderById(configId);        
-        if(remindAction != null) {
-            LOGGER.debug("Processing original query -> "+ remindAction.getQuery());
-            process(remindAction, reminders, actions);
+    public Date getNextValidTimeAfter(String cronExp, Date currentDate) {
+        Date date = null;
+        try {
+            CronExpression exp = new CronExpression(cronExp);
+            date = exp.getNextValidTimeAfter(currentDate);
+        } catch (ParseException e) {
+            logger.error(e);
         }
+        return date;
     }
     
-    public void process(ActionRemindersBean map, boolean reminders, boolean actions) {
+    public boolean isValidCronExp(String cronExp) {
+        return CronExpression.isValidExpression(cronExp);
+    }
+    
+    public void process(ActionRemindersAO map, boolean reminders, boolean actions) {
         if(reminders == false && actions == false) {
-            LOGGER.debug(map.getConfigId()+" - Both reminders and actions are set false. Skipping!");
+            logger.debug(map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
         }
         
@@ -114,28 +137,19 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
             is_issue_action = true;
         }else if(reminders == false && is_issue_action == false){
-            LOGGER.debug(map.getConfigId()+" - Both reminders and actions are set false. Skipping!");
+            logger.debug(map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
-        }        
-        
-        /*if(map.getExecCount() == 1) {
-            if(map.getLastRun() != null) {
-                if(getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
-                    LOGGER.debug("+++Last execution run date time is SAME DAY i.e. "+ map.getLastRun().toString());
-                    return;
-                }
-            }
-        } */               
+        }             
         
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){
-            LOGGER.debug(map.getRunAuthor()+" - Run Author is Null/not exists!");
+            logger.debug(map.getRunAuthor()+" - Run Author is Null/not exists!");
             return;
         }
         
         Project projectObj = projectManager.getProjectObjByKey(map.getProjectKey());
         if(projectObj == null){
-            LOGGER.debug(map.getProjectKey()+" - Project is Null/not exists!");
+            logger.debug(map.getProjectKey()+" - Project is Null/not exists!");
             return;
         }
         
@@ -148,22 +162,22 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, secureQuery);
             
             if (parseResult.isValid()) {
-                LOGGER.debug("Processing secure query -> "+ parseResult.getQuery());
+                logger.debug("Processing secure query -> "+ parseResult.getQuery());
                 
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, 1000));
                 
                 for(Issue issue : searchResults.getIssues()) {
-                    LOGGER.debug("processing issue -> "+ issue.getKey());
+                    logger.debug("processing issue -> "+ issue.getKey());
                                         
                     if(is_issue_action == true) { // Transition Action                        
-                        LOGGER.debug("processing transition action -> "+ map.getIssueAction());                                                
+                        logger.debug("processing transition action -> "+ map.getIssueAction());                                                
                         
                         Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
                         boolean is_action_exists = false;
                         
                         for(ActionDescriptor actionDescriptor : ActionDescriptors) {                            
                             if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {
-                                LOGGER.info("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
+                                logger.info("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
                                 is_action_exists = true;
                                 IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
                                 issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);                                                                
@@ -176,15 +190,15 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                                 if (validation.isValid()) {
                                     IssueService.IssueResult issueResult = issueService.transition(runAppUser, validation);
                                     if (issueResult.isValid()) {
-                                        LOGGER.debug("Transition successful.");
+                                        logger.debug("Transition successful.");
                                         for(String e : issueResult.getErrorCollection().getErrorMessages()) {
-                                            LOGGER.debug(e);
+                                            logger.debug(e);
                                         }
                                     }
                                 } else {
-                                    LOGGER.debug("Transition validation errors: ");
+                                    logger.debug("Transition validation errors: ");
                                     for(String e : validation.getErrorCollection().getErrorMessages()) {
-                                        LOGGER.debug(e);
+                                        logger.debug(e);
                                     }
                                 }
                                 break;
@@ -192,27 +206,27 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                         }
                         
                         if( is_action_exists == false ) {    
-                            LOGGER.debug("Transition action is not valid - "+ map.getIssueAction());
+                            logger.debug("Transition action is not valid - "+ map.getIssueAction());
                         }
                     
                     } else {
                         
-                        LOGGER.debug("Execution count is 0 so sending now.");
+                        logger.debug("Execution count is 0 so sending now.");
                         if( reminders ) { // Remind or re-notify
                             sendReminders(map, issue, runAppUser);
                         }
                     }
                     
-                    actionRemindersAOMgr.setActionRemindersLastRun(map.getConfigId()); // set last run
+                    actionRemindersAOMgr.setActionRemindersLastRun(map.getID()); // set last run
                 }
             }
         }
         catch(SearchException e) {
-            LOGGER.error(e.getLocalizedMessage());
+            logger.error(e.getLocalizedMessage());
         }
         
         long totalTime = System.currentTimeMillis() - startTime;
-        LOGGER.info("Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
+        logger.info("Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
     public String getResolutionId() {
@@ -223,26 +237,26 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         return "1";
     }
     
-    public void sendReminders(ActionRemindersBean map, Issue issue, ApplicationUser runUser) {
+    public void sendReminders(ActionRemindersAO map, Issue issue, ApplicationUser runUser) {
         String subject = MessageFormat.format("({0}) {1}", issue.getKey(), issue.getSummary());
         String issueLink = MessageFormat.format("{0}/browse/{1}", BaseUrl, issue.getKey());
         String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);        
         String ccfrom = runUser != null ? runUser.getEmailAddress() : "";
         Set<String> emailAddrs = new HashSet<String>();
         
-        if(map.isNotifyAssignee()) {
+        if(map.getNotifyAssignee()) {
             if(issue.getAssigneeUser() != null) {
                 emailAddrs.add(issue.getAssigneeUser().getEmailAddress());
             }
         }
         
-        if(map.isNotifyReporter()) {
+        if(map.getNotifyReporter()) {
             if(issue.getReporterUser() != null) {
                 emailAddrs.add(issue.getReporterUser().getEmailAddress());
             }
         }
         
-        if(map.isNotifyWatchers()) {
+        if(map.getNotifyWatchers()) {
             emailAddrs.addAll(getWatchersUsers(issue));
         }
         
@@ -254,7 +268,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             emailAddrs.addAll(getGroupUsers(map.getNotifyGroup()));
         }
         
-        LOGGER.debug("Total email users size - "+ emailAddrs.size());
+        logger.debug("Total email users size - "+ emailAddrs.size());
         
         for(String email : emailAddrs) {
             sendMail(email, subject, body, ccfrom);
@@ -265,12 +279,12 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         Set<String> users = new HashSet<String>();
         if(!"jira-administrators".equalsIgnoreCase(group) && !"jira-developers".equalsIgnoreCase(group) && !"jira-users".equalsIgnoreCase(group)) {
             Collection<ApplicationUser> groupUsers = groupManager.getUsersInGroup(group);
-            LOGGER.debug("Group users size - "+ group +" : "+ groupUsers.size());
+            logger.debug("Group users size - "+ group +" : "+ groupUsers.size());
             for(ApplicationUser au : groupUsers){
                 users.add(au.getEmailAddress());
             }
         }else{
-            LOGGER.warn(group +" - Default jira groups are not supported!");
+            logger.warn(group +" - Default jira groups are not supported!");
         }
         return users;
     }
@@ -291,18 +305,18 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             Project projectObject = projectManager.getProjectObjByKey(projectKey);
             ProjectRole devRole = getProjectRole(projectRole);
             if(devRole != null) {
-                LOGGER.debug("Project role name: "+ devRole.getName());
+                logger.debug("Project role name: "+ devRole.getName());
                 ProjectRoleActors roleActors = projectRoleManager.getProjectRoleActors(devRole, projectObject);
                 Set<ApplicationUser> actors = roleActors.getApplicationUsers();
-                LOGGER.debug("Project role users size - "+ projectRole +" : "+ actors.size());
+                logger.debug("Project role users size - "+ projectRole +" : "+ actors.size());
                 for(ApplicationUser au : actors){
                     users.add(au.getEmailAddress());
                 }
             }else{
-                LOGGER.debug("Project role is not exists! "+ projectRole);
+                logger.debug("Project role is not exists! "+ projectRole);
             }
         }else{
-            LOGGER.warn(projectKey +":"+ projectRole +" - Default project role does not supported!");
+            logger.warn(projectKey +":"+ projectRole +" - Default project role does not supported!");
         }
         return users;
     }
@@ -310,7 +324,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     public Set<String> getWatchersUsers(Issue issue) {
         Set<String> users = new HashSet<String>();
         List<String> watchUsers = watcherManager.getCurrentWatcherUsernames(issue);
-        LOGGER.debug("Issue watchers size - "+ issue.getKey() +" : "+ watchUsers.size());
+        logger.debug("Issue watchers size - "+ issue.getKey() +" : "+ watchUsers.size());
         for(String user : watchUsers) {
             ApplicationUser au = userManager.getUserByName(user);
             if(au != null) {
@@ -329,12 +343,12 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                 email.setFrom(ccfrom);
                 email.setCc(ccfrom);                
                 mailServer.send(email);
-                LOGGER.debug("Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
+                logger.debug("Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
             } else {
-                LOGGER.warn("Please make sure that a valid mailServer is configured");
+                logger.warn("Please make sure that a valid mailServer is configured");
             }
         } catch (MailException ex) {
-            LOGGER.error(ex.getLocalizedMessage());
+            logger.error(ex.getLocalizedMessage());
         }
     }
     

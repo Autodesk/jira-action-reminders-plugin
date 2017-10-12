@@ -22,15 +22,18 @@ public interface AdskActionRemindersUtil {
     
     public String getDateString(Date datetime);
     public List<Project> getProjects();
-    public void run(boolean reminders, boolean actions);
-    public void run(long configId, boolean reminders, boolean actions);
-    public void process(ActionRemindersBean map, boolean reminders, boolean actions);
-    public String getResolutionId();
-    public void sendReminders(ActionRemindersBean map, Issue issue, ApplicationUser runUser);
+    
+    public void run(Date last_run_datetime, Date next_run_datetime);
+    public Date getNextValidTimeAfter(String cronExp, Date currentDate);
+    public boolean isValidCronExp(String cronExp);    
+    public void process(ActionRemindersAO map, boolean reminders, boolean actions);    
+    public void sendReminders(ActionRemindersAO map, Issue issue, ApplicationUser runUser);
+    
     public Set<String> getGroupUsers(String group);
     public ProjectRole getProjectRole(String projectRole);
     public Set<String> getRoleUsers(String projectKey, String projectRole);
     public Set<String> getWatchersUsers(Issue issue);
+    public String getResolutionId();
     public void sendMail(String emailAddr, String subject, String body, String ccfrom);
     
 }

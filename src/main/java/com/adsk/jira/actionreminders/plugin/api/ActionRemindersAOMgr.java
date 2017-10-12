@@ -15,10 +15,10 @@ import java.util.List;
  */
 public interface ActionRemindersAOMgr {
     public ActiveObjects getActiveObjects();
-    public List<ActionRemindersBean> getActiveActionReminders();
-    public List<ActionRemindersBean> getAllActionReminders();
+    public ActionRemindersAO[] getActiveActionReminders();
+    public ActionRemindersAO[] getAllActionReminders();
     public List<ActionRemindersBean> getAllActionRemindersByProjectKey(String projectKey);
-    public ActionRemindersBean getActionReminderById(long mapId);
+    public ActionRemindersAO getActionReminderById(long mapId);
     public void addActionReminders(ActionRemindersBean configBean);
     public void updateActionReminders(ActionRemindersBean configBean);
     public boolean findActionReminders(ActionRemindersBean configBean);

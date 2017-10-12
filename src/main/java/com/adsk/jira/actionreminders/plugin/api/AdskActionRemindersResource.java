@@ -5,7 +5,6 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
-import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersRun;
 import com.adsk.jira.actionreminders.plugin.model.MessageBean;
 import com.atlassian.jira.permission.ProjectPermissions;
@@ -64,7 +63,7 @@ public class AdskActionRemindersResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(messageBean).build();
         }
         
-        ActionRemindersBean actionReminder = aremindersao.getActionReminderById(actionRemindersRun.getId());
+        ActionRemindersAO actionReminder = aremindersao.getActionReminderById(actionRemindersRun.getId());
         
         //check project permissions 
         ApplicationUser loggedInAppUser = jiraAuthenticationContext.getLoggedInUser();

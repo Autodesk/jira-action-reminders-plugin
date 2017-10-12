@@ -24,10 +24,14 @@ public class AdskActionRemindersService implements PluginJob {
         
         assert sch != null;
         
-        sch.setLastRun(new Date());        
-        logger.info("Action Reminders Service Interval : "+ sch.getInterval());
+        Date last_run_dt = sch.getLastRun();
+        Date now = new Date();
+        if(last_run_dt==null) last_run_dt = now;
+        Date next_run_dt = sch.getNextRun();        
+        sch.setLastRun(now);
         
-        sch.getActionRemindersUtil().run(true, true);
+        logger.debug("Action Reminders Service Interval : "+ sch.getInterval());
+        sch.getActionRemindersUtil().run(last_run_dt, next_run_dt);
     }
     
 }

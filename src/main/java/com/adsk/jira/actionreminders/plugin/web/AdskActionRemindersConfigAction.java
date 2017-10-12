@@ -1,5 +1,6 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
@@ -49,8 +50,9 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
             configBean.setProjectName(project.getName());
 
             LOGGER.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(configBean.getConfigId() > 0) {
-                actionRemindersUtil.run(configBean.getConfigId(), 
+            if(configBean.getConfigId() > 0) {                
+                ActionRemindersAO remindAction = remindActionsMgr.getActionReminderById(configBean.getConfigId()); 
+                actionRemindersUtil.process(remindAction, 
                         configBean.isReminders(), configBean.isActions());
             }
         }        
@@ -80,20 +82,20 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
         }
         else {
             if(configBean.getConfigId() > 0) {
-                ActionRemindersBean map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
+                ActionRemindersAO map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
                 configBean.setProjectKey(map.getProjectKey());
                 configBean.setQuery(map.getQuery());
                 configBean.setIssueAction(map.getIssueAction());           
                 configBean.setRunAuthor(map.getRunAuthor());
                 configBean.setLastRun(map.getLastRun());
                 configBean.setCronSchedule(map.getCronSchedule());
-                configBean.setNotifyAssignee(map.isNotifyAssignee());
-                configBean.setNotifyReporter(map.isNotifyReporter());
-                configBean.setNotifyWatchers(map.isNotifyWatchers());
+                configBean.setNotifyAssignee(map.getNotifyAssignee());
+                configBean.setNotifyReporter(map.getNotifyReporter());
+                configBean.setNotifyWatchers(map.getNotifyWatchers());
                 configBean.setNotifyProjectrole(map.getNotifyProjectrole());
                 configBean.setNotifyGroup(map.getNotifyGroup());
                 configBean.setMessage(map.getMessage());
-                configBean.setActive(map.isActive());
+                configBean.setActive(map.getActive());
                 
                 Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
                 if(project == null) {

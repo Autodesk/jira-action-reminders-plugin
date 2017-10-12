@@ -1,5 +1,6 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
@@ -77,20 +78,20 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
         else {
             LOGGER.info("ConfigId: "+ configBean.getConfigId());
             if(configBean.getConfigId() > 0) {
-                ActionRemindersBean map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
+                ActionRemindersAO map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
                 configBean.setProjectKey(map.getProjectKey());
                 configBean.setQuery(map.getQuery());
                 configBean.setIssueAction(map.getIssueAction());           
                 configBean.setRunAuthor(map.getRunAuthor());
                 configBean.setLastRun(map.getLastRun());
                 configBean.setCronSchedule(map.getCronSchedule());
-                configBean.setNotifyAssignee(map.isNotifyAssignee());
-                configBean.setNotifyReporter(map.isNotifyReporter());
-                configBean.setNotifyWatchers(map.isNotifyWatchers());
+                configBean.setNotifyAssignee(map.getNotifyAssignee());
+                configBean.setNotifyReporter(map.getNotifyReporter());
+                configBean.setNotifyWatchers(map.getNotifyWatchers());
                 configBean.setNotifyProjectrole(map.getNotifyProjectrole());
                 configBean.setNotifyGroup(map.getNotifyGroup());
                 configBean.setMessage(map.getMessage());
-                configBean.setActive(map.isActive());
+                configBean.setActive(map.getActive());
             }
         }
         return "success";

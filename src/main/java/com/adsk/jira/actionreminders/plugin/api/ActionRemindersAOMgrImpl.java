@@ -45,52 +45,12 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         return DATE_FORMAT.format(datetime); // example: 2011-05-26 10:54:41
     }
     
-    @Override
-    public List<ActionRemindersBean> getActiveActionReminders() {
-        List<ActionRemindersBean> map_lists = new ArrayList<ActionRemindersBean>();
-        for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select().where("ACTIVE = ?", true))) {
-            ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setConfigId(map.getID());
-            bean.setProjectKey(map.getProjectKey());
-            bean.setQuery(map.getQuery());
-            bean.setIssueAction(map.getIssueAction());
-            bean.setRunAuthor(map.getRunAuthor());
-            bean.setLastRun(map.getLastRun());
-            bean.setCronSchedule(map.getCronSchedule());
-            bean.setNotifyAssignee(map.getNotifyAssignee());
-            bean.setNotifyReporter(map.getNotifyReporter());
-            bean.setNotifyWatchers(map.getNotifyWatchers());
-            bean.setNotifyProjectrole(map.getNotifyProjectrole());
-            bean.setNotifyGroup(map.getNotifyGroup());
-            bean.setMessage(map.getMessage());
-            bean.setActive(map.getActive());
-            map_lists.add(bean);
-        }        
-        return map_lists;
+    public ActionRemindersAO[] getActiveActionReminders() {
+        return ao.find(ActionRemindersAO.class, Query.select().where("ACTIVE = ?", true));
     }
     
-    @Override
-    public List<ActionRemindersBean> getAllActionReminders() {
-        List<ActionRemindersBean> map_lists = new ArrayList<ActionRemindersBean>();
-        for(ActionRemindersAO map : ao.find(ActionRemindersAO.class, Query.select().order("ID DESC"))) {
-            ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setConfigId(map.getID());
-            bean.setProjectKey(map.getProjectKey());
-            bean.setQuery(map.getQuery());
-            bean.setIssueAction(map.getIssueAction());           
-            bean.setRunAuthor(map.getRunAuthor());
-            bean.setLastRun(map.getLastRun());
-            bean.setCronSchedule(map.getCronSchedule());
-            bean.setNotifyAssignee(map.getNotifyAssignee());
-            bean.setNotifyReporter(map.getNotifyReporter());
-            bean.setNotifyWatchers(map.getNotifyWatchers());
-            bean.setNotifyProjectrole(map.getNotifyProjectrole());
-            bean.setNotifyGroup(map.getNotifyGroup());
-            bean.setMessage(map.getMessage());
-            bean.setActive(map.getActive());
-            map_lists.add(bean);
-        }
-        return map_lists;
+    public ActionRemindersAO[] getAllActionReminders() {        
+        return ao.find(ActionRemindersAO.class, Query.select());
     }
     
     @Override
@@ -119,26 +79,10 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     }
     
     @Override
-    public ActionRemindersBean getActionReminderById(long mapId) {
+    public ActionRemindersAO getActionReminderById(long mapId) {
         final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", mapId));
         if(maps.length > 0) {
-            final ActionRemindersAO map = maps[0]; 
-            ActionRemindersBean bean = new ActionRemindersBean();
-            bean.setConfigId(map.getID());
-            bean.setProjectKey(map.getProjectKey());
-            bean.setQuery(map.getQuery());
-            bean.setIssueAction(map.getIssueAction());           
-            bean.setRunAuthor(map.getRunAuthor());
-            bean.setLastRun(map.getLastRun());
-            bean.setCronSchedule(map.getCronSchedule());
-            bean.setNotifyAssignee(map.getNotifyAssignee());
-            bean.setNotifyReporter(map.getNotifyReporter());
-            bean.setNotifyWatchers(map.getNotifyWatchers());
-            bean.setNotifyProjectrole(map.getNotifyProjectrole());
-            bean.setNotifyGroup(map.getNotifyGroup());
-            bean.setMessage(map.getMessage());
-            bean.setActive(map.getActive());
-            return bean;            
+            return maps[0];
         }
         return null;
     }
