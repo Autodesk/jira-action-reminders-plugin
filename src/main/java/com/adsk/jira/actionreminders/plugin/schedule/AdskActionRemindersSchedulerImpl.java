@@ -5,8 +5,7 @@
  */
 package com.adsk.jira.actionreminders.plugin.schedule;
 
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtilImpl;
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import com.atlassian.sal.api.scheduling.PluginScheduler;
@@ -15,6 +14,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 /**
  *
@@ -29,11 +29,11 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
     private final ApplicationProperties applicationProperties;
     private final PluginScheduler pluginScheduler;  // provided by SAL    
     private final ActionRemindersAOMgr actionRemindersAOMgr;
-    private final ActionRemindersUtilImpl actionRemindersUtil;
+    private final AdskActionRemindersUtilImpl actionRemindersUtil;
     
     public AdskActionRemindersSchedulerImpl(ApplicationProperties applicationProperties, 
             PluginScheduler pluginScheduler, ActionRemindersAOMgr actionRemindersAOMgr, 
-            ActionRemindersUtilImpl actionRemindersUtil) {
+            AdskActionRemindersUtilImpl actionRemindersUtil) {
         this.applicationProperties = applicationProperties;
         this.pluginScheduler = pluginScheduler;
         this.actionRemindersAOMgr = actionRemindersAOMgr;
@@ -102,7 +102,7 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
         this.lastRun = lastRun;
     }
     
-    public ActionRemindersUtilImpl getActionRemindersUtil() {
+    public AdskActionRemindersUtilImpl getActionRemindersUtil() {
         return actionRemindersUtil;
     }
     

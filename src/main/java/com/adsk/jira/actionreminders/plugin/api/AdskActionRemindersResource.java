@@ -27,17 +27,17 @@ import org.apache.log4j.Logger;
  */
 
 @Path("/run")
-public class ActionRemindersResource {
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersResource.class);    
+public class AdskActionRemindersResource {
+    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersResource.class);    
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final PermissionManager permissionManager;
     private final ProjectManager projectManager;
     private final ActionRemindersAOMgr aremindersao;
-    private final ActionRemindersUtil actionRemindersUtil;
+    private final AdskActionRemindersUtil actionRemindersUtil;
     
-    public ActionRemindersResource(JiraAuthenticationContext jiraAuthenticationContext, PermissionManager permissionManager, 
+    public AdskActionRemindersResource(JiraAuthenticationContext jiraAuthenticationContext, PermissionManager permissionManager, 
             ProjectManager projectManager, ActionRemindersAOMgr aremindersao, 
-            ActionRemindersUtil actionRemindersUtil) {
+            AdskActionRemindersUtil actionRemindersUtil) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.permissionManager = permissionManager;
         this.projectManager = projectManager;

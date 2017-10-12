@@ -6,6 +6,7 @@
         <param name="atlassian-data-center-compatible">true</param>
         <param name="plugin-icon">images/pluginIcon.png</param>
         <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="configure.url">/secure/ActionRemindersAdmin.jspa</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
@@ -32,8 +33,8 @@
     </component-import>
     
     <component key="jira-actionreminders-util-manager" name="Action Reminders Util Manager" 
-               class="com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtilImpl">
-        <interface>com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtil</interface>
+               class="com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl">
+        <interface>com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil</interface>
     </component>
     
     <component-import key="pluginScheduler" name="Okta Groups Sync Plugin Scheduler">
@@ -58,15 +59,34 @@
     </component-import>
     <ao key="jira-actionreminders-ao">
       <description>AO interface for storing Remind Action Map entities</description>
-      <entity>com.adsk.jira.actionreminders.plugin.model.ActionRemindersAO</entity>
+      <entity>com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO</entity>
     </ao>
     
     <!-- Web Options panel -->
     <web-section key="jira-actionreminders.section" name="Action Reminders Section" 
         location="admin_plugins_menu" i18n-name-key="jira-actionreminders.section" weight="202" application="jira">
         <label key="jira-actionreminders.section.label" />
-    </web-section>        
+    </web-section>
     
+    <!-- Admin Web Link -->
+    <webwork1 key="jira-actionreminders-configure-action" name="Action Reminders Configure Action" i18n-name-key="jira-actionreminders-configure-action.name">
+        <actions>
+          <action name="com.adsk.jira.actionreminders.plugin.web.AdskActionRemindersAdminAction" alias="ActionRemindersAdmin">
+            <view name="success">/templates/admin.vm</view>
+            <view name="error">/secure/views/permissionviolation.jsp</view>
+          </action>
+        </actions>
+    </webwork1>
+    <web-item key="jira-actionreminders-confgure-item" name="Action Reminders Configure Admin" 
+        i18n-name-key="jira-actionreminders-configure-item.name"
+        section="admin_plugins_menu/jira-actionreminders.section" weight="10" application="jira">
+        <label key="jira-actionreminders-configure.label" />
+        <link linkId="jira-actionreminders-configure-link">/secure/ActionRemindersAdmin.jspa</link>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
+	    <param name="permission">admin</param>
+	</condition>
+    </web-item>
+      
     <!-- Project Admin Web Link -->
     <web-section key="jira-actionreminders-project-section" name="Remind Actions Project Plugin" location="atl.jira.proj.config" i18n-name-key="jira-actionreminders.project.section" weight="20" application="jira"/>
     <webwork1 key="jira-actionreminders-project-configure-action" name="Action Reminders Project Configure Action" i18n-name-key="jira-actionreminders-project-configure-action.name">
@@ -81,14 +101,7 @@
         section="atl.jira.proj.config/jira-actionreminders-project-section" weight="10" application="jira">
         <label key="jira-actionreminders.project.configure.label" />
         <link linkId="jira-actionreminders-project-configure-link">/secure/AdskActionReminders.jspa?projectKey=$projectKeyEncoded</link>
-        <conditions type="OR">
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
-            <param name="permission">admin</param>
-        </condition>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserHasVisibleProjectsCondition">
-            <param name="permission">project</param>
-        </condition>
-        </conditions>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.CanAdministerProjectCondition" />
     </web-item>
     
     <webwork1 key="jira-actionreminders-project-edit-action" name="Action Reminders Project Edit Action" i18n-name-key="jira-actionreminders-project-edit-action.name">

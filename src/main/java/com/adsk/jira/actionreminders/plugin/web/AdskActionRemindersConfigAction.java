@@ -1,12 +1,12 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 /**
  * @author scmenthusiast@gmail.com

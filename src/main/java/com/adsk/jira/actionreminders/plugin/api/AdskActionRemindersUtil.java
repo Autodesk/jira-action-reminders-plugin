@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author prasadve
  */
-public interface ActionRemindersUtil {
+public interface AdskActionRemindersUtil {
     
     public String getDateString(Date datetime);
     public List<Project> getProjects();

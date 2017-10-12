@@ -5,7 +5,6 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
-import com.adsk.jira.actionreminders.plugin.model.ActionRemindersAO;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import java.text.ParseException;

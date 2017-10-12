@@ -20,7 +20,6 @@ import com.opensymphony.workflow.loader.ActionDescriptor;
 import java.util.Collection;
 import java.util.List;
 import org.apache.log4j.Logger;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.config.ConstantsManager;
 import com.atlassian.jira.config.properties.APKeys;
@@ -42,14 +41,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 
 /**
  *
  * @author prasadve
  */
-public final class ActionRemindersUtilImpl implements ActionRemindersUtil {
-    private static final Logger LOGGER = Logger.getLogger(ActionRemindersUtilImpl.class);
+public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUtil {
+    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersUtilImpl.class);
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static String defaultResolution = "1";
@@ -68,7 +68,7 @@ public final class ActionRemindersUtilImpl implements ActionRemindersUtil {
     private final SearchService searchService = ComponentAccessor.getComponent(SearchService.class);
     
     private final ActionRemindersAOMgr actionRemindersAOMgr;
-    public ActionRemindersUtilImpl(ActionRemindersAOMgr actionRemindersAOMgr) {
+    public AdskActionRemindersUtilImpl(ActionRemindersAOMgr actionRemindersAOMgr) {
         this.actionRemindersAOMgr = actionRemindersAOMgr;
         defaultResolution = getResolutionId();
     }

@@ -1,7 +1,5 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
@@ -13,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 /**
  * @author scmenthusiast@gmail.com
@@ -30,10 +30,10 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
     
     private final ActionRemindersAOMgr remindActionsMgr;
     private final JiraAuthenticationContext jiraAuthenticationContext;
-    private final ActionRemindersUtil actionRemindersUtil;
+    private final AdskActionRemindersUtil actionRemindersUtil;
     
     public AdskActionRemindersAction(ActionRemindersAOMgr remindActionsMgr, 
-            JiraAuthenticationContext jiraAuthenticationContext, ActionRemindersUtil actionRemindersUtil) {
+            JiraAuthenticationContext jiraAuthenticationContext, AdskActionRemindersUtil actionRemindersUtil) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.remindActionsMgr = remindActionsMgr;
         this.actionRemindersUtil = actionRemindersUtil;

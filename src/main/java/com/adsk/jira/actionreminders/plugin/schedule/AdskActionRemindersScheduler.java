@@ -5,9 +5,9 @@
  */
 package com.adsk.jira.actionreminders.plugin.schedule;
 
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersUtilImpl;
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl;
 import java.util.Date;
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 /**
  *
@@ -25,7 +25,7 @@ public interface AdskActionRemindersScheduler {
     
     public ActionRemindersAOMgr getActionRemindersAOMgr();
     
-    public ActionRemindersUtilImpl getActionRemindersUtil();
+    public AdskActionRemindersUtilImpl getActionRemindersUtil();
     
     public long getInterval();    
     public void reschedule();
