@@ -1,0 +1,40 @@
+#disable_html_escaping()
+<html>
+<head>
+    <title>$i18n.getText("jira-action-reminders.option.label")</title>
+    $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
+    <meta name="decorator" content="atl.admin" />
+    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />   
+</head>
+<body>
+
+
+<p>
+<span class="AdskActionRemindersHeading">$i18n.getText("jira-action-reminders.option.label") Schedule</span>
+<a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank" 
+    class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
+</p>
+
+<!-- Configure Schedule -->
+<div id="AdskActionRemindersProjectSchedule">
+<form id="AdskActionRemindersProjectScheduleForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa" >
+<div class="field-group">
+    <label for="interval">
+        $i18n.getText("jira.okta.group.configure.option.interval.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="number" id="interval" name="interval" class="text" min="1" value="$!interval" />
+</div>
+<div class="aui-buttons">
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="Schedule" />
+</div>
+</form>
+</div>
+
+<!-- config status -->
+#if( $!status )
+    <p class="aui-message">$!status</p>
+#end
+
+</body>
+</html>

@@ -41,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 
 /**
@@ -119,14 +118,14 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             return;
         }        
         
-        if(map.getExecCount() == 1) {
+        /*if(map.getExecCount() == 1) {
             if(map.getLastRun() != null) {
                 if(getDateString(map.getLastRun()).equals(getDateString(new Date()))) {
                     LOGGER.debug("+++Last execution run date time is SAME DAY i.e. "+ map.getLastRun().toString());
                     return;
                 }
             }
-        }                
+        } */               
         
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){

@@ -7,6 +7,10 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
+import com.atlassian.jira.permission.ProjectPermissions;
+import com.atlassian.jira.project.Project;
+import java.text.MessageFormat;
 
 /**
  * @author scmenthusiast@gmail.com
@@ -23,42 +27,85 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     private String status;
     
     private final ActionRemindersAOMgr remindActionsMgr;
-    
-    public AdskActionRemindersConfigAction(ActionRemindersAOMgr remindActionsMgr) {
+    private final AdskActionRemindersUtil actionRemindersUtil;
+    public AdskActionRemindersConfigAction(ActionRemindersAOMgr remindActionsMgr, 
+            AdskActionRemindersUtil actionRemindersUtil) {
         this.remindActionsMgr = remindActionsMgr;
+        this.actionRemindersUtil = actionRemindersUtil;
     }
         
     @Override
     public String doExecute() throws Exception {
-        /*Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
-        if(project == null) {
-            return "error";
-        }
-        configBean.setProjectName(project.getName());
-        
-        if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
-            return "error";
-        }*/
-                
+                        
         LOGGER.info("ConfigId: "+ configBean.getConfigId());
-        if(configBean.getConfigId() > 0) {
-            ActionRemindersBean map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
-            configBean.setProjectKey(map.getProjectKey());
-            configBean.setQuery(map.getQuery());
-            configBean.setIssueAction(map.getIssueAction());           
-            configBean.setRunAuthor(map.getRunAuthor());
-            configBean.setLastRun(map.getLastRun());
-            configBean.setExecCount(map.getExecCount());
-            configBean.setNotifyAssignee(map.isNotifyAssignee());
-            configBean.setNotifyReporter(map.isNotifyReporter());
-            configBean.setNotifyWatchers(map.isNotifyWatchers());
-            configBean.setNotifyProjectrole(map.getNotifyProjectrole());
-            configBean.setNotifyGroup(map.getNotifyGroup());
-            configBean.setMessage(map.getMessage());
-            configBean.setActive(map.isActive());
+        if (this.submitted != null && "RUN".equals(this.submitted)) {
+            Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
+            if(project == null) {
+                return "error";
+            }            
+            if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
+                return "error";
+            }
+            configBean.setProjectName(project.getName());
+
+            LOGGER.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            if(configBean.getConfigId() > 0) {
+                actionRemindersUtil.run(configBean.getConfigId(), 
+                        configBean.isReminders(), configBean.isActions());
+            }
+        }        
+        else if (this.submitted != null && "SAVE".equals(this.submitted)) {
+            Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
+            if(project == null) {
+                return "error";
+            }
+            configBean.setProjectName(project.getName());
+
+            if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
+                return "error";
+            }
+
+            LOGGER.debug("Saving map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            if(remindActionsMgr.findActionReminders2(configBean) == false) {
+                if(configBean.getConfigId() > 0 && configBean.getProjectKey() != null && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
+                    remindActionsMgr.updateActionReminders(configBean);                    
+                    status = "Saved.";
+                }else{
+                    status = "Remind action fields missing!";
+                }
+            }else{
+                status = MessageFormat.format("{0} && {1} alredy exists in mapping!",
+                        configBean.getQuery(), configBean.getIssueAction());
+            }
         }
-        
-        LOGGER.info("QUERY: "+ configBean.getQuery());
+        else {
+            if(configBean.getConfigId() > 0) {
+                ActionRemindersBean map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
+                configBean.setProjectKey(map.getProjectKey());
+                configBean.setQuery(map.getQuery());
+                configBean.setIssueAction(map.getIssueAction());           
+                configBean.setRunAuthor(map.getRunAuthor());
+                configBean.setLastRun(map.getLastRun());
+                configBean.setCronSchedule(map.getCronSchedule());
+                configBean.setNotifyAssignee(map.isNotifyAssignee());
+                configBean.setNotifyReporter(map.isNotifyReporter());
+                configBean.setNotifyWatchers(map.isNotifyWatchers());
+                configBean.setNotifyProjectrole(map.getNotifyProjectrole());
+                configBean.setNotifyGroup(map.getNotifyGroup());
+                configBean.setMessage(map.getMessage());
+                configBean.setActive(map.isActive());
+                
+                Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
+                if(project == null) {
+                    return "error";
+                }
+                configBean.setProjectName(project.getName());
+
+                if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
+                    return "error";
+                }
+            }
+        }
         
         return "success";
     }
@@ -122,14 +169,14 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     public void setLastRun(Date lastRun) {
         configBean.setLastRun(lastRun);
     }
-
-    public int getExecCount() {
-        return configBean.getExecCount();
+    
+    public String getCronSchedule() {
+        return configBean.getCronSchedule();
     }
 
-    public void setExecCount(int execCount) {
-        configBean.setExecCount(execCount);
-    }
+    public void setCronSchedule(String cronSchedule) {
+        configBean.setCronSchedule(cronSchedule);
+    }   
 
     public boolean isNotifyAssignee() {
         return configBean.isNotifyAssignee();

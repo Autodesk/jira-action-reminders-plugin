@@ -10,7 +10,7 @@ public class ActionRemindersBean {
     private String issueAction;
     private String runAuthor;
     private Date lastRun;
-    private int execCount;
+    private String cronSchedule;
     private boolean notifyAssignee;
     private boolean notifyReporter;
     private boolean notifyWatchers;
@@ -85,12 +85,12 @@ public class ActionRemindersBean {
         this.lastRun = lastRun;
     }
 
-    public int getExecCount() {
-        return execCount;
+    public String getCronSchedule() {
+        return cronSchedule;
     }
 
-    public void setExecCount(int execCount) {
-        this.execCount = execCount;
+    public void setCronSchedule(String cronSchedule) {
+        this.cronSchedule = cronSchedule;
     }
 
     public boolean isNotifyAssignee() {

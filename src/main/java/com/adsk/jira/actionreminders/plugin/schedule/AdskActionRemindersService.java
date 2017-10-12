@@ -25,7 +25,7 @@ public class AdskActionRemindersService implements PluginJob {
         assert sch != null;
         
         sch.setLastRun(new Date());        
-        logger.info("Okta Groups Sync Service Interval : "+ sch.getInterval());
+        logger.info("Action Reminders Service Interval : "+ sch.getInterval());
         
         sch.getActionRemindersUtil().run(true, true);
     }

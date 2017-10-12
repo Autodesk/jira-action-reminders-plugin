@@ -6,7 +6,10 @@
     <meta name="decorator" content="atl.admin" />
     <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>
     <script>        
-
+        function prepareEdit() {
+            AJS.$("#ActionRemindersAddEdit").stop().slideDown();
+            AJS.$("#ActionRemindersRun").stop().slideUp();
+        }
         function prepareRun(configId) {
             AJS.$("#ActionRemindersRun").stop().slideDown();
             AJS.$("#ActionRemindersAddEdit").stop().slideUp();         
@@ -31,32 +34,40 @@
 
 <p>
 <span class="AdskActionRemindersHeading">
-    $i18n.getText("jira-action-reminders.option.label")#if($projectName) | $projectName#end</span>
+    $i18n.getText("jira-action-reminders.option.label") #$configId  #if($projectName) | $projectName#end</span>
 <a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank"
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
-<a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$entry.configId')"></a>
+<a href="#" class="adsk_actionreminders_edit" onClick="prepareEdit()"></a>
+<a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$configId')"></a>
 </p>
 
 <!-- Add or Edit Form -->
 
-<div id="ActionRemindersAddEdit" style="display: none">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<div id="ActionRemindersAddEdit">
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="AdskActionRemindersConfigure.jspa?configId=$configId" >
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
+<div class="field-group">
+    <label for="configIds">
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="text" id="configIds" name="configIds" class="text" value="$!configId" disabled=""/>
+</div>
 <div class="field-group">
     <label for="query">
         $i18n.getText("jira-action-reminders.option.query.label"):
         <span class="aui-icon icon-required"></span>
     </label>
     <textarea id="query" name="query" class="textfield" rows="2" cols="60" 
-        placeholder="Your JQL Query here $i18n.getText('jira-action-reminders.option.query.description')"></textarea>
+        placeholder="Your JQL Query here $i18n.getText('jira-action-reminders.option.query.description')">$!query</textarea>
     <div class="description">$i18n.getText("jira-action-reminders.option.query.description")</div>
 </div>
 <div class="field-group">
     <label for="issueAction">
         $i18n.getText("jira-action-reminders.option.action.label"):
     </label>
-    <input type="text" id="issueAction" name="issueAction" class="text" placeholder="Your Action Name" />
+    <input type="text" id="issueAction" name="issueAction" class="text" placeholder="Your Action Name" value="$!issueAction" />
     <div class="description">$i18n.getText("jira-action-reminders.option.action.description")</div>
 </div>
 <div class="field-group">
@@ -71,28 +82,26 @@
     <div class="description">$i18n.getText("jira-action-reminders.option.author.description")</div>
 </div>
 <div class="field-group">
-    <label for="execCount">
-        $i18n.getText("jira-action-reminders.option.execcount.label"):
+    <label for="cronSchedule">
+        $i18n.getText("jira-action-reminders.option.cronSchedule.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <select id="execCount" name="execCount" class="select" placeholder="No of executions a day">
-        <option value="1">Once a day</option>
-        <option value="0">Any times</option>
-    </select>
-    <div class="description">$i18n.getText("jira-action-reminders.option.execcount.description")</div>
+    <input id="cronSchedule" name="cronSchedule" class="text" placeholder="Your Cron Schedule" value="$!cronSchedule" />        
+    <a class="adsk_actionreminders_help" target="_blank" 
+        href="https://git.autodesk.com/EngOps/adsk-jira-action-reminders-plugin/wiki/Cron-Schedule-Example"></a>
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="true" />
+        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" #if($!notifyAssignee) checked #end />
         <label for="notifyAssignee">Notify Assignee</label>
     </div>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="true" />
+        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" #if($!notifyReporter) checked #end />
         <label for="notifyReporter">Notify Reporter</label>
     </div>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="true" />
+        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" #if($!notifyWatchers) checked #end />
         <label for="notifyWatchers">Notify Watchers</label>
     </div>
 </fieldset>
@@ -100,20 +109,20 @@
     <label for="notifyProjectrole">
         $i18n.getText("jira-action-reminders.option.role.label"):
     </label>
-    <input type="text" id="notifyProjectrole" name="notifyProjectrole" class="text" placeholder="Your Project Role to Notify" />
+    <input type="text" id="notifyProjectrole" name="notifyProjectrole" class="text" placeholder="Your Project Role to Notify" value="$!notifyProjectrole" />
 </div>
 <div class="field-group">
     <label for="notifyGroup">
         $i18n.getText("jira-action-reminders.option.group.label"):
     </label>
-    <input type="text" id="notifyGroup" name="notifyGroup" class="text long-field" placeholder="Your Group name to Notify" />
+    <input type="text" id="notifyGroup" name="notifyGroup" class="text long-field" placeholder="Your Group name to Notify" value="$!notifyGroup" />
 </div>
 <div class="field-group">
     <label for="message">
         $i18n.getText("jira-action-reminders.option.message.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here"></textarea>
+    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here">$!message</textarea>
     <div class="description">$i18n.getText("jira-action-reminders.option.message.description")</div>
 </div>
 <div class="field-group">
@@ -121,21 +130,24 @@
         $i18n.getText("jira-action-reminders.option.active.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <select id="active" name="active" class="text">
-        <option value="true">TRUE</option>
-        <option value="false">FALSE</option>        
+    <select id="active" name="active" class="text">   
+        #foreach ($option in ["FALSE", "TRUE"])
+            <option value="$option.toLowerCase()"
+            #if ($option.toLowerCase() == "$!active")selected#end
+            >$option</option>
+        #end
     </select>
     <div class="description">$i18n.getText("jira-action-reminders.option.active.description")</div>
 </div>
 <div class="aui-buttons">
-    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="ADD" />
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="SAVE" />
 </div>
 </form>
 </div>
 
 <!-- Run form with Mapping ID -->
 <div id="ActionRemindersRun" style="display: none">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<form id="ActionRemindersRunForm" class="aui" method="post" action="AdskActionRemindersConfigure.jspa?configId=$configId" >
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <div class="field-group">
     <label for="configIds">

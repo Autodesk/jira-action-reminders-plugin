@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
-import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 
 /**
@@ -29,14 +28,12 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
     private String status;
     
     private final ActionRemindersAOMgr remindActionsMgr;
-    private final JiraAuthenticationContext jiraAuthenticationContext;
-    private final AdskActionRemindersUtil actionRemindersUtil;
+    private final JiraAuthenticationContext jiraAuthenticationContext;    
     
     public AdskActionRemindersAction(ActionRemindersAOMgr remindActionsMgr, 
-            JiraAuthenticationContext jiraAuthenticationContext, AdskActionRemindersUtil actionRemindersUtil) {
+            JiraAuthenticationContext jiraAuthenticationContext) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
-        this.remindActionsMgr = remindActionsMgr;
-        this.actionRemindersUtil = actionRemindersUtil;
+        this.remindActionsMgr = remindActionsMgr;        
     }
         
     @Override
@@ -56,14 +53,7 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
             return "error";
         }
                 
-        if (this.submitted != null && "RUN".equals(this.submitted)) {
-            LOGGER.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(configBean.getConfigId() != 0) {
-                actionRemindersUtil.run(configBean.getConfigId(), 
-                        configBean.isReminders(), configBean.isActions());
-            }
-        }        
-        else if (this.submitted != null && "ADD".equals(this.submitted)) {            
+        if (this.submitted != null && "ADD".equals(this.submitted)) {            
             LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders(configBean) == false) {
                 if(configBean.getProjectKey() != null && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
@@ -76,21 +66,7 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
                 status = MessageFormat.format("{0} && {1} alredy exists in mapping!",
                         configBean.getQuery(), configBean.getIssueAction());
             }
-        }
-        else if (this.submitted != null && "SAVE".equals(this.submitted)) {            
-            LOGGER.debug("Saving map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(remindActionsMgr.findActionReminders2(configBean) == false) {
-                if(configBean.getConfigId() != 0 && configBean.getProjectKey() != null && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
-                    remindActionsMgr.updateActionReminders(configBean);                    
-                    status = "Saved.";
-                }else{
-                    status = "Remind action fields missing!";
-                }
-            }else{
-                status = MessageFormat.format("{0} && {1} alredy exists in mapping!",
-                        configBean.getQuery(), configBean.getIssueAction());
-            }
-        }
+        }        
         else if (this.submitted != null && "DELETE".equals(this.submitted)) {
             LOGGER.debug("Deleting map Id -> "+ configBean.getConfigId());
             if(configBean.getConfigId() != 0) {
@@ -107,7 +83,7 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
                 configBean.setIssueAction(map.getIssueAction());           
                 configBean.setRunAuthor(map.getRunAuthor());
                 configBean.setLastRun(map.getLastRun());
-                configBean.setExecCount(map.getExecCount());
+                configBean.setCronSchedule(map.getCronSchedule());
                 configBean.setNotifyAssignee(map.isNotifyAssignee());
                 configBean.setNotifyReporter(map.isNotifyReporter());
                 configBean.setNotifyWatchers(map.isNotifyWatchers());
@@ -180,13 +156,13 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
     public void setLastRun(Date lastRun) {
         configBean.setLastRun(lastRun);
     }
-
-    public int getExecCount() {
-        return configBean.getExecCount();
+    
+    public String getCronSchedule() {
+        return configBean.getCronSchedule();
     }
 
-    public void setExecCount(int execCount) {
-        configBean.setExecCount(execCount);
+    public void setCronSchedule(String cronSchedule) {
+        configBean.setCronSchedule(cronSchedule);
     }
 
     public boolean isNotifyAssignee() {

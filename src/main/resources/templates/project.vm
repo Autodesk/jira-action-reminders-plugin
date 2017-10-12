@@ -75,15 +75,13 @@
     <div class="description">$i18n.getText("jira-action-reminders.option.author.description")</div>
 </div>
 <div class="field-group">
-    <label for="execCount">
-        $i18n.getText("jira-action-reminders.option.execcount.label"):
+    <label for="cronSchedule">
+        $i18n.getText("jira-action-reminders.option.cronSchedule.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <select id="execCount" name="execCount" class="select" placeholder="No of executions a day">
-        <option value="1">Once a day</option>
-        <option value="0">Any times</option>
-    </select>
-    <div class="description">$i18n.getText("jira-action-reminders.option.execcount.description")</div>
+    <input id="cronSchedule" name="cronSchedule" class="text" placeholder="Your Cron Schedule" />        
+    <a class="adsk_actionreminders_help" target="_blank" 
+        href="https://git.autodesk.com/EngOps/adsk-jira-action-reminders-plugin/wiki/Cron-Schedule-Example"></a>
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
