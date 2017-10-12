@@ -31,8 +31,6 @@ public interface ActionRemindersAO extends Entity {
     public void setRunAuthor(String runAuthor);
     public Date getLastRun();
     public void setLastRun(Date lastRun);
-    public int getExecCount();
-    public void setExecCount(int execCount);
     public String getCronSchedule();
     public void setCronSchedule(String cronSchedule);
     public boolean getNotifyAssignee();

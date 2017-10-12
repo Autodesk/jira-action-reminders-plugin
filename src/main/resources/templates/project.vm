@@ -80,7 +80,7 @@
         <span class="aui-icon icon-required"></span>
     </label>
     <input id="cronSchedule" name="cronSchedule" class="text" placeholder="Your Cron Schedule" />        
-    <a class="adsk_actionreminders_help" target="_blank" 
+    <a class="adsk_actionreminders_help" target="_blank" title="Cron Schedule Examples" 
         href="https://git.autodesk.com/EngOps/adsk-jira-action-reminders-plugin/wiki/Cron-Schedule-Example"></a>
 </div>
 <fieldset class="group">

@@ -87,21 +87,21 @@
         <span class="aui-icon icon-required"></span>
     </label>
     <input id="cronSchedule" name="cronSchedule" class="text" placeholder="Your Cron Schedule" value="$!cronSchedule" />        
-    <a class="adsk_actionreminders_help" target="_blank" 
+    <a class="adsk_actionreminders_help" target="_blank" title="Cron Schedule Examples" 
         href="https://git.autodesk.com/EngOps/adsk-jira-action-reminders-plugin/wiki/Cron-Schedule-Example"></a>
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" #if($!notifyAssignee) checked #end />
+        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="$!notifyAssignee" #if($!notifyAssignee) checked #end />
         <label for="notifyAssignee">Notify Assignee</label>
     </div>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" #if($!notifyReporter) checked #end />
+        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="$!notifyAssignee" #if($!notifyReporter) checked #end />
         <label for="notifyReporter">Notify Reporter</label>
     </div>
     <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" #if($!notifyWatchers) checked #end />
+        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="$!notifyAssignee" #if($!notifyWatchers) checked #end />
         <label for="notifyWatchers">Notify Watchers</label>
     </div>
 </fieldset>
