@@ -11,7 +11,12 @@ import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
+import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.groups.GroupManager;
+import com.atlassian.jira.security.roles.ProjectRole;
+import com.atlassian.jira.security.roles.ProjectRoleManager;
 import java.text.MessageFormat;
+import java.util.Collection;
 
 /**
  * @author scmenthusiast@gmail.com
@@ -20,7 +25,12 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersConfigAction.class);    
-    
+    private final String[] defaultGroups = new String[] {
+      "jira-administrators", "jira-developers", "jira-users", "jira-software-users"  
+    };
+    private final String[] defaultRoles = new String[] {
+      "ADMINISTRATORS", "DEVELOPERS", "USERS"  
+    };
     private final ActionRemindersBean configBean = new ActionRemindersBean();
     public static final StringUtils stringUtils = new StringUtils();
     public static final TextUtils textUtils = new TextUtils();
@@ -29,10 +39,18 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     
     private final ActionRemindersAOMgr remindActionsMgr;
     private final AdskActionRemindersUtil actionRemindersUtil;
+    private final JiraAuthenticationContext jiraAuthenticationContext;
+    private final ProjectRoleManager projectRoleManager;
+    private final GroupManager groupManager;
+    
     public AdskActionRemindersConfigAction(ActionRemindersAOMgr remindActionsMgr, 
-            AdskActionRemindersUtil actionRemindersUtil) {
+            AdskActionRemindersUtil actionRemindersUtil, JiraAuthenticationContext jiraAuthenticationContext, 
+            ProjectRoleManager projectRoleManager, GroupManager groupManager) {
         this.remindActionsMgr = remindActionsMgr;
         this.actionRemindersUtil = actionRemindersUtil;
+        this.jiraAuthenticationContext = jiraAuthenticationContext;
+        this.projectRoleManager = projectRoleManager;
+        this.groupManager = groupManager;
     }
         
     @Override
@@ -242,6 +260,18 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
 
     public void setActions(boolean actions) {
         configBean.setActions(actions);
+    }
+    
+    public Project getProject() {
+        return getProjectManager().getProjectObjByKey(configBean.getProjectKey());        
+    }
+    
+    public Collection<ProjectRole> getProjectRoles() {
+        return projectRoleManager.getProjectRoles(jiraAuthenticationContext.getLoggedInUser(), getProject());
+    }
+    
+    public Collection<String> getGroupNames() {
+        return groupManager.getGroupNamesForUser(jiraAuthenticationContext.getLoggedInUser());
     }
     
     public TextUtils getTextUtils() {

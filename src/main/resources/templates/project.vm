@@ -85,38 +85,56 @@
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="true" />
-        <label for="notifyAssignee">Notify Assignee</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="true" />
-        <label for="notifyReporter">Notify Reporter</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="true" />
-        <label for="notifyWatchers">Notify Watchers</label>
-    </div>
+    <p>    
+    <select id="notifyAssignee" name="notifyAssignee" class="text">   
+        <option value="true">TRUE</option>
+        <option value="false">FALSE</option>
+    </select>
+    <label for="notifyAssignee">Notify Assignee</label>
+    </p>
+    <p>    
+    <select id="notifyReporter" name="notifyReporter" class="text">   
+        <option value="true">TRUE</option>
+        <option value="false">FALSE</option>
+    </select>
+    <label for="notifyReporter">Notify Reporter</label>
+    </p>
+    <p>    
+    <select id="notifyWatchers" name="notifyWatchers" class="text">   
+        <option value="true">TRUE</option>
+        <option value="false">FALSE</option>
+    </select>
+    <label for="notifyWatchers">Notify Watchers</label>
+    </p>
 </fieldset>
 <div class="field-group">
     <label for="notifyProjectrole">
         $i18n.getText("jira-action-reminders.option.role.label"):
     </label>
-    <input type="text" id="notifyProjectrole" name="notifyProjectrole" class="text" placeholder="Your Project Role to Notify" />
+    <select id="notifyProjectrole" name="notifyProjectrole" class="text">
+        <option value="">None</option>
+        #foreach ($projro in $projectRoles)
+            <option value="$projro.getName()">$projro.getName()</option>
+        #end
+    </select>
 </div>
 <div class="field-group">
     <label for="notifyGroup">
         $i18n.getText("jira-action-reminders.option.group.label"):
     </label>
-    <input type="text" id="notifyGroup" name="notifyGroup" class="text long-field" placeholder="Your Group name to Notify" />
+    <select id="notifyGroup" name="notifyGroup" class="text">
+        <option value="">None</option>
+        #foreach ($groupName in $groupNames)
+            <option value="$groupName">$groupName</option>
+        #end
+    </select>
 </div>
 <div class="field-group">
     <label for="message">
         $i18n.getText("jira-action-reminders.option.message.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here"></textarea>
-    <div class="description">$i18n.getText("jira-action-reminders.option.message.description")</div>
+    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Issue Comment or E-mail body here."></textarea>
 </div>
 <div class="field-group">
     <label for="active">
@@ -173,9 +191,9 @@
 <!-- config display -->
 
 <table class="aui" id="adsk_actionreminders_configs">
-    <tr><th>Config ID</th><th>JQL Query</th><th>Active?</th><th></th></tr>
+    <tr><th>Config ID</th><th>JQL Query</th><th>Author</th><th>Schedule</th><th>Active?</th><th></th></tr>
     #foreach ($entry in $configList)
-        <tr><td>$entry.configId</td><td>$entry.query</td><td title="$entry.lastRun">$entry.active</td>
+        <tr><td>$entry.configId</td><td>$entry.query</td><td>$entry.runAuthor</td><td>$entry.cronSchedule</td><td title="Last run On $entry.lastRun">$entry.active</td>
             <td>
             <a class="adsk_actionreminders_edit" title="Configure Action Reminder" 
                 href="AdskActionRemindersConfigure.jspa?configId=$entry.configId"></a>

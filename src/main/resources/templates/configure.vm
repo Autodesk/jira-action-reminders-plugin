@@ -92,38 +92,69 @@
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyAssignee" id="notifyAssignee" value="$!notifyAssignee" #if($!notifyAssignee) checked #end />
-        <label for="notifyAssignee">Notify Assignee</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyReporter" id="notifyReporter" value="$!notifyAssignee" #if($!notifyReporter) checked #end />
-        <label for="notifyReporter">Notify Reporter</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="notifyWatchers" id="notifyWatchers" value="$!notifyAssignee" #if($!notifyWatchers) checked #end />
-        <label for="notifyWatchers">Notify Watchers</label>
-    </div>
+    <p>    
+    <select id="notifyAssignee" name="notifyAssignee" class="text">   
+        #foreach ($option in ["FALSE", "TRUE"])
+            <option value="$option.toLowerCase()"
+            #if ($option.toLowerCase() == "$!notifyAssignee")selected#end
+            >$option</option>
+        #end
+    </select>
+    <label for="notifyAssignee">Notify Assignee</label>
+    </p>
+    <p>    
+    <select id="notifyReporter" name="notifyReporter" class="text">   
+        #foreach ($option in ["FALSE", "TRUE"])
+            <option value="$option.toLowerCase()"
+            #if ($option.toLowerCase() == "$!notifyReporter")selected#end
+            >$option</option>
+        #end
+    </select>
+    <label for="notifyReporter">Notify Reporter</label>
+    </p>
+    <p>    
+    <select id="notifyWatchers" name="notifyWatchers" class="text">   
+        #foreach ($option in ["FALSE", "TRUE"])
+            <option value="$option.toLowerCase()"
+            #if ($option.toLowerCase() == "$!notifyWatchers")selected#end
+            >$option</option>
+        #end
+    </select>
+    <label for="notifyWatchers">Notify Watchers</label>
+    </p>
 </fieldset>
 <div class="field-group">
     <label for="notifyProjectrole">
         $i18n.getText("jira-action-reminders.option.role.label"):
-    </label>
-    <input type="text" id="notifyProjectrole" name="notifyProjectrole" class="text" placeholder="Your Project Role to Notify" value="$!notifyProjectrole" />
+    </label>    
+    <select id="notifyProjectrole" name="notifyProjectrole" class="text">
+        <option value="">None</option>
+        #foreach ($projro in $projectRoles)
+            <option value="$projro.getName()"
+            #if ($projro.getName() == "$!notifyProjectrole")selected#end
+            >$projro.getName()</option>
+        #end
+    </select>
 </div>
 <div class="field-group">
     <label for="notifyGroup">
         $i18n.getText("jira-action-reminders.option.group.label"):
     </label>
-    <input type="text" id="notifyGroup" name="notifyGroup" class="text long-field" placeholder="Your Group name to Notify" value="$!notifyGroup" />
+    <select id="notifyGroup" name="notifyGroup" class="text">
+        <option value="">None</option>
+        #foreach ($groupName in $groupNames)
+            <option value="$groupName"
+            #if ($groupName == "$!notifyGroup")selected#end
+            >$groupName</option>
+        #end
+    </select>
 </div>
 <div class="field-group">
     <label for="message">
         $i18n.getText("jira-action-reminders.option.message.label"):
         <span class="aui-icon icon-required"></span>
     </label>
-    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Comment here">$!message</textarea>
-    <div class="description">$i18n.getText("jira-action-reminders.option.message.description")</div>
+    <textarea id="message" name="message" class="textfield" rows="2" cols="60" placeholder="Your Issue Comment or E-mail body here.">$!message</textarea>
 </div>
 <div class="field-group">
     <label for="active">
