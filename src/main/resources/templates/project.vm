@@ -44,7 +44,7 @@
 <!-- Add or Edit Form -->
 
 <div id="ActionRemindersAddEdit" style="display: none">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" >
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
 <div class="field-group">
@@ -93,16 +93,16 @@
     <label for="notifyAssignee">Notify Assignee</label>
     </p>
     <p>    
-    <select id="notifyReporter" name="notifyReporter" class="text">   
-        <option value="true">TRUE</option>
+    <select id="notifyReporter" name="notifyReporter" class="text">
         <option value="false">FALSE</option>
+        <option value="true">TRUE</option>        
     </select>
     <label for="notifyReporter">Notify Reporter</label>
     </p>
     <p>    
-    <select id="notifyWatchers" name="notifyWatchers" class="text">   
-        <option value="true">TRUE</option>
+    <select id="notifyWatchers" name="notifyWatchers" class="text">
         <option value="false">FALSE</option>
+        <option value="true">TRUE</option>
     </select>
     <label for="notifyWatchers">Notify Watchers</label>
     </p>
@@ -156,7 +156,7 @@
 
 <!-- Delete form with Mapping ID -->
 <div id="ActionRemindersDel" style="display: none">
-<form id="ActionRemindersDelForm" class="aui" method="post" action="AdskActionReminders.jspa?projectKey=$projectKey" >
+<form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" >
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <div class="field-group">
     <label for="configIds">

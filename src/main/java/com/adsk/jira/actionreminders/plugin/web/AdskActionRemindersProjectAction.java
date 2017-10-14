@@ -1,6 +1,5 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
@@ -21,10 +20,10 @@ import java.util.Collection;
 /**
  * @author scmenthusiast@gmail.com
  */
-public class AdskActionRemindersAction extends JiraWebActionSupport {
+public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersAction.class);
+    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersProjectAction.class);
     private final ActionRemindersBean configBean = new ActionRemindersBean();
     public static final StringUtils stringUtils = new StringUtils();
     public static final TextUtils textUtils = new TextUtils();
@@ -36,7 +35,7 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
     private final ProjectRoleManager projectRoleManager;
     private final GroupManager groupManager;
     
-    public AdskActionRemindersAction(ActionRemindersAOMgr remindActionsMgr, 
+    public AdskActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, 
             JiraAuthenticationContext jiraAuthenticationContext, ProjectRoleManager projectRoleManager, 
             GroupManager groupManager) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
@@ -52,11 +51,6 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
             return "error";
         }
         configBean.setProjectName(project.getName());
-        
-        /*HttpServletRequest request = ExecutingHttpRequest.get();
-        request.setAttribute((new StringBuilder())
-            .append("com.atlassian.jira.projectconfig.util.ServletRequestProjectConfigRequestCache")
-            .append(":project").toString(), project);*/
         
         if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
             return "error";
@@ -83,25 +77,7 @@ public class AdskActionRemindersAction extends JiraWebActionSupport {
                 status = "Deleted.";
             }
         }
-        else {
-            LOGGER.info("ConfigId: "+ configBean.getConfigId());
-            if(configBean.getConfigId() > 0) {
-                ActionRemindersAO map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
-                configBean.setProjectKey(map.getProjectKey());
-                configBean.setQuery(map.getQuery());
-                configBean.setIssueAction(map.getIssueAction());           
-                configBean.setRunAuthor(map.getRunAuthor());
-                configBean.setLastRun(map.getLastRun());
-                configBean.setCronSchedule(map.getCronSchedule());
-                configBean.setNotifyAssignee(map.getNotifyAssignee());
-                configBean.setNotifyReporter(map.getNotifyReporter());
-                configBean.setNotifyWatchers(map.getNotifyWatchers());
-                configBean.setNotifyProjectrole(map.getNotifyProjectrole());
-                configBean.setNotifyGroup(map.getNotifyGroup());
-                configBean.setMessage(map.getMessage());
-                configBean.setActive(map.getActive());
-            }
-        }
+        
         return "success";
     }
     

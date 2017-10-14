@@ -29,7 +29,7 @@
 
 
 <p>
-    <a class="aui-button" href="AdskActionReminders.jspa?projectKey=$projectKey">Back to Action Reminders</a>
+    <a class="aui-button" href="ActionRemindersProjectAction.jspa?projectKey=$projectKey">Back to Action Reminders</a>
 <p>
 
 <p>
