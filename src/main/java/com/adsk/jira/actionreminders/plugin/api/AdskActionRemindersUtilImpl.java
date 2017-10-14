@@ -187,22 +187,27 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, secureQuery);
             
             if (parseResult.isValid()) {
-                logger.debug("Processing secure query -> "+ parseResult.getQuery());
+                logger.debug("* Processing Secure Query -> "+ parseResult.getQuery());
                 
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, 1000));
                 
                 for(Issue issue : searchResults.getIssues()) {
-                    logger.debug("processing issue -> "+ issue.getKey());
+                    logger.debug("* Processing issue -> "+ issue.getKey());
                                         
                     if(is_issue_action == true) { // Transition Action                        
-                        logger.debug("processing transition action -> "+ map.getIssueAction());                                                
+                        logger.debug("* Processing Issue action -> "+ map.getIssueAction());                                                
                         
                         Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
                         boolean is_action_exists = false;
                         
                         for(ActionDescriptor actionDescriptor : ActionDescriptors) {                            
                             if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {
-                                logger.debug("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
+                                logger.debug("* Issue action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
+                                logger.debug("* Issue Status - "+ issue.getStatus().getName());
+                                if(issue.getStatus().getName().equalsIgnoreCase(actionDescriptor.getName())) {
+                                    logger.debug("* Issue target action and existing status is same. Skipping.");
+                                    break;
+                                }
                                 is_action_exists = true;
                                 IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
                                 issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);                                                                
@@ -215,28 +220,28 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                                 if (validation.isValid()) {
                                     IssueService.IssueResult issueResult = issueService.transition(runAppUser, validation);
                                     if (issueResult.isValid()) {
-                                        logger.debug("Transition successful.");
+                                        logger.debug("* Issue transition successful");
                                         for(String e : issueResult.getErrorCollection().getErrorMessages()) {
                                             logger.debug(e);
                                         }
                                     }
                                 } else {
-                                    logger.debug("Transition validation errors: ");
+                                    logger.debug("* Issue transition validation errors: ");
                                     for(String e : validation.getErrorCollection().getErrorMessages()) {
                                         logger.debug(e);
                                     }
                                 }
                                 break;
-                            }                            
+                            }
                         }
                         
                         if( is_action_exists == false ) {    
-                            logger.debug("Transition action is not valid - "+ map.getIssueAction());
+                            logger.debug("* Issue action is not valid - "+ map.getIssueAction());
                         }
                     
                     } else {
                         
-                        logger.debug("Execution count is 0 so sending now.");
+                        logger.debug("* Sending reminders now:");
                         if( reminders ) { // Remind or re-notify
                             sendReminders(map, issue, runAppUser);
                         }
@@ -293,7 +298,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             emailAddrs.addAll(getGroupUsers(map.getNotifyGroup()));
         }
         
-        logger.debug("Total email users size - "+ emailAddrs.size());
+        logger.debug("* Total email users size: "+ emailAddrs.size());
         
         for(String email : emailAddrs) {
             sendMail(email, subject, body, ccfrom);
