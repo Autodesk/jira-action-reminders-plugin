@@ -5,6 +5,7 @@
  */
 package com.adsk.jira.actionreminders.plugin.web;
 
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
 import com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersScheduler;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.permission.GlobalPermissionKey;
@@ -20,7 +21,9 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(AdskActionRemindersAdminAction.class);
-    public static final TextUtils textUtils = new TextUtils();
+    public static final TextUtils textUtils = new TextUtils();        
+    private boolean enableReminders;
+    private boolean enableActions;
     private long interval;
     private String submitted;
     private String status;
@@ -39,8 +42,12 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
         if ( !hasGlobalPermission(GlobalPermissionKey.SYSTEM_ADMIN) ) {
             return "error";
         }
-        
-        if (this.submitted != null && "Schedule".equals(this.submitted)) {
+        if (this.submitted != null && "SAVE".equals(this.submitted)) {
+            properties.setString(AdskActionRemindersUtil.ENABLE_REMINDERS, ""+enableReminders);
+            properties.setString(AdskActionRemindersUtil.ENABLE_ACTIONS, ""+enableActions);
+            status = "Updated Actions and Reminders.";
+        }
+        else if (this.submitted != null && "Schedule".equals(this.submitted)) {
             logger.debug("Re-Scheduling Sync with interval -> "+ interval);           
             if(interval > 0) {
                 properties.setString(AdskActionRemindersScheduler.SYNC_INTERVAL, ""+interval);
@@ -57,6 +64,36 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
 
     public void setInterval(long interval) {
         this.interval = interval;
+    }
+
+    public boolean isEnableReminders() {
+        boolean enableRemindersStatus = false;
+        try {
+            enableRemindersStatus = Boolean.parseBoolean(properties.getString(AdskActionRemindersUtil.ENABLE_REMINDERS));
+        }catch(ClassCastException e) {
+            enableRemindersStatus = true;
+            properties.setString(AdskActionRemindersUtil.ENABLE_REMINDERS, ""+enableRemindersStatus);            
+        }
+        return enableRemindersStatus;
+    }
+
+    public void setEnableReminders(boolean enableReminders) {
+        this.enableReminders = enableReminders;
+    }
+
+    public boolean isEnableActions() {
+        boolean enableActionsStatus = false;
+        try {
+            enableActionsStatus = Boolean.parseBoolean(properties.getString(AdskActionRemindersUtil.ENABLE_ACTIONS));
+        }catch(ClassCastException e) {
+            enableActionsStatus = true;
+            properties.setString(AdskActionRemindersUtil.ENABLE_ACTIONS, ""+enableActionsStatus);            
+        }
+        return enableActionsStatus;
+    }
+
+    public void setEnableActions(boolean enableActions) {
+        this.enableActions = enableActions;
     }        
     
     public TextUtils getTextUtils() {

@@ -4,23 +4,62 @@
     <title>$i18n.getText("jira-action-reminders.option.label")</title>
     $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
     <meta name="decorator" content="atl.admin" />
-    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />   
+    <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />
 </head>
 <body>
 
-
 <p>
-<span class="AdskActionRemindersHeading">$i18n.getText("jira-action-reminders.option.label") Schedule</span>
+<span class="AdskActionRemindersHeading">$i18n.getText("jira-action-reminders.option.label") Plugin Components</span>
 <a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank" 
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
 </p>
 
+<!-- enable actions and reminders -->
+<div id="ActionRemindersAddEdit">
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa">
+<div class="field-group">
+    <label for="enableReminders">
+        $i18n.getText("jira-action-reminders.option.enableReminders.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <select id="enableReminders" name="enableReminders" class="text">   
+        #foreach ($option in ["FALSE", "TRUE"])
+            <option value="$option.toLowerCase()"
+            #if ($option.toLowerCase() == "$!enableReminders")selected#end
+            >$option</option>
+        #end
+    </select>
+    <div class="description">$i18n.getText("jira-action-reminders.option.enableReminders.description")</div>
+</div>
+<div class="field-group">
+    <label for="enableActions">
+        $i18n.getText("jira-action-reminders.option.enableActions.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <select id="enableActions" name="enableActions" class="text">   
+        #foreach ($option in ["FALSE", "TRUE"])
+            <option value="$option.toLowerCase()"
+            #if ($option.toLowerCase() == "$!enableActions")selected#end
+            >$option</option>
+        #end
+    </select>
+    <div class="description">$i18n.getText("jira-action-reminders.option.enableActions.description")</div>
+</div>
+<div class="aui-buttons">
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="SAVE" />
+</div>
+</form>
+
+
 <!-- Configure Schedule -->
+<p>
+<span class="AdskActionRemindersHeading">Configure Schedule</span>
+</p>
 <div id="AdskActionRemindersProjectSchedule">
 <form id="AdskActionRemindersProjectScheduleForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa" >
 <div class="field-group">
     <label for="interval">
-        $i18n.getText("jira.okta.group.configure.option.interval.label"):
+        $i18n.getText("jira-action-reminders.option.interval.label"):
         <span class="aui-icon icon-required"></span>
     </label>
     <input type="number" id="interval" name="interval" class="text" min="1" value="$!interval" />

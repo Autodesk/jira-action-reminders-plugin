@@ -5,7 +5,6 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
-import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.roles.ProjectRole;
@@ -28,6 +27,11 @@ public interface AdskActionRemindersUtil {
     public boolean isValidCronExp(String cronExp);    
     public void process(ActionRemindersAO map, boolean reminders, boolean actions);    
     public void sendReminders(ActionRemindersAO map, Issue issue, ApplicationUser runUser);
+    
+    public static final String ENABLE_REMINDERS = "com.adsk.jira.actionreminders.plugin.enableReminders";
+    public static final String ENABLE_ACTIONS = "com.adsk.jira.actionreminders.plugin.enableActions";
+    public boolean getRemindersStatus();
+    public boolean getActionsStatus();
     
     public Set<String> getGroupUsers(String group);
     public ProjectRole getProjectRole(String projectRole);

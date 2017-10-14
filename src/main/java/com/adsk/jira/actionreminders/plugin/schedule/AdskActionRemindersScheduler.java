@@ -21,7 +21,7 @@ public interface AdskActionRemindersScheduler {
     
     public static final String JOB_NAME = AdskActionRemindersScheduler.class.getName() + ":job";
     
-    public static final long DEFAULT_INTERVAL = 5L;
+    public static final long DEFAULT_INTERVAL = 1L;
     
     public ActionRemindersAOMgr getActionRemindersAOMgr();
     

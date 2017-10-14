@@ -91,6 +91,9 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         long startTime = System.currentTimeMillis();
         logger.debug("######## Action Reminder Scheduler - START ##########");        
         
+        boolean enableRemindersStatus = getRemindersStatus();
+        boolean enableActionsStatus = getActionsStatus();
+        
         for(ActionRemindersAO action : actionRemindersAOMgr.getActiveActionReminders()) {
             if(isValidCronExp(action.getCronSchedule())) {
                 Date nextValidTimeAfter = getNextValidTimeAfter(action.getCronSchedule(), last_run_datetime);
@@ -101,7 +104,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                 
                 if(nextValidTimeAfter.before(next_run_datetime)) {
                     logger.debug("* Cron schedule Valid - running");
-                    process(action, true, true);
+                    process(action, enableRemindersStatus, enableActionsStatus);
                 }else{
                     logger.debug("Skipping Action Reminder Config Id #"+ action.getID());
                 }
@@ -125,6 +128,28 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     public boolean isValidCronExp(String cronExp) {
         return CronExpression.isValidExpression(cronExp);
+    }
+    
+    public boolean getRemindersStatus() {
+        boolean enableRemindersStatus = false;
+        try {
+            enableRemindersStatus = Boolean.parseBoolean(properties.getString(ENABLE_REMINDERS));
+        }catch(ClassCastException e) {
+            enableRemindersStatus = true;
+            properties.setString(ENABLE_REMINDERS, ""+enableRemindersStatus);            
+        }
+        return enableRemindersStatus;
+    }
+    
+    public boolean getActionsStatus() {
+        boolean enableActionsStatus = false;
+        try {
+            enableActionsStatus = Boolean.parseBoolean(properties.getString(ENABLE_ACTIONS));
+        }catch(ClassCastException e) {
+            enableActionsStatus = true;
+            properties.setString(ENABLE_ACTIONS, ""+enableActionsStatus);
+        }
+        return enableActionsStatus;
     }
     
     public void process(ActionRemindersAO map, boolean reminders, boolean actions) {
@@ -177,7 +202,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                         
                         for(ActionDescriptor actionDescriptor : ActionDescriptors) {                            
                             if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {
-                                logger.info("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
+                                logger.debug("action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
                                 is_action_exists = true;
                                 IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
                                 issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);                                                                
@@ -226,7 +251,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         }
         
         long totalTime = System.currentTimeMillis() - startTime;
-        logger.info("Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
+        logger.debug("Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
     public String getResolutionId() {
