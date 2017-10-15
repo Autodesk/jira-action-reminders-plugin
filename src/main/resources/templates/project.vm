@@ -220,9 +220,9 @@
 <!-- config display -->
 
 <table class="aui" id="adsk_actionreminders_configs">
-    <tr><th>Config ID</th><th>JQL Query</th><th>Author</th><th>Schedule</th><th>Active?</th><th></th></tr>
+    <tr><th>Config ID</th><th>Type</th><th>JQL Query</th><th>Author</th><th>Schedule</th><th>Active?</th><th></th></tr>
     #foreach ($entry in $configList)
-        <tr><td>$entry.configId</td><td>$entry.query</td><td>$entry.runAuthor</td><td>$entry.cronSchedule</td><td title="Last run On $entry.lastRun">$entry.active</td>
+        <tr><td>$entry.configId</td><td>$entry.configType</td><td>$entry.query</td><td>$entry.runAuthor</td><td>$entry.cronSchedule</td><td>$entry.active</td>
             <td>
             <a class="adsk_actionreminders_edit" title="Configure Action Reminder" 
                 href="AdskActionRemindersConfigure.jspa?configId=$entry.configId"></a>
