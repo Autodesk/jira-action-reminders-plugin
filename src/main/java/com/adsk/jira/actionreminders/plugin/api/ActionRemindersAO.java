@@ -21,6 +21,8 @@ public interface ActionRemindersAO extends Entity {
     @Indexed
     public String getProjectKey();
     public void setProjectKey(String projectKey);
+    public String getConfigType();
+    public void setConfigType(String configType);
     public String getIssueAction();
     public void setIssueAction(String issueAction);
     @StringLength(StringLength.UNLIMITED)

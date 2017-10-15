@@ -66,7 +66,7 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         if ( !hasProjectPermission(ProjectPermissions.ADMINISTER_PROJECTS, project) ) {
             return "error";
         }
-                
+        
         if (this.submitted != null && "ADD".equals(this.submitted)) {            
             logger.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders(configBean) == false) {
@@ -99,7 +99,15 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
     public void setConfigId(long configId) {
         configBean.setConfigId(configId);
     }
+    
+    public String getConfigType() {
+        return configBean.getConfigType();
+    }
 
+    public void setConfigType(String configType) {
+        configBean.setConfigType(configType);
+    }
+    
     public String getIssueAction() {
         return configBean.getIssueAction();
     }

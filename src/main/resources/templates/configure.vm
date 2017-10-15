@@ -5,7 +5,11 @@
     $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
     <meta name="decorator" content="atl.admin" />
     <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>
-    <script>        
+    <script>
+        AJS.$(document).ready(function(){
+            prepareHide();
+        });
+        
         function prepareEdit() {
             AJS.$("#ActionRemindersAddEdit").stop().slideDown();
             AJS.$("#ActionRemindersRun").stop().slideUp();
@@ -17,7 +21,14 @@
             AJS.$("#ActionRemindersRunForm input[name='configIds']").val(configId);
             location.hash = "#ActionRemindersRun";
         }
-
+        function prepareHide() {
+            var configType = $('input[name=configType]:checked', '#ActionRemindersAddEditForm').val();
+            if(configType == "action") {
+                AJS.$("#issueActionFieldDiv").stop().slideDown();
+            }else{
+                AJS.$("#issueActionFieldDiv").stop().slideUp();
+            }
+        }
         function openUserPickerWindow(element){
             var vWinUsers = window.open('$!requestContext.canonicalBaseUrl/secure/popups/UserPickerBrowser.jspa?formName=jiraform&multiSelect=false&element=' + element, 'UserPicker', 'status=yes,resizable=yes,top=100,left=200,width=580,height=750,scrollbars=yes');
             vWinUsers.opener = self;
@@ -63,8 +74,23 @@
         placeholder="$i18n.getText('jira-action-reminders.option.query.description')">$!query</textarea>
 </div>
 <div class="field-group">
+    <label for="configType">
+        $i18n.getText("jira-action-reminders.option.config.type"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <div class="radio">
+        <input class="radio" type="radio" checked="checked" name="configType" id="configTypeReminder" value="reminder" onChange="prepareHide()" #if($!configType=="reminder") checked #end>
+        <label for="configTypeReminder">Reminder</label>
+    </div>
+    <div class="radio">
+        <input class="radio" type="radio" name="configType" id="configTypeAction" value="action" onChange="prepareHide()" #if($!configType=="action") checked #end>
+        <label for="configTypeAction">Action</label>
+    </div>
+</div>
+<div id="issueActionFieldDiv" class="field-group">
     <label for="issueAction">
         $i18n.getText("jira-action-reminders.option.action.label"):
+        <span class="aui-icon icon-required"></span>
     </label>
     <input type="text" id="issueAction" name="issueAction" class="text" placeholder="Your Action Name" value="$!issueAction" />
     <div class="description">$i18n.getText("jira-action-reminders.option.action.description")</div>

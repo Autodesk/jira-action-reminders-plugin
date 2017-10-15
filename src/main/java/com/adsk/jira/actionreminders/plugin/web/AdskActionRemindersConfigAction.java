@@ -108,7 +108,8 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
                 ActionRemindersAO map = remindActionsMgr.getActionReminderById(configBean.getConfigId());
                 configBean.setProjectKey(map.getProjectKey());
                 configBean.setQuery(map.getQuery());
-                configBean.setIssueAction(map.getIssueAction());           
+                configBean.setIssueAction(map.getIssueAction());
+                configBean.setConfigType(map.getConfigType());
                 configBean.setRunAuthor(map.getRunAuthor());
                 configBean.setLastRun(map.getLastRun());
                 configBean.setCronSchedule(map.getCronSchedule());
@@ -141,6 +142,14 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
 
     public void setConfigId(long configId) {
         configBean.setConfigId(configId);
+    }
+    
+    public String getConfigType() {
+        return configBean.getConfigType();
+    }
+
+    public void setConfigType(String configType) {
+        configBean.setConfigType(configType);
     }
 
     public String getIssueAction() {

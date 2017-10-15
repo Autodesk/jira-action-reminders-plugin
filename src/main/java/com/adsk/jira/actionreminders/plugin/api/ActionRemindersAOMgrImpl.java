@@ -62,6 +62,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
             bean.setConfigId(map.getID());
             bean.setProjectKey(map.getProjectKey());
             bean.setQuery(map.getQuery());
+            bean.setConfigType(map.getConfigType());
             bean.setIssueAction(map.getIssueAction());           
             bean.setRunAuthor(map.getRunAuthor());
             bean.setLastRun(map.getLastRun());
@@ -94,7 +95,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         map.setQuery(configBean.getQuery());
         map.setIssueAction(configBean.getIssueAction());
         map.setRunAuthor(configBean.getRunAuthor());
-        //map.setLastRun(new Date());
+        map.setConfigType(configBean.getConfigType());
         map.setCronSchedule(configBean.getCronSchedule());
         map.setNotifyAssignee(configBean.isNotifyAssignee());
         map.setNotifyReporter(configBean.isNotifyReporter());
@@ -115,7 +116,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
             map.setQuery(configBean.getQuery());
             map.setIssueAction(configBean.getIssueAction());
             map.setRunAuthor(configBean.getRunAuthor());
-            //map.setLastRun(configBean.getLastRun());
+            map.setConfigType(configBean.getConfigType());
             map.setCronSchedule(configBean.getCronSchedule());
             map.setNotifyAssignee(configBean.isNotifyAssignee());
             map.setNotifyReporter(configBean.isNotifyReporter());

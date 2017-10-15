@@ -7,6 +7,7 @@ public class ActionRemindersBean {
     private String projectKey;
     private String projectName;
     private String query;
+    private String configType;
     private String issueAction;
     private String runAuthor;
     private Date lastRun;
@@ -35,6 +36,14 @@ public class ActionRemindersBean {
 
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    public String getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(String configType) {
+        this.configType = configType;
     }        
 
     public String getIssueAction() {

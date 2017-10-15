@@ -175,15 +175,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         if(reminders == false && actions == false) {
             logger.debug("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
-        }
-        
-        boolean is_issue_action = false;
-        if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
-            is_issue_action = true;
-        }else if(reminders == false && is_issue_action == false){
-            logger.debug("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
-            return;
-        }             
+        }                             
         
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){
@@ -211,14 +203,20 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, 1000));
                 List<Issue> issues = searchResults.getIssues();
                 
-                if(is_issue_action == true) { // Transition Action                        
-                    logger.debug("**** Processing Issue action -> "+ map.getIssueAction());
-                    sendActions(map, issues, runAppUser);                    
-                } else {                        
+                if(map.getConfigType().equals("action")) {                    
+                    if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {                      
+                        logger.debug("**** Processing Issue action -> "+ map.getIssueAction());
+                        sendActions(map, issues, runAppUser);                    
+                    }
+                }
+                else if(map.getConfigType().equals("reminder")) { 
                     logger.debug("**** Sending reminders now:");
-                    if( reminders ) { // Remind or re-notify
+                    if( reminders == true ) { // Remind or re-notify
                         sendReminders(map, issues, runAppUser);
                     }
+                }
+                else {
+                    logger.warn("**** Config Type is not valid!");
                 }
                     
                 actionRemindersAOMgr.setActionRemindersLastRun(map.getID()); // set last run

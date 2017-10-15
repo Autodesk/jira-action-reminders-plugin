@@ -8,7 +8,7 @@
     <meta name="admin.active.tab" content="jira-actionreminders-project-configure-link"/>
     <meta name="projectKey" content="$textutils.htmlEncode($action.projectKey)"/>
     <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>
-    <script>
+    <script>        
         var show = true;                
         function prepareAdd() {            
             if ( show == true) {
@@ -19,6 +19,15 @@
             }else{
                 AJS.$("#ActionRemindersAddEdit").stop().slideUp();
                 show = true;
+            }
+        }
+        
+        function prepareHide() {
+            var configType = $('input[name=configType]:checked', '#ActionRemindersAddEditForm').val();
+            if(configType == "action") {
+                AJS.$("#issueActionFieldDiv").stop().slideDown();
+            }else{
+                AJS.$("#issueActionFieldDiv").stop().slideUp();
             }
         }
 
@@ -62,8 +71,23 @@
         placeholder="$i18n.getText('jira-action-reminders.option.query.description')"></textarea>
 </div>
 <div class="field-group">
+<label for="configType">
+    $i18n.getText("jira-action-reminders.option.config.type"):
+    <span class="aui-icon icon-required"></span>
+</label>
+<div class="radio">
+    <input class="radio" type="radio" checked="checked" name="configType" id="configTypeReminder" value="reminder" onChange="prepareHide()">
+    <label for="configTypeReminder">Reminder</label>
+</div>
+<div class="radio">
+    <input class="radio" type="radio" name="configType" id="configTypeAction" value="action" onChange="prepareHide()">
+    <label for="configTypeAction">Action</label>
+</div>
+</div>
+<div id="issueActionFieldDiv" class="field-group" style="display: none">
     <label for="issueAction">
         $i18n.getText("jira-action-reminders.option.action.label"):
+        <span class="aui-icon icon-required"></span>
     </label>
     <input type="text" id="issueAction" name="issueAction" class="text" placeholder="Your Action Name" />
     <div class="description">$i18n.getText("jira-action-reminders.option.action.description")</div>
