@@ -5,18 +5,38 @@
     $webResourceManager.requireResource("com.adsk.jira.actionreminders.plugin.jira-action-reminders-plugin:jira-action-reminders-plugin-resources")
     <meta name="decorator" content="atl.admin" />
     <meta name="application-base-url" content="$applicationProperties.getBaseUrl()" />
+    <script>
+        var shows = true;
+        function prepareConfigure() {
+            if ( shows == true) {
+                AJS.$("#AdskActionRemindersConfigureForm").trigger("reset");
+                AJS.$("#AdskActionRemindersConfigure").stop().slideDown();
+                AJS.$("#AdskActionRemindersProjectSchedule").stop().slideUp();
+                shows = false;
+            }else{
+                AJS.$("#AdskActionRemindersConfigure").stop().slideUp();
+                shows = true;
+            }
+        }
+        function prepareSchedule() {
+            AJS.$("#AdskActionRemindersProjectSchedule").stop().slideDown();
+            AJS.$("#AdskActionRemindersConfigure").stop().slideUp();
+        }
+    </script>
 </head>
 <body>
 
 <p>
-<span class="AdskActionRemindersHeading">$i18n.getText("jira-action-reminders.option.label") Plugin Components</span>
+<span class="AdskActionRemindersHeading">$i18n.getText("jira-action-reminders.option.label") Plugin Configure</span>
 <a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank" 
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
+<a href="#" class="adsk_actionreminders_config" onClick="prepareConfigure()" title="Prepare Action Reminder Configure"></a>
+<a href="#" class="adsk_actionreminders_schedule" onClick="prepareSchedule()" title="Prepare Action Reminder Schedule"></a>
 </p>
 
 <!-- enable actions and reminders -->
-<div id="ActionRemindersAddEdit">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa">
+<div id="AdskActionRemindersConfigure">
+<form id="AdskActionRemindersConfigureForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa">
 <div class="field-group">
     <label for="enableReminders">
         $i18n.getText("jira-action-reminders.option.enableReminders.label"):
@@ -52,10 +72,7 @@
 
 
 <!-- Configure Schedule -->
-<p>
-<span class="AdskActionRemindersHeading">Configure Schedule</span>
-</p>
-<div id="AdskActionRemindersProjectSchedule">
+<div id="AdskActionRemindersProjectSchedule" style="display: none">
 <form id="AdskActionRemindersProjectScheduleForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa" >
 <div class="field-group">
     <label for="interval">

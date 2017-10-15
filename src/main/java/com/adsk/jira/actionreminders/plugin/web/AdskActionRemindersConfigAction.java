@@ -16,6 +16,7 @@ import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRole;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -24,13 +25,9 @@ import java.util.Collection;
 public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersConfigAction.class);    
-    private final String[] defaultGroups = new String[] {
-      "jira-administrators", "jira-developers", "jira-users", "jira-software-users"  
-    };
-    private final String[] defaultRoles = new String[] {
-      "ADMINISTRATORS", "DEVELOPERS", "USERS"  
-    };
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersConfigAction.class);    
+    private final Collection<String> defaultGroups = new ArrayList<String>();
+    private final Collection<String> defaultRoles = new ArrayList<String>();
     private final ActionRemindersBean configBean = new ActionRemindersBean();
     public static final StringUtils stringUtils = new StringUtils();
     public static final TextUtils textUtils = new TextUtils();
@@ -51,12 +48,20 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.projectRoleManager = projectRoleManager;
         this.groupManager = groupManager;
+        //add default groups n roles
+        defaultGroups.add("jira-administrators");
+        defaultGroups.add("jira-software-users");
+        defaultGroups.add("jira-developers");
+        defaultGroups.add("jira-users");
+        defaultRoles.add("administrators");
+        defaultRoles.add("developers");
+        defaultRoles.add("users");
     }
         
     @Override
     public String doExecute() throws Exception {
                         
-        LOGGER.info("ConfigId: "+ configBean.getConfigId());
+        logger.info("ConfigId: "+ configBean.getConfigId());
         if (this.submitted != null && "RUN".equals(this.submitted)) {
             Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
             if(project == null) {
@@ -67,7 +72,7 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
             }
             configBean.setProjectName(project.getName());
 
-            LOGGER.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            logger.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(configBean.getConfigId() > 0) {                
                 ActionRemindersAO remindAction = remindActionsMgr.getActionReminderById(configBean.getConfigId()); 
                 actionRemindersUtil.process(remindAction, 
@@ -85,7 +90,7 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
                 return "error";
             }
 
-            LOGGER.debug("Saving map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            logger.debug("Saving map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders2(configBean) == false) {
                 if(configBean.getConfigId() > 0 && configBean.getProjectKey() != null && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
                     remindActionsMgr.updateActionReminders(configBean);                    
@@ -266,12 +271,25 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
         return getProjectManager().getProjectObjByKey(configBean.getProjectKey());        
     }
     
-    public Collection<ProjectRole> getProjectRoles() {
-        return projectRoleManager.getProjectRoles(jiraAuthenticationContext.getLoggedInUser(), getProject());
+    public Collection<String> getProjectRoles() {        
+        Collection<String> roleNames = new ArrayList<String>();
+        for(ProjectRole projectRole : projectRoleManager.getProjectRoles()) {
+            if(!defaultRoles.contains(projectRole.getName().toLowerCase())){
+                roleNames.add(projectRole.getName());
+            }
+        }
+        return roleNames;
     }
     
     public Collection<String> getGroupNames() {
-        return groupManager.getGroupNamesForUser(jiraAuthenticationContext.getLoggedInUser());
+        Collection<String> groupNames = new ArrayList<String>();
+        for(String group : groupManager
+                .getGroupNamesForUser(jiraAuthenticationContext.getLoggedInUser())) {
+            if(!defaultGroups.contains(group.toLowerCase())){
+                groupNames.add(group);
+            }
+        }
+        return groupNames;
     }
     
     public TextUtils getTextUtils() {

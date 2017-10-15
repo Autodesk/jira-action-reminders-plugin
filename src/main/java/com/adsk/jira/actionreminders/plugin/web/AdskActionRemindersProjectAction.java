@@ -15,6 +15,7 @@ import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRole;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -23,7 +24,9 @@ import java.util.Collection;
 public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersProjectAction.class);
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersProjectAction.class);
+    private final Collection<String> defaultGroups = new ArrayList<String>();
+    private final Collection<String> defaultRoles = new ArrayList<String>();
     private final ActionRemindersBean configBean = new ActionRemindersBean();
     public static final StringUtils stringUtils = new StringUtils();
     public static final TextUtils textUtils = new TextUtils();
@@ -42,6 +45,14 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         this.remindActionsMgr = remindActionsMgr;
         this.projectRoleManager = projectRoleManager;
         this.groupManager = groupManager;
+        //add default groups
+        defaultGroups.add("jira-administrators");
+        defaultGroups.add("jira-software-users");
+        defaultGroups.add("jira-developers");
+        defaultGroups.add("jira-users");
+        defaultRoles.add("administrators");
+        defaultRoles.add("developers");
+        defaultRoles.add("users");
     }
         
     @Override
@@ -57,7 +68,7 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         }
                 
         if (this.submitted != null && "ADD".equals(this.submitted)) {            
-            LOGGER.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
+            logger.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
             if(remindActionsMgr.findActionReminders(configBean) == false) {
                 if(configBean.getProjectKey() != null && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
                     remindActionsMgr.addActionReminders(configBean);                    
@@ -71,7 +82,7 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
             }
         }        
         else if (this.submitted != null && "DELETE".equals(this.submitted)) {
-            LOGGER.debug("Deleting map Id -> "+ configBean.getConfigId());
+            logger.debug("Deleting map Id -> "+ configBean.getConfigId());
             if(configBean.getConfigId() != 0) {
                 remindActionsMgr.removeActionReminders(configBean.getConfigId());
                 status = "Deleted.";
@@ -230,12 +241,25 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         return getProjectManager().getProjectObjByKey(configBean.getProjectKey());        
     }
     
-    public Collection<ProjectRole> getProjectRoles() {
-        return projectRoleManager.getProjectRoles(jiraAuthenticationContext.getLoggedInUser(), getProject());
+    public Collection<String> getProjectRoles() {        
+        Collection<String> roleNames = new ArrayList<String>();
+        for(ProjectRole projectRole : projectRoleManager.getProjectRoles()) {
+            if(!defaultRoles.contains(projectRole.getName().toLowerCase())){
+                roleNames.add(projectRole.getName());
+            }
+        }
+        return roleNames;
     }
     
     public Collection<String> getGroupNames() {
-        return groupManager.getGroupNamesForUser(jiraAuthenticationContext.getLoggedInUser());
+        Collection<String> groupNames = new ArrayList<String>();
+        for(String group : groupManager
+                .getGroupNamesForUser(jiraAuthenticationContext.getLoggedInUser())) {
+            if(!defaultGroups.contains(group.toLowerCase())){
+                groupNames.add(group);
+            }
+        }
+        return groupNames;
     }
     
     public void setSubmitted(String submitted) {        

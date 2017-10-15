@@ -7,8 +7,8 @@
     background-image: url('images/add.png');
     background-repeat: no-repeat;
     background-size: 100%;
-    width: 25px;
-    height: 25px;
+    width: 26px;
+    height: 26px;
     display: inline-block;
     margin-left: 2px;
     vertical-align: middle;
@@ -26,16 +26,27 @@
     background-position: 50% 50%;
 }
 
-.actionreminders_execute {
+.adsk_actionreminders_info {
+    background-image: url('images/info.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    height: 24px;
+    width: 24px;    
+    display: inline-block;
+    vertical-align: middle;
+    background-position: 50% 50%;
+}
+
+.adsk_actionreminders_config {
     background-image: url('images/automation.png');
     background-repeat: no-repeat;
     background-size: 100%;
     height: 24px;
     width: 24px;    
-    display: inline;
+    display: inline-block;
+    margin-left: 2px;
     vertical-align: middle;
     background-position: 50% 50%;
-    float: right;
 }
 
 .adsk_actionreminders_schedule {

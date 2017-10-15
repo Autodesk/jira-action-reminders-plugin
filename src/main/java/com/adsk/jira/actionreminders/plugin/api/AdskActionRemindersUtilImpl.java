@@ -6,7 +6,6 @@
 package com.adsk.jira.actionreminders.plugin.api;
 
 import com.atlassian.jira.bc.issue.search.SearchService;
-import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchException;
 import com.atlassian.jira.issue.search.SearchResults;
@@ -34,6 +33,7 @@ import com.atlassian.jira.security.roles.ProjectRoleManager;
 import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.mail.MailException;
+import com.atlassian.mail.server.MailServerManager;
 import com.atlassian.mail.server.SMTPMailServer;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -53,24 +53,43 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static String defaultResolution = "1";
-    private final ProjectManager projectManager = ComponentAccessor.getProjectManager();
-    private final IssueService issueService = ComponentAccessor.getIssueService();
-    private final ConstantsManager constantsManager = ComponentAccessor.getConstantsManager();
-    private final ProjectRoleManager projectRoleManager = ComponentAccessor.getComponentOfType(ProjectRoleManager.class);
-    private final WorkflowManager workflowManager = ComponentAccessor.getWorkflowManager();
-    private final IssueWorkflowManager issueWorkflowManager = ComponentAccessor.getComponentOfType(IssueWorkflowManager.class);    
-    private final SMTPMailServer mailServer = ComponentAccessor.getMailServerManager().getDefaultSMTPMailServer();
-    private final ApplicationProperties properties = ComponentAccessor.getApplicationProperties();
-    private final UserManager userManager = ComponentAccessor.getUserManager();
-    private final GroupManager groupManager = ComponentAccessor.getGroupManager();
-    private final WatcherManager watcherManager = ComponentAccessor.getWatcherManager();
-    private final String BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"   
-    private final SearchService searchService = ComponentAccessor.getComponent(SearchService.class);
-    
+    private final String BaseUrl;
+    private final SMTPMailServer mailServer;    
+    private final ProjectManager projectManager;
+    private final IssueService issueService;
+    private final ConstantsManager constantsManager;
+    private final ProjectRoleManager projectRoleManager;
+    private final WorkflowManager workflowManager;
+    private final IssueWorkflowManager issueWorkflowManager;    
+    private final MailServerManager mailServerManager;
+    private final ApplicationProperties properties;
+    private final UserManager userManager;
+    private final GroupManager groupManager;
+    private final WatcherManager watcherManager;
+    private final SearchService searchService;    
     private final ActionRemindersAOMgr actionRemindersAOMgr;
-    public AdskActionRemindersUtilImpl(ActionRemindersAOMgr actionRemindersAOMgr) {
+    
+    public AdskActionRemindersUtilImpl(ActionRemindersAOMgr actionRemindersAOMgr, SearchService searchService,
+            WatcherManager watcherManager, GroupManager groupManager, UserManager userManager, 
+            ApplicationProperties properties, MailServerManager mailServerManager, IssueWorkflowManager issueWorkflowManager,
+            WorkflowManager workflowManager, ProjectRoleManager projectRoleManager, ConstantsManager constantsManager,
+            IssueService issueService, ProjectManager projectManager) {
         this.actionRemindersAOMgr = actionRemindersAOMgr;
-        defaultResolution = getResolutionId();
+        this.searchService = searchService;
+        this.watcherManager = watcherManager;
+        this.groupManager = groupManager;
+        this.userManager = userManager;
+        this.properties = properties;
+        this.mailServerManager = mailServerManager;
+        this.issueWorkflowManager = issueWorkflowManager;
+        this.workflowManager =workflowManager;
+        this.projectRoleManager =projectRoleManager;
+        this.constantsManager = constantsManager;
+        this.issueService = issueService;
+        this.projectManager = projectManager;        
+        AdskActionRemindersUtilImpl.defaultResolution = getResolutionId();
+        this.BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"
+        this.mailServer = mailServerManager.getDefaultSMTPMailServer();
     }
     
     public String getDateString(Date datetime) {
@@ -97,16 +116,16 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         for(ActionRemindersAO action : actionRemindersAOMgr.getActiveActionReminders()) {
             if(isValidCronExp(action.getCronSchedule())) {
                 Date nextValidTimeAfter = getNextValidTimeAfter(action.getCronSchedule(), last_run_datetime);
-                logger.debug("*** Processing Action Reminder Config Id #"+ action.getID());
-                logger.debug("Last Service Run Date:: "+ last_run_datetime.toString());
-                logger.debug("Next Service Run Date:: "+ next_run_datetime.toString());
-                logger.debug("Next Valid Action Reminder Run Date:: "+ nextValidTimeAfter.toString());
+                logger.debug("**** Processing Action Reminder Config Id #"+ action.getID());
+                logger.debug("**** Last Service Run Date:: "+ last_run_datetime.toString());
+                logger.debug("**** Next Service Run Date:: "+ next_run_datetime.toString());
+                logger.debug("**** Next Valid Action Reminder Run Date:: "+ nextValidTimeAfter.toString());
                 
                 if(nextValidTimeAfter.before(next_run_datetime)) {
-                    logger.debug("* Cron schedule Valid - running");
+                    logger.debug("**** Cron schedule Valid - running");
                     process(action, enableRemindersStatus, enableActionsStatus);
                 }else{
-                    logger.debug("Skipping Action Reminder Config Id #"+ action.getID());
+                    logger.debug("**** Skipping Action Reminder Config Id #"+ action.getID());
                 }
             }
         }
@@ -154,7 +173,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     public void process(ActionRemindersAO map, boolean reminders, boolean actions) {
         if(reminders == false && actions == false) {
-            logger.debug(map.getID()+" - Both reminders and actions are set false. Skipping!");
+            logger.debug("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
         }
         
@@ -162,19 +181,19 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {
             is_issue_action = true;
         }else if(reminders == false && is_issue_action == false){
-            logger.debug(map.getID()+" - Both reminders and actions are set false. Skipping!");
+            logger.debug("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
         }             
         
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){
-            logger.debug(map.getRunAuthor()+" - Run Author is Null/not exists!");
+            logger.debug("**** "+ map.getRunAuthor()+" - Run Author is Null/not exists!");
             return;
         }
         
         Project projectObj = projectManager.getProjectObjByKey(map.getProjectKey());
         if(projectObj == null){
-            logger.debug(map.getProjectKey()+" - Project is Null/not exists!");
+            logger.debug("**** "+ map.getProjectKey()+" - Project is Null/not exists!");
             return;
         }
         
@@ -187,68 +206,22 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, secureQuery);
             
             if (parseResult.isValid()) {
-                logger.debug("* Processing Secure Query -> "+ parseResult.getQuery());
+                logger.debug("**** Processing Secure Query -> "+ parseResult.getQuery());
                 
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, 1000));
+                List<Issue> issues = searchResults.getIssues();
                 
-                for(Issue issue : searchResults.getIssues()) {
-                    logger.debug("* Processing issue -> "+ issue.getKey());
-                                        
-                    if(is_issue_action == true) { // Transition Action                        
-                        logger.debug("* Processing Issue action -> "+ map.getIssueAction());                                                
-                        
-                        Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
-                        boolean is_action_exists = false;
-                        
-                        for(ActionDescriptor actionDescriptor : ActionDescriptors) {                            
-                            if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runAppUser)) {
-                                logger.debug("* Issue action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
-                                logger.debug("* Issue Status - "+ issue.getStatus().getName());
-                                if(issue.getStatus().getName().equalsIgnoreCase(actionDescriptor.getName())) {
-                                    logger.debug("* Issue target action and existing status is same. Skipping.");
-                                    break;
-                                }
-                                is_action_exists = true;
-                                IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
-                                issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);                                                                
-                                issueInputParameters.setResolutionId(defaultResolution);
-                                issueInputParameters.setComment(map.getMessage());
-
-                                IssueService.TransitionValidationResult validation = issueService.validateTransition(runAppUser, issue.getId(), 
-                                        actionDescriptor.getId(), issueInputParameters);                                                                        
-
-                                if (validation.isValid()) {
-                                    IssueService.IssueResult issueResult = issueService.transition(runAppUser, validation);
-                                    if (issueResult.isValid()) {
-                                        logger.debug("* Issue transition successful");
-                                        for(String e : issueResult.getErrorCollection().getErrorMessages()) {
-                                            logger.debug(e);
-                                        }
-                                    }
-                                } else {
-                                    logger.debug("* Issue transition validation errors: ");
-                                    for(String e : validation.getErrorCollection().getErrorMessages()) {
-                                        logger.debug(e);
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                        
-                        if( is_action_exists == false ) {    
-                            logger.debug("* Issue action is not valid - "+ map.getIssueAction());
-                        }
-                    
-                    } else {
-                        
-                        logger.debug("* Sending reminders now:");
-                        if( reminders ) { // Remind or re-notify
-                            sendReminders(map, issue, runAppUser);
-                        }
+                if(is_issue_action == true) { // Transition Action                        
+                    logger.debug("**** Processing Issue action -> "+ map.getIssueAction());
+                    sendActions(map, issues, runAppUser);                    
+                } else {                        
+                    logger.debug("**** Sending reminders now:");
+                    if( reminders ) { // Remind or re-notify
+                        sendReminders(map, issues, runAppUser);
                     }
-                    
-                    actionRemindersAOMgr.setActionRemindersLastRun(map.getID()); // set last run
                 }
+                    
+                actionRemindersAOMgr.setActionRemindersLastRun(map.getID()); // set last run
             }
         }
         catch(SearchException e) {
@@ -256,7 +229,55 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         }
         
         long totalTime = System.currentTimeMillis() - startTime;
-        logger.debug("Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
+        logger.debug("**** Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
+    }
+    
+    public void sendActions(ActionRemindersAO map, List<Issue> issues, ApplicationUser runUser) {
+        for(Issue issue : issues) {
+            logger.debug("** Processing issue -> "+ issue.getKey());
+
+            Collection<ActionDescriptor> ActionDescriptors = workflowManager.getWorkflow(issue).getActionsByName(map.getIssueAction());
+            boolean is_action_exists = false;
+
+            for(ActionDescriptor actionDescriptor : ActionDescriptors) {                            
+                if(issueWorkflowManager.isValidAction(issue, actionDescriptor.getId(), runUser)) {
+                    logger.debug("** Issue action is valid - "+ actionDescriptor.getName() +" : "+ actionDescriptor.getId()); 
+                    logger.debug("** Issue Status - "+ issue.getStatus().getName());
+                    if(issue.getStatus().getName().equalsIgnoreCase(actionDescriptor.getName())) {
+                        logger.debug("** Issue target action and existing status is same. Skipping.");
+                        break;
+                    }
+                    is_action_exists = true;
+                    IssueInputParameters issueInputParameters = issueService.newIssueInputParameters();
+                    issueInputParameters.setRetainExistingValuesWhenParameterNotProvided(true);                                                                
+                    issueInputParameters.setResolutionId(defaultResolution);
+                    issueInputParameters.setComment(map.getMessage());
+
+                    IssueService.TransitionValidationResult validation = issueService.validateTransition(runUser, issue.getId(), 
+                            actionDescriptor.getId(), issueInputParameters);                                                                        
+
+                    if (validation.isValid()) {
+                        IssueService.IssueResult issueResult = issueService.transition(runUser, validation);
+                        if (issueResult.isValid()) {
+                            logger.debug("** Issue transition successful");
+                            for(String e : issueResult.getErrorCollection().getErrorMessages()) {
+                                logger.debug(e);
+                            }
+                        }
+                    } else {
+                        logger.debug("** Issue transition validation errors: ");
+                        for(String e : validation.getErrorCollection().getErrorMessages()) {
+                            logger.debug(e);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if( is_action_exists == false ) {    
+                logger.debug("** Issue action is not valid - "+ map.getIssueAction());
+            }
+        }
     }
     
     public String getResolutionId() {
@@ -267,86 +288,74 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         return "1";
     }
     
-    public void sendReminders(ActionRemindersAO map, Issue issue, ApplicationUser runUser) {
-        String subject = MessageFormat.format("({0}) {1}", issue.getKey(), issue.getSummary());
-        String issueLink = MessageFormat.format("{0}/browse/{1}", BaseUrl, issue.getKey());
-        String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);        
-        String ccfrom = runUser != null ? runUser.getEmailAddress() : "";
-        Set<String> emailAddrs = new HashSet<String>();
+    public void sendReminders(ActionRemindersAO map, List<Issue> issues, ApplicationUser runUser) {
         
-        if(map.getNotifyAssignee()) {
-            if(issue.getAssigneeUser() != null) {
-                emailAddrs.add(issue.getAssigneeUser().getEmailAddress());
-            }
-        }
-        
-        if(map.getNotifyReporter()) {
-            if(issue.getReporterUser() != null) {
-                emailAddrs.add(issue.getReporterUser().getEmailAddress());
-            }
-        }
-        
-        if(map.getNotifyWatchers()) {
-            emailAddrs.addAll(getWatchersUsers(issue));
-        }
-        
+        Set<String> emails = new HashSet<String>();
         if(map.getNotifyProjectrole() != null && !"".equals(map.getNotifyProjectrole())) {
-            emailAddrs.addAll(getRoleUsers(map.getProjectKey(), map.getNotifyProjectrole()));
+            emails.addAll(getRoleUsers(map.getProjectKey(), map.getNotifyProjectrole()));
         }
-        
         if(map.getNotifyGroup()!= null && !"".equals(map.getNotifyGroup())) {
-            emailAddrs.addAll(getGroupUsers(map.getNotifyGroup()));
+            emails.addAll(getGroupUsers(map.getNotifyGroup()));
         }
         
-        logger.debug("* Total email users size: "+ emailAddrs.size());
+        for(Issue issue : issues) {
+            logger.debug("** Processing issue -> "+ issue.getKey());        
         
-        for(String email : emailAddrs) {
-            sendMail(email, subject, body, ccfrom);
+            String subject = MessageFormat.format("({0}) {1}", issue.getKey(), issue.getSummary());
+            String issueLink = MessageFormat.format("{0}/browse/{1}", BaseUrl, issue.getKey());
+            String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);        
+            String ccfrom = runUser != null ? runUser.getEmailAddress() : "";
+            Set<String> emailAddrs = new HashSet<String>();
+            emailAddrs.addAll(emails);
+
+            if(map.getNotifyAssignee()) {
+                if(issue.getAssigneeUser() != null) {
+                    emailAddrs.add(issue.getAssigneeUser().getEmailAddress());
+                }
+            }
+
+            if(map.getNotifyReporter()) {
+                if(issue.getReporterUser() != null) {
+                    emailAddrs.add(issue.getReporterUser().getEmailAddress());
+                }
+            }
+
+            if(map.getNotifyWatchers()) {
+                emailAddrs.addAll(getWatchersUsers(issue));
+            }            
+
+            logger.debug("** Total email users size: "+ emailAddrs.size());
+
+            for(String email : emailAddrs) {
+                sendMail(email, subject, body, ccfrom);
+            }
         }
     }
     
     public Set<String> getGroupUsers(String group) {
-        Set<String> users = new HashSet<String>();
-        if(!"jira-administrators".equalsIgnoreCase(group) && !"jira-developers".equalsIgnoreCase(group) && !"jira-users".equalsIgnoreCase(group)) {
-            Collection<ApplicationUser> groupUsers = groupManager.getUsersInGroup(group);
-            logger.debug("Group users size - "+ group +" : "+ groupUsers.size());
-            for(ApplicationUser au : groupUsers){
-                users.add(au.getEmailAddress());
-            }
-        }else{
-            logger.warn(group +" - Default jira groups are not supported!");
+        Set<String> users = new HashSet<String>();        
+        Collection<ApplicationUser> groupUsers = groupManager.getUsersInGroup(group);
+        logger.debug("** Group users size - "+ group +" : "+ groupUsers.size());
+        for(ApplicationUser au : groupUsers){
+            users.add(au.getEmailAddress());
         }
         return users;
     }
     
-    public ProjectRole getProjectRole(String projectRole) {
-        Collection<ProjectRole> projectRoles = projectRoleManager.getProjectRoles();
-        for(ProjectRole role : projectRoles){
-            if(role.getName().equalsIgnoreCase(projectRole)){
-                return role;
-            }
-        }
-        return null;
-    }
     
     public Set<String> getRoleUsers(String projectKey, String projectRole) {                         
         Set<String> users = new HashSet<String>();
-        if(!"ADMINISTRATORS".equalsIgnoreCase(projectRole) && !"DEVELOPERS".equalsIgnoreCase(projectRole) && !"USERS".equalsIgnoreCase(projectRole)) {
-            Project projectObject = projectManager.getProjectObjByKey(projectKey);
-            ProjectRole devRole = getProjectRole(projectRole);
-            if(devRole != null) {
-                logger.debug("Project role name: "+ devRole.getName());
-                ProjectRoleActors roleActors = projectRoleManager.getProjectRoleActors(devRole, projectObject);
-                Set<ApplicationUser> actors = roleActors.getApplicationUsers();
-                logger.debug("Project role users size - "+ projectRole +" : "+ actors.size());
-                for(ApplicationUser au : actors){
-                    users.add(au.getEmailAddress());
-                }
-            }else{
-                logger.debug("Project role is not exists! "+ projectRole);
+        Project projectObject = projectManager.getProjectObjByKey(projectKey);
+        ProjectRole devRole = projectRoleManager.getProjectRole(projectRole);
+        if(devRole != null) {
+            ProjectRoleActors roleActors = projectRoleManager.getProjectRoleActors(devRole, projectObject);
+            Set<ApplicationUser> actors = roleActors.getApplicationUsers();
+            logger.debug("** Project role users size - "+ projectRole +" : "+ actors.size());
+            for(ApplicationUser au : actors){
+                users.add(au.getEmailAddress());
             }
         }else{
-            logger.warn(projectKey +":"+ projectRole +" - Default project role does not supported!");
+            logger.warn("** Project role is not exists! "+ projectRole);
         }
         return users;
     }
@@ -354,7 +363,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     public Set<String> getWatchersUsers(Issue issue) {
         Set<String> users = new HashSet<String>();
         List<String> watchUsers = watcherManager.getCurrentWatcherUsernames(issue);
-        logger.debug("Issue watchers size - "+ issue.getKey() +" : "+ watchUsers.size());
+        logger.debug("** Issue watchers size - "+ issue.getKey() +" : "+ watchUsers.size());
         for(String user : watchUsers) {
             ApplicationUser au = userManager.getUserByName(user);
             if(au != null) {
@@ -373,12 +382,12 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                 email.setFrom(ccfrom);
                 email.setCc(ccfrom);                
                 mailServer.send(email);
-                logger.debug("Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
+                logger.debug("* Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
             } else {
                 logger.warn("Please make sure that a valid mailServer is configured");
             }
         } catch (MailException ex) {
-            logger.error(ex.getLocalizedMessage());
+            logger.error(ex);
         }
     }
     

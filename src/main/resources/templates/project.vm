@@ -9,11 +9,17 @@
     <meta name="projectKey" content="$textutils.htmlEncode($action.projectKey)"/>
     <meta name="configId" content="$textutils.htmlEncode($action.configId)"/>
     <script>
-        
-        function prepareAdd() {
-            AJS.$("#ActionRemindersAddEditForm").trigger("reset");
-            AJS.$("#ActionRemindersAddEdit").stop().slideDown();
-            AJS.$("#ActionRemindersDel").stop().slideUp();
+        var show = true;                
+        function prepareAdd() {            
+            if ( show == true) {
+                AJS.$("#ActionRemindersAddEditForm").trigger("reset");
+                AJS.$("#ActionRemindersAddEdit").stop().slideDown();
+                AJS.$("#ActionRemindersDel").stop().slideUp();
+                show = false;
+            }else{
+                AJS.$("#ActionRemindersAddEdit").stop().slideUp();
+                show = true;
+            }
         }
 
         function prepareDelete(configId) {
@@ -53,8 +59,7 @@
         <span class="aui-icon icon-required"></span>
     </label>
     <textarea id="query" name="query" class="textfield" rows="2" cols="60" 
-        placeholder="Your JQL Query here $i18n.getText('jira-action-reminders.option.query.description')"></textarea>
-    <div class="description">$i18n.getText("jira-action-reminders.option.query.description")</div>
+        placeholder="$i18n.getText('jira-action-reminders.option.query.description')"></textarea>
 </div>
 <div class="field-group">
     <label for="issueAction">
@@ -114,9 +119,9 @@
     <select id="notifyProjectrole" name="notifyProjectrole" class="text">
         <option value="">None</option>
         #foreach ($projro in $projectRoles)
-            <option value="$projro.getName()">$projro.getName()</option>
+            <option value="$projro">$projro</option>
         #end
-    </select>
+    </select>    
 </div>
 <div class="field-group">
     <label for="notifyGroup">
@@ -145,7 +150,7 @@
         <option value="true">TRUE</option>
         <option value="false">FALSE</option>        
     </select>
-    <div class="description">$i18n.getText("jira-action-reminders.option.active.description")</div>
+    <span class="adsk_actionreminders_info" title="$i18n.getText("jira-action-reminders.option.active.description")"></span>
 </div>
 <div class="aui-buttons">
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="ADD" />

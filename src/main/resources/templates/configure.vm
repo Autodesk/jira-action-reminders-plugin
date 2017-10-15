@@ -60,8 +60,7 @@
         <span class="aui-icon icon-required"></span>
     </label>
     <textarea id="query" name="query" class="textfield" rows="2" cols="60" 
-        placeholder="Your JQL Query here $i18n.getText('jira-action-reminders.option.query.description')">$!query</textarea>
-    <div class="description">$i18n.getText("jira-action-reminders.option.query.description")</div>
+        placeholder="$i18n.getText('jira-action-reminders.option.query.description')">$!query</textarea>
 </div>
 <div class="field-group">
     <label for="issueAction">
@@ -130,9 +129,9 @@
     <select id="notifyProjectrole" name="notifyProjectrole" class="text">
         <option value="">None</option>
         #foreach ($projro in $projectRoles)
-            <option value="$projro.getName()"
-            #if ($projro.getName() == "$!notifyProjectrole")selected#end
-            >$projro.getName()</option>
+            <option value="$projro"
+            #if ($projro == "$!notifyProjectrole")selected#end
+            >$projro</option>
         #end
     </select>
 </div>
@@ -168,7 +167,7 @@
             >$option</option>
         #end
     </select>
-    <div class="description">$i18n.getText("jira-action-reminders.option.active.description")</div>
+    <span class="adsk_actionreminders_info" title="$i18n.getText("jira-action-reminders.option.active.description")"></span>
 </div>
 <div class="aui-buttons">
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="SAVE" />
