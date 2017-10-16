@@ -217,12 +217,16 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                     if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {                      
                         logger.debug("**** Processing Issue action -> "+ map.getIssueAction());
                         sendActions(map, issues, runAppUser);                    
+                    }else{
+                        logger.warn("**** Sending issue actions disabled or missing action name.");
                     }
                 }
-                else if(map.getConfigType().equals("reminder")) { 
-                    logger.debug("**** Sending reminders now:");
+                else if(map.getConfigType().equals("reminder")) {                    
                     if( reminders == true ) { // Remind or re-notify
+                        logger.debug("**** Sending reminders now ...");
                         sendReminders(map, issues, runAppUser);
+                    }else{
+                        logger.warn("**** Sending reminders disabled.");
                     }
                 }
                 else {
