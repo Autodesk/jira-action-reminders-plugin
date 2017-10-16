@@ -204,6 +204,7 @@
 <!-- Run form with Mapping ID -->
 <div id="ActionRemindersRun" style="display: none">
 <form id="ActionRemindersRunForm" class="aui" method="post" action="AdskActionRemindersConfigure.jspa?configId=$configId" >
+<input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <div class="field-group">
     <label for="configIds">
@@ -212,17 +213,6 @@
     </label>
     <input type="text" id="configIds" name="configIds" class="text" disabled=""/>
 </div>
-<fieldset class="group">
-    <legend><span>Options:</span></legend>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="reminders" id="reminders" value="true" checked/>
-        <label for="emailReminder">Reminders</label>
-    </div>
-    <div class="checkbox">
-        <input class="checkbox" type="checkbox" name="actions" id="actions" value="true" />
-        <label for="issueActions">Actions</label>
-    </div>    
-</fieldset>
 <div class="aui-buttons">
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="RUN" />
 </div>

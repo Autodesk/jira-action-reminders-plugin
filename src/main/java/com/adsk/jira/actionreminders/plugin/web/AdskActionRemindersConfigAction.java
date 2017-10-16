@@ -76,7 +76,8 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
             if(configBean.getConfigId() > 0) {                
                 ActionRemindersAO remindAction = remindActionsMgr.getActionReminderById(configBean.getConfigId()); 
                 actionRemindersUtil.process(remindAction, 
-                        configBean.isReminders(), configBean.isActions());
+                        actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus());
+                status = "Triggered!";
             }
         }        
         else if (this.submitted != null && "SAVE".equals(this.submitted)) {
@@ -258,22 +259,6 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
 
     public void setMessage(String message) {
         configBean.setMessage(message);
-    }
-    
-    public boolean isReminders() {
-        return configBean.isReminders();
-    }
-
-    public void setReminders(boolean reminders) {
-        configBean.setReminders(reminders);
-    }
-
-    public boolean isActions() {
-        return configBean.isActions();
-    }
-
-    public void setActions(boolean actions) {
-        configBean.setActions(actions);
     }
     
     public Project getProject() {

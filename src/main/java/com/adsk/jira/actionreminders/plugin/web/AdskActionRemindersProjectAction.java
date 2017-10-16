@@ -217,22 +217,6 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         configBean.setMessage(message);
     }
     
-    public boolean isReminders() {
-        return configBean.isReminders();
-    }
-
-    public void setReminders(boolean reminders) {
-        configBean.setReminders(reminders);
-    }
-
-    public boolean isActions() {
-        return configBean.isActions();
-    }
-
-    public void setActions(boolean actions) {
-        configBean.setActions(actions);
-    }
-    
     public TextUtils getTextUtils() {
         return textUtils;
     }
