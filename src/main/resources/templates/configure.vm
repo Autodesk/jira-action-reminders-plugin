@@ -46,7 +46,7 @@
 <p>
 <span class="AdskActionRemindersHeading">
     $i18n.getText("jira-action-reminders.option.label") #$configId  #if($projectName) | $projectName#end</span>
-<a href="https://git.autodesk.com/EngOps/adsk-action-reminders-plugin/wiki/Home" target="_blank"
+<a href="https://git.autodesk.com/EngOps/jira-action-reminders-plugin/wiki" target="_blank"
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
 <a href="#" class="adsk_actionreminders_edit" onClick="prepareEdit()"></a>
 <a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$configId')"></a>
@@ -113,7 +113,7 @@
     </label>
     <input id="cronSchedule" name="cronSchedule" class="text" placeholder="Your Cron Schedule" value="$!cronSchedule" />        
     <a class="adsk_actionreminders_help" target="_blank" title="Cron Schedule Examples" 
-        href="https://git.autodesk.com/EngOps/adsk-jira-action-reminders-plugin/wiki/Cron-Schedule-Example"></a>
+        href="https://git.autodesk.com/EngOps/jira-action-reminders-plugin/wiki/Cron-Schedule-Example"></a>
 </div>
 <fieldset class="group">
     <legend><span>Reminders:</span></legend>

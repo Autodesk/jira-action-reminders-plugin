@@ -152,10 +152,15 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     public boolean getRemindersStatus() {
         boolean enableRemindersStatus = false;
         try {
-            enableRemindersStatus = Boolean.parseBoolean(properties.getString(ENABLE_REMINDERS));
+            String rStatus = properties.getString(ENABLE_REMINDERS);
+            if(rStatus != null) {
+                enableRemindersStatus = Boolean.parseBoolean(rStatus);
+            }else{
+                enableRemindersStatus = true;
+                properties.setString(ENABLE_REMINDERS, ""+enableRemindersStatus);
+            }
         }catch(ClassCastException e) {
-            enableRemindersStatus = true;
-            properties.setString(ENABLE_REMINDERS, ""+enableRemindersStatus);            
+            logger.error(e);       
         }
         return enableRemindersStatus;
     }
@@ -163,10 +168,15 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     public boolean getActionsStatus() {
         boolean enableActionsStatus = false;
         try {
-            enableActionsStatus = Boolean.parseBoolean(properties.getString(ENABLE_ACTIONS));
+            String eStatus = properties.getString(ENABLE_ACTIONS);
+            if(eStatus != null) {
+                enableActionsStatus = Boolean.parseBoolean(eStatus);
+            } else {
+                enableActionsStatus = true;
+                properties.setString(ENABLE_ACTIONS, ""+enableActionsStatus);
+            }
         }catch(ClassCastException e) {
-            enableActionsStatus = true;
-            properties.setString(ENABLE_ACTIONS, ""+enableActionsStatus);
+            logger.error(e);
         }
         return enableActionsStatus;
     }

@@ -69,10 +69,15 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
     public boolean isEnableReminders() {
         boolean enableRemindersStatus = false;
         try {
-            enableRemindersStatus = Boolean.parseBoolean(properties.getString(AdskActionRemindersUtil.ENABLE_REMINDERS));
+            String rStatus = properties.getString(AdskActionRemindersUtil.ENABLE_REMINDERS);
+            if(rStatus != null) {
+                enableRemindersStatus = Boolean.parseBoolean(rStatus);
+            }else{
+                enableRemindersStatus = true;
+                properties.setString(AdskActionRemindersUtil.ENABLE_REMINDERS, ""+enableRemindersStatus);
+            }
         }catch(ClassCastException e) {
-            enableRemindersStatus = true;
-            properties.setString(AdskActionRemindersUtil.ENABLE_REMINDERS, ""+enableRemindersStatus);            
+            logger.error(e);       
         }
         return enableRemindersStatus;
     }
@@ -84,10 +89,15 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
     public boolean isEnableActions() {
         boolean enableActionsStatus = false;
         try {
-            enableActionsStatus = Boolean.parseBoolean(properties.getString(AdskActionRemindersUtil.ENABLE_ACTIONS));
+            String eStatus = properties.getString(AdskActionRemindersUtil.ENABLE_ACTIONS);
+            if(eStatus != null) {
+                enableActionsStatus = Boolean.parseBoolean(eStatus);
+            } else {
+                enableActionsStatus = true;
+                properties.setString(AdskActionRemindersUtil.ENABLE_ACTIONS, ""+enableActionsStatus);
+            }
         }catch(ClassCastException e) {
-            enableActionsStatus = true;
-            properties.setString(AdskActionRemindersUtil.ENABLE_ACTIONS, ""+enableActionsStatus);            
+            logger.error(e);
         }
         return enableActionsStatus;
     }
