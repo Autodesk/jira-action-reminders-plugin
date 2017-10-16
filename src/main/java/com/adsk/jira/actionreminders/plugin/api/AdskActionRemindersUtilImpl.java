@@ -53,8 +53,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static String defaultResolution = "1";
-    private final String BaseUrl;
-    private final SMTPMailServer mailServer;    
+    private final String BaseUrl;   
     private final ProjectManager projectManager;
     private final IssueService issueService;
     private final ConstantsManager constantsManager;
@@ -89,7 +88,6 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         this.projectManager = projectManager;        
         AdskActionRemindersUtilImpl.defaultResolution = getResolutionId();
         this.BaseUrl = properties.getString(APKeys.JIRA_BASEURL); //"jira.baseurl"
-        this.mailServer = mailServerManager.getDefaultSMTPMailServer();
     }
     
     public String getDateString(Date datetime) {
@@ -387,13 +385,13 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     public void sendMail(String emailAddr, String subject, String body, String ccfrom) {
         try {            
-            if (mailServer != null) {
+            if (mailServerManager.getDefaultSMTPMailServer() != null) {
                 Email email = new Email(emailAddr);
                 email.setSubject(subject);
                 email.setBody(body);
                 email.setFrom(ccfrom);
                 email.setCc(ccfrom);                
-                mailServer.send(email);
+                mailServerManager.getDefaultSMTPMailServer().send(email);
                 logger.debug("* Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
             } else {
                 logger.warn("Please make sure that a valid mailServer is configured");
