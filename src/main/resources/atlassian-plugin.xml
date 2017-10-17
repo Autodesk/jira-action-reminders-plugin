@@ -22,29 +22,30 @@
     </web-resource>
     
     <!-- publish our component -->
+    <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects" />
+    <ao key="jira-actionreminders-ao">
+      <entity>com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO</entity>
+    </ao> 
     <component key="jira-actionreminders-ao-manager" name="Action Reminders AO Manager" 
-               class="com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgrImpl" public="true">
+               class="com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgrImpl">
         <interface>com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr</interface>
     </component>
-    
-    <component-import key="userManager" i18n-name-key="userManager.name">
-          <description key="userManager.description" />
-          <interface>com.atlassian.sal.api.user.UserManager</interface>
-    </component-import>
     
     <component key="jira-actionreminders-util-manager" name="Action Reminders Util Manager" 
                class="com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl">
         <interface>com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil</interface>
     </component>
     
-    <component key="jira-actionreminders-schedule-util" name="Action Reminders Schedule Util" 
-               class="com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunnerImpl">
+    <component key="jira-actionreminders-schedule-runner" name="Action Reminders Schedule Runner" 
+               class="com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunnerImpl" public="true">
         <interface>com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunner</interface>
     </component>
     
+    <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager" />
+    <component-import key="schedulerService" interface="com.atlassian.scheduler.SchedulerService" />
     <component key="jira-actionreminders-scheduler" name="Action Reminders Plugin Scheduler Manager" 
                class="com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersSchedulerImpl" 
-               system="true" public="true">        
+               public="true">
         <interface>com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersScheduler</interface>
         <interface>com.atlassian.sal.api.lifecycle.LifecycleAware</interface>
     </component>
@@ -52,13 +53,7 @@
     <!-- Rest API --> 
     <rest key="jira-actionreminders-rest-resource" name="jira-actionreminders-rest-resource" i18n-name-key="jira-actionreminders-rest-resource.name" 
         path="/actionreminders" version="1.0">
-    </rest>
-    
-    <!-- Active Objects -->
-    <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects" />
-    <ao key="jira-actionreminders-ao">
-      <entity>com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO</entity>
-    </ao>    
+    </rest>       
     
     <!-- Web Options panel -->
     <web-section key="jira-actionreminders.section" name="Action Reminders Section" 

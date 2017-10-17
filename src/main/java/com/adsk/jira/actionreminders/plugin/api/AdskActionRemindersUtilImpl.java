@@ -34,7 +34,6 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.mail.MailException;
 import com.atlassian.mail.server.MailServerManager;
-import com.atlassian.mail.server.SMTPMailServer;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -111,7 +110,10 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         boolean enableRemindersStatus = getRemindersStatus();
         boolean enableActionsStatus = getActionsStatus();
         
-        for(ActionRemindersAO action : actionRemindersAOMgr.getActiveActionReminders()) {
+        ActionRemindersAO[] actionReminders = actionRemindersAOMgr.getActiveActionReminders();
+        logger.debug("**** Total Active Action Reminders to process: "+ actionReminders.length);
+        
+        for(ActionRemindersAO action : actionReminders) {
             if(isValidCronExp(action.getCronSchedule())) {
                 Date nextValidTimeAfter = getNextValidTimeAfter(action.getCronSchedule(), last_run_datetime);
                 logger.debug("**** Processing Action Reminder Config Id #"+ action.getID());

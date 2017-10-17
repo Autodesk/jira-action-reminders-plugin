@@ -23,7 +23,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
     private static final Logger LOGGER = Logger.getLogger(ActionRemindersAOMgrImpl.class);
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final ActiveObjects ao;
-    public ActionRemindersAOMgrImpl(ActiveObjects ao) {
+    public ActionRemindersAOMgrImpl(final ActiveObjects ao) {
         this.ao = ao;
     }
     

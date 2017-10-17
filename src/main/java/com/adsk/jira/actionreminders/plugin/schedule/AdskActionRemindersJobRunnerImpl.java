@@ -5,7 +5,7 @@
  */
 package com.adsk.jira.actionreminders.plugin.schedule;
 
-import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl;
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.scheduler.JobRunnerRequest;
 import com.atlassian.scheduler.JobRunnerResponse;
@@ -23,10 +23,10 @@ public class AdskActionRemindersJobRunnerImpl implements AdskActionRemindersJobR
     
     private Date lastRun = null;
     private final ApplicationProperties applicationProperties;
-    private final AdskActionRemindersUtilImpl actionRemindersUtil;
+    private final AdskActionRemindersUtil actionRemindersUtil;
     
     public AdskActionRemindersJobRunnerImpl(ApplicationProperties applicationProperties, 
-            AdskActionRemindersUtilImpl actionRemindersUtil) {
+            final AdskActionRemindersUtil actionRemindersUtil) {
         this.applicationProperties = applicationProperties;
         this.actionRemindersUtil = actionRemindersUtil;
     }
@@ -70,8 +70,6 @@ public class AdskActionRemindersJobRunnerImpl implements AdskActionRemindersJobR
     public JobRunnerResponse runJob(JobRunnerRequest request) {
         Date last_run_date_time = getLastRun();        
         setLastRun(new Date());
-        
-        logger.debug("Action Reminders Service Interval : "+ getInterval());
         
         actionRemindersUtil.run(last_run_date_time, request.getStartTime());
         

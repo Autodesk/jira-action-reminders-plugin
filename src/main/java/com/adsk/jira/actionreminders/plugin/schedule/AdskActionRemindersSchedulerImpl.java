@@ -10,8 +10,6 @@ import com.atlassian.sal.api.lifecycle.LifecycleAware;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
-import com.atlassian.plugin.spring.scanner.annotation.export.ExportAsService;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.scheduler.SchedulerService;
 import com.atlassian.scheduler.SchedulerServiceException;
 import com.atlassian.scheduler.config.JobConfig;
@@ -19,15 +17,11 @@ import com.atlassian.scheduler.config.JobId;
 import com.atlassian.scheduler.config.JobRunnerKey;
 import com.atlassian.scheduler.config.RunMode;
 import com.atlassian.scheduler.config.Schedule;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  *
  * @author prasadve
  */
-@Named
-@ExportAsService({LifecycleAware.class})
 public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersScheduler, LifecycleAware {
 
     private static final Logger logger = Logger.getLogger(AdskActionRemindersSchedulerImpl.class);    
@@ -35,11 +29,10 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
     private final SchedulerService schedulerService;
     private final AdskActionRemindersJobRunner AdskActionRemindersJobRunner;
     
-    @Inject
-    public AdskActionRemindersSchedulerImpl(@ComponentImport ApplicationProperties applicationProperties, 
-            SchedulerService schedulerService, AdskActionRemindersJobRunner AdskActionRemindersJobRunner) {
-        this.applicationProperties = applicationProperties;
+    public AdskActionRemindersSchedulerImpl(SchedulerService schedulerService, 
+            ApplicationProperties applicationProperties, AdskActionRemindersJobRunner AdskActionRemindersJobRunner) {
         this.schedulerService = schedulerService;
+        this.applicationProperties = applicationProperties;        
         this.AdskActionRemindersJobRunner = AdskActionRemindersJobRunner;
     }
     
@@ -63,11 +56,11 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
     }
     
     private JobId getJobId() {    
-      return JobId.of(AdskActionRemindersJobRunner.class.getName() + ".job");
+      return JobId.of(AdskActionRemindersScheduler.class.getName() + ".job");
     }
 
     private JobRunnerKey getJobRunnerKey() {    
-      return JobRunnerKey.of(AdskActionRemindersJobRunner.class.getName() + ".scheduler");
+      return JobRunnerKey.of(AdskActionRemindersScheduler.class.getName() + ".scheduler");
     }
     
     public void onStart() {
@@ -89,13 +82,13 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
         JobConfig jobConfig = JobConfig.forJobRunnerKey(getJobRunnerKey())
                 .withRunMode(RunMode.RUN_ONCE_PER_CLUSTER).withSchedule(schedule);
         try {        
-          logger.debug("Scheduling the LDAP Groups Synchronization Job "+ getJobRunnerKey().toString() +" with "+ 
+          logger.debug("Scheduling the Action Reminders Job "+ getJobRunnerKey().toString() +" with "+ 
                   jobConfig);
           
           this.schedulerService.scheduleJob(getJobId(), jobConfig);
         }
         catch (SchedulerServiceException e) {        
-          logger.error("Failed to schedule the Jenkins Synchronization Job. Builds can only be synchronized manually until this is fixed!", e);
+          logger.error("Failed to schedule the Action Reminders Job! ", e);
         }
         logger.debug(String.format("Action Reminders task scheduled to run every %dhrs", getInterval()));
     }
