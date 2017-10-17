@@ -6,6 +6,7 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
 import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
+import com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunner;
 import com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersScheduler;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.permission.GlobalPermissionKey;
@@ -50,7 +51,7 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
         else if (this.submitted != null && "Schedule".equals(this.submitted)) {
             logger.debug("Re-Scheduling Sync with interval -> "+ interval);           
             if(interval > 0) {
-                properties.setString(AdskActionRemindersScheduler.SYNC_INTERVAL, ""+interval);
+                properties.setString(AdskActionRemindersJobRunner.SYNC_INTERVAL, ""+interval);
                 status = "Re-scheduled Sync with interval: "+ interval;
                 pluginSchedule.reschedule();
             }            

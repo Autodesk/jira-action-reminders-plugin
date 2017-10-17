@@ -37,9 +37,10 @@
         <interface>com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil</interface>
     </component>
     
-    <component-import key="pluginScheduler" name="Okta Groups Sync Plugin Scheduler">
-        <interface>com.atlassian.sal.api.scheduling.PluginScheduler</interface>
-    </component-import>
+    <component key="jira-actionreminders-schedule-util" name="Action Reminders Schedule Util" 
+               class="com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunnerImpl">
+        <interface>com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunner</interface>
+    </component>
     
     <component key="jira-actionreminders-scheduler" name="Action Reminders Plugin Scheduler Manager" 
                class="com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersSchedulerImpl" 

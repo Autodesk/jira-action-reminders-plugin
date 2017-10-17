@@ -5,73 +5,71 @@
  */
 package com.adsk.jira.actionreminders.plugin.schedule;
 
-import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.sal.api.lifecycle.LifecycleAware;
-import com.atlassian.sal.api.scheduling.PluginScheduler;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
+import com.atlassian.plugin.spring.scanner.annotation.export.ExportAsService;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.scheduler.SchedulerService;
+import com.atlassian.scheduler.SchedulerServiceException;
+import com.atlassian.scheduler.config.JobConfig;
+import com.atlassian.scheduler.config.JobId;
+import com.atlassian.scheduler.config.JobRunnerKey;
+import com.atlassian.scheduler.config.RunMode;
+import com.atlassian.scheduler.config.Schedule;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  *
  * @author prasadve
  */
+@Named
+@ExportAsService({LifecycleAware.class})
 public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersScheduler, LifecycleAware {
 
-    private static final Logger logger = Logger.getLogger(AdskActionRemindersSchedulerImpl.class);
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersSchedulerImpl.class);    
+    private final ApplicationProperties applicationProperties;        
+    private final SchedulerService schedulerService;
+    private final AdskActionRemindersJobRunner AdskActionRemindersJobRunner;
     
-    private Date lastRun = null;
-    
-    private final ApplicationProperties applicationProperties;
-    private final PluginScheduler pluginScheduler;  // provided by SAL    
-    private final ActionRemindersAOMgr actionRemindersAOMgr;
-    private final AdskActionRemindersUtilImpl actionRemindersUtil;
-    
-    public AdskActionRemindersSchedulerImpl(ApplicationProperties applicationProperties, 
-            PluginScheduler pluginScheduler, ActionRemindersAOMgr actionRemindersAOMgr, 
-            AdskActionRemindersUtilImpl actionRemindersUtil) {
+    @Inject
+    public AdskActionRemindersSchedulerImpl(@ComponentImport ApplicationProperties applicationProperties, 
+            SchedulerService schedulerService, AdskActionRemindersJobRunner AdskActionRemindersJobRunner) {
         this.applicationProperties = applicationProperties;
-        this.pluginScheduler = pluginScheduler;
-        this.actionRemindersAOMgr = actionRemindersAOMgr;
-        this.actionRemindersUtil = actionRemindersUtil;
+        this.schedulerService = schedulerService;
+        this.AdskActionRemindersJobRunner = AdskActionRemindersJobRunner;
     }
     
     public long getInterval() {
         long interval = 1L;
         try {
             long sync_interval = Long.parseLong(applicationProperties
-                    .getString(AdskActionRemindersScheduler.SYNC_INTERVAL));
+                    .getString(AdskActionRemindersJobRunner.SYNC_INTERVAL));
             if(sync_interval > 0) {
                 interval = sync_interval;
             }else{
-                interval = AdskActionRemindersScheduler.DEFAULT_INTERVAL;
+                interval = AdskActionRemindersJobRunner.DEFAULT_INTERVAL;
             }
         } catch (NumberFormatException e) {
             logger.debug("Action Reminders interval property is null so using default: "+ 
-                    AdskActionRemindersScheduler.DEFAULT_INTERVAL);
+                    AdskActionRemindersJobRunner.DEFAULT_INTERVAL);
             
-            interval = AdskActionRemindersScheduler.DEFAULT_INTERVAL;
+            interval = AdskActionRemindersJobRunner.DEFAULT_INTERVAL;
         }
         return interval;
     }
     
-    public Date getLastRun() {
-        return this.lastRun;
-    }
-    
-    public Date getNextRun() {
-        Calendar cal = Calendar.getInstance();
-        if(lastRun != null) {
-            cal.setTime(lastRun);
-        }
-        cal.add(Calendar.MILLISECOND, (int) TimeUnit.MINUTES.toMillis(getInterval()));
-        return cal.getTime();
+    private JobId getJobId() {    
+      return JobId.of(AdskActionRemindersJobRunner.class.getName() + ".job");
     }
 
+    private JobRunnerKey getJobRunnerKey() {    
+      return JobRunnerKey.of(AdskActionRemindersJobRunner.class.getName() + ".scheduler");
+    }
+    
     public void onStart() {
         /**
          * Important place to Change minutes or hours
@@ -79,35 +77,36 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
          */
         long time_interval = TimeUnit.MINUTES.toMillis(getInterval());
                 
-        pluginScheduler.scheduleJob(JOB_NAME,                   // unique name of the job
-                AdskActionRemindersService.class,            // class of the job
-                new HashMap<String,Object>() {{
-                    put(AdskActionRemindersScheduler.KEY, AdskActionRemindersSchedulerImpl.this);
-                }},                    // data that needs to be passed to the job
-                getNextRun(),          // the time the job is to start
-                time_interval);             // interval between repeats, in milliseconds
+        if (!this.schedulerService.getRegisteredJobRunnerKeys().contains(getJobRunnerKey())) {        
+          logger.debug("Registering JobRunner - "+ getJobRunnerKey().toString());
+          this.schedulerService.registerJobRunner(getJobRunnerKey(), this.AdskActionRemindersJobRunner);
+        }
+        
+        AdskActionRemindersJobRunner.setLastRun(new Date()); //set current date time as last execution.
+        
+        Date start =  new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1L));
+        Schedule schedule = Schedule.forInterval(time_interval, start);
+        JobConfig jobConfig = JobConfig.forJobRunnerKey(getJobRunnerKey())
+                .withRunMode(RunMode.RUN_ONCE_PER_CLUSTER).withSchedule(schedule);
+        try {        
+          logger.debug("Scheduling the LDAP Groups Synchronization Job "+ getJobRunnerKey().toString() +" with "+ 
+                  jobConfig);
+          
+          this.schedulerService.scheduleJob(getJobId(), jobConfig);
+        }
+        catch (SchedulerServiceException e) {        
+          logger.error("Failed to schedule the Jenkins Synchronization Job. Builds can only be synchronized manually until this is fixed!", e);
+        }
         logger.debug(String.format("Action Reminders task scheduled to run every %dhrs", getInterval()));
     }
 
     public void onStop() {
-        this.pluginScheduler.unscheduleJob(JOB_NAME);
+        this.schedulerService.unscheduleJob(getJobId());
+        this.schedulerService.unregisterJobRunner(getJobRunnerKey());
     }
     
     public void reschedule() {
         onStop();
         onStart();
     }
-
-    public void setLastRun(Date lastRun) {
-        this.lastRun = lastRun;
-    }
-    
-    public AdskActionRemindersUtilImpl getActionRemindersUtil() {
-        return actionRemindersUtil;
-    }
-    
-    public ActionRemindersAOMgr getActionRemindersAOMgr() {
-        return actionRemindersAOMgr;
-    }    
-    
 }

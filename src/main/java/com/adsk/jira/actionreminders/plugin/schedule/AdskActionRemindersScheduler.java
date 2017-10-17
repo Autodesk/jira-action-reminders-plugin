@@ -5,32 +5,14 @@
  */
 package com.adsk.jira.actionreminders.plugin.schedule;
 
-import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtilImpl;
-import java.util.Date;
-import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
-
 /**
  *
  * @author prasadve
  */
 public interface AdskActionRemindersScheduler {
     
-    public static final String SYNC_INTERVAL = "com.adsk.jira.actionreminders.plugin.syncInterval";
+    public long getInterval();
     
-    public static final String KEY = AdskActionRemindersScheduler.class.getName() + ":instance";
-    
-    public static final String JOB_NAME = AdskActionRemindersScheduler.class.getName() + ":job";
-    
-    public static final long DEFAULT_INTERVAL = 1L;
-    
-    public ActionRemindersAOMgr getActionRemindersAOMgr();
-    
-    public AdskActionRemindersUtilImpl getActionRemindersUtil();
-    
-    public long getInterval();    
     public void reschedule();
-    public void setLastRun(Date lastRun);
-    public Date getLastRun();
-    public Date getNextRun();
     
 }
