@@ -34,6 +34,7 @@ import com.atlassian.jira.user.util.UserManager;
 import com.atlassian.jira.workflow.WorkflowManager;
 import com.atlassian.mail.MailException;
 import com.atlassian.mail.server.MailServerManager;
+import com.atlassian.mail.server.SMTPMailServer;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -310,6 +311,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             emails.addAll(getGroupUsers(map.getNotifyGroup()));
         }
         
+        SMTPMailServer mailServer = mailServerManager.getDefaultSMTPMailServer();
         for(Issue issue : issues) {
             logger.debug("** Processing issue -> "+ issue.getKey());        
         
@@ -339,7 +341,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             logger.debug("** Total email users size: "+ emailAddrs.size());
 
             for(String email : emailAddrs) {
-                sendMail(email, subject, body, ccfrom);
+                sendMail(mailServer, email, subject, body, ccfrom);
             }
         }
     }
@@ -385,15 +387,15 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         return users;
     }
     
-    public void sendMail(String emailAddr, String subject, String body, String ccfrom) {
+    public void sendMail(SMTPMailServer mailServer, String emailAddr, String subject, String body, String ccfrom) {
         try {            
-            if (mailServerManager.getDefaultSMTPMailServer() != null) {
+            if (mailServer != null) {
                 Email email = new Email(emailAddr);
                 email.setSubject(subject);
                 email.setBody(body);
                 email.setFrom(ccfrom);
-                email.setCc(ccfrom);                
-                mailServerManager.getDefaultSMTPMailServer().send(email);
+                //email.setCc(ccfrom);                
+                mailServer.send(email);
                 logger.debug("* Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
             } else {
                 logger.warn("Please make sure that a valid mailServer is configured");

@@ -127,21 +127,7 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
             map.setActive(configBean.isActive());
             map.save();
         }
-    }
-    
-    @Override
-    public boolean findActionReminders(ActionRemindersBean configBean) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("QUERY = ? AND PROJECT_KEY = ?", 
-                configBean.getQuery(), configBean.getProjectKey()));
-        return maps.length > 0;
-    }
-    
-    @Override
-    public boolean findActionReminders2(ActionRemindersBean configBean) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID != ? AND QUERY = ? AND PROJECT_KEY = ?", 
-                configBean.getConfigId(), configBean.getQuery(), configBean.getProjectKey()));
-        return maps.length > 0;
-    }
+    }    
 
     @Override
     public void removeActionReminders(long mapId) {

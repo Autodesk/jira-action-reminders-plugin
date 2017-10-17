@@ -58,9 +58,9 @@
     $i18n.getText("jira-action-reminders.option.label") #$configId  #if($projectName) | $projectName#end</span>
 <a href="https://git.autodesk.com/EngOps/jira-action-reminders-plugin/wiki" target="_blank"
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
-<a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$configId')"></a>
-<a href="#" class="adsk_actionreminders_config" onClick="prepareEdit()"></a>
-<a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$configId')"></a>
+<a href="#" class="adsk_actionreminders_config" onClick="prepareEdit()" title="Back to Configuration"></a>
+<a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$configId')" title="Delete Configuration"></a>
+<a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$configId')" title="Run Configuration"></a>
 </p>
 
 <!-- Add or Edit Form -->

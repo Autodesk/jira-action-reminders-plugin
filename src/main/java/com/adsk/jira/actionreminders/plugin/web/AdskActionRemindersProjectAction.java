@@ -6,7 +6,6 @@ import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
-import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 import org.apache.log4j.Logger;
@@ -54,7 +53,7 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         defaultRoles.add("developers");
         defaultRoles.add("users");
     }
-        
+    
     @Override
     public String doExecute() throws Exception {
         Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
@@ -69,18 +68,19 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         
         if (this.submitted != null && "ADD".equals(this.submitted)) {            
             logger.debug("Adding map -> "+ configBean.getQuery() +":"+configBean.getIssueAction()+":"+ configBean.isActive());
-            if(remindActionsMgr.findActionReminders(configBean) == false) {
-                if(configBean.getProjectKey() != null && configBean.getQuery() !=null && !"".equals(configBean.getQuery())) {
-                    remindActionsMgr.addActionReminders(configBean);                    
-                    status = "Added.";
-                }else{
-                    status = "Remind action fields missing!";
-                }
-            }else{
-                status = MessageFormat.format("{0} && {1} alredy exists in mapping!",
-                        configBean.getQuery(), configBean.getIssueAction());
+            
+            if(configBean.getProjectKey() == null || "".equals(configBean.getProjectKey()) 
+                || configBean.getConfigType() == null || "".equals(configBean.getConfigType())
+                || configBean.getQuery() == null || "".equals(configBean.getQuery())
+                || configBean.getRunAuthor() == null || "".equals(configBean.getRunAuthor())
+                || configBean.getCronSchedule() == null || "".equals(configBean.getCronSchedule())
+                || configBean.getMessage() == null || "".equals(configBean.getMessage())) {
+                status = "Error: Required fields are missing!";
+            }else{            
+                remindActionsMgr.addActionReminders(configBean);                    
+                status = "Added.";
             }
-        }        
+        }
         else if (this.submitted != null && "DELETE".equals(this.submitted)) {
             logger.debug("Deleting map Id -> "+ configBean.getConfigId());
             if(configBean.getConfigId() != 0) {

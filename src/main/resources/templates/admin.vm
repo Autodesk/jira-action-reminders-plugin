@@ -21,6 +21,7 @@
         function prepareSchedule() {
             AJS.$("#AdskActionRemindersProjectSchedule").stop().slideDown();
             AJS.$("#AdskActionRemindersConfigure").stop().slideUp();
+            shows = true;
         }
     </script>
 </head>
@@ -69,10 +70,10 @@
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="SAVE" />
 </div>
 </form>
-
+</div>
 
 <!-- Configure Schedule -->
-<div id="AdskActionRemindersProjectSchedule">
+<div id="AdskActionRemindersProjectSchedule" style="display: none;">
 <form id="AdskActionRemindersProjectScheduleForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa" >
 <div class="field-group">
     <label for="interval">

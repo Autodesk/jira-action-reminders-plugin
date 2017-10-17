@@ -15,7 +15,6 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRole;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -92,16 +91,17 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
             }
 
             logger.debug("Saving map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(remindActionsMgr.findActionReminders2(configBean) == false) {
-                if(configBean.getConfigId() > 0 && configBean.getProjectKey() != null && configBean.getQuery()!= null && !"".equals(configBean.getQuery())) {
-                    remindActionsMgr.updateActionReminders(configBean);                    
-                    status = "Saved.";
-                }else{
-                    status = "Remind action fields missing!";
-                }
-            }else{
-                status = MessageFormat.format("{0} && {1} alredy exists in mapping!",
-                        configBean.getQuery(), configBean.getIssueAction());
+            
+            if(configBean.getConfigId() < 0 || configBean.getProjectKey() == null || "".equals(configBean.getProjectKey()) 
+                || configBean.getConfigType() == null || "".equals(configBean.getConfigType())
+                || configBean.getQuery() == null || "".equals(configBean.getQuery())
+                || configBean.getRunAuthor() == null || "".equals(configBean.getRunAuthor())
+                || configBean.getCronSchedule() == null || "".equals(configBean.getCronSchedule())
+                || configBean.getMessage() == null || "".equals(configBean.getMessage())) {
+                status = "Error: Required fields are missing!";
+            }else{            
+                remindActionsMgr.updateActionReminders(configBean);                    
+                status = "Saved.";
             }
         }
         else {

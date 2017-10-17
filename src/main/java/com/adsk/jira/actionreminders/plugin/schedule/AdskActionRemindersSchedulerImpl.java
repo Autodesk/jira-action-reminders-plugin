@@ -68,7 +68,8 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
          * Important place to Change minutes or hours
          * conversion here.
          */
-        long time_interval = TimeUnit.MINUTES.toMillis(getInterval());
+        long interval = getInterval();
+        long time_interval = TimeUnit.HOURS.toMillis(interval);
                 
         if (!this.schedulerService.getRegisteredJobRunnerKeys().contains(getJobRunnerKey())) {        
           logger.debug("Registering JobRunner - "+ getJobRunnerKey().toString());
@@ -77,7 +78,7 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
         
         AdskActionRemindersJobRunner.setLastRun(new Date()); //set current date time as last execution.
         
-        Date start =  new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(1L));
+        Date start =  new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(interval));
         Schedule schedule = Schedule.forInterval(time_interval, start);
         JobConfig jobConfig = JobConfig.forJobRunnerKey(getJobRunnerKey())
                 .withRunMode(RunMode.RUN_ONCE_PER_CLUSTER).withSchedule(schedule);

@@ -8,6 +8,7 @@ package com.adsk.jira.actionreminders.plugin.api;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.mail.server.SMTPMailServer;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,7 @@ public interface AdskActionRemindersUtil {
     public Set<String> getGroupUsers(String group);
     public Set<String> getRoleUsers(String projectKey, String projectRole);
     public Set<String> getWatchersUsers(Issue issue);    
-    public void sendMail(String emailAddr, String subject, String body, String ccfrom);
+    public void sendMail(SMTPMailServer mailServer, String emailAddr, 
+            String subject, String body, String ccfrom);
     
 }
