@@ -72,7 +72,7 @@
 
 
 <!-- Configure Schedule -->
-<div id="AdskActionRemindersProjectSchedule" style="display: none">
+<div id="AdskActionRemindersProjectSchedule">
 <form id="AdskActionRemindersProjectScheduleForm" class="aui" method="post" action="ActionRemindersAdminAction.jspa" >
 <div class="field-group">
     <label for="interval">

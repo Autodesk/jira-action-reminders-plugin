@@ -183,23 +183,6 @@
 </div>
 
 
-<!-- Delete form with Mapping ID -->
-<div id="ActionRemindersDel" style="display: none">
-<form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" >
-<input type="hidden" id="configId" name="configId" class="text" value="0" />
-<div class="field-group">
-    <label for="configIds">
-        $i18n.getText("jira-action-reminders.option.config_id.label"):
-        <span class="aui-icon icon-required"></span>
-    </label>
-    <input type="text" id="configIds" name="configIds" class="text" disabled=""/>
-</div>
-<div class="aui-buttons">
-    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="DELETE" />
-</div>
-</form>
-</div>
-
 
 <!-- config status -->
 #if( $!status )
@@ -226,7 +209,7 @@
             <td>
             <a class="adsk_actionreminders_edit" title="Configure Action Reminder" 
                 href="AdskActionRemindersConfigure.jspa?configId=$entry.configId"></a>
-            <a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$entry.configId')"></a> 
+            <!--<a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$entry.configId')"></a>-->
             </td>
         </tr>
     #end

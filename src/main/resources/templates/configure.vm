@@ -13,13 +13,23 @@
         function prepareEdit() {
             AJS.$("#ActionRemindersAddEdit").stop().slideDown();
             AJS.$("#ActionRemindersRun").stop().slideUp();
+            AJS.$("#ActionRemindersDel").stop().slideUp();
         }
         function prepareRun(configId) {
             AJS.$("#ActionRemindersRun").stop().slideDown();
-            AJS.$("#ActionRemindersAddEdit").stop().slideUp();         
+            AJS.$("#ActionRemindersAddEdit").stop().slideUp(); 
+            AJS.$("#ActionRemindersDel").stop().slideUp();
             AJS.$("#ActionRemindersRunForm input[name='configId']").val(configId);
             AJS.$("#ActionRemindersRunForm input[name='configIds']").val(configId);
             location.hash = "#ActionRemindersRun";
+        }
+        function prepareDelete(configId) {
+            AJS.$("#ActionRemindersDel").stop().slideDown();
+            AJS.$("#ActionRemindersAddEdit").stop().slideUp();
+            AJS.$("#ActionRemindersRun").stop().slideUp(); 
+            AJS.$("#ActionRemindersDelForm input[name='configId']").val(configId);
+            AJS.$("#ActionRemindersDelForm input[name='configIds']").val(configId);
+            location.hash = "#ActionRemindersDel";
         }
         function prepareHide() {
             var configType = $('input[name=configType]:checked', '#ActionRemindersAddEditForm').val();
@@ -48,7 +58,8 @@
     $i18n.getText("jira-action-reminders.option.label") #$configId  #if($projectName) | $projectName#end</span>
 <a href="https://git.autodesk.com/EngOps/jira-action-reminders-plugin/wiki" target="_blank"
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
-<a href="#" class="adsk_actionreminders_edit" onClick="prepareEdit()"></a>
+<a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$configId')"></a>
+<a href="#" class="adsk_actionreminders_config" onClick="prepareEdit()"></a>
 <a href="#" class="adsk_actionreminders_run" onClick="prepareRun('$configId')"></a>
 </p>
 
@@ -215,6 +226,24 @@
 </div>
 <div class="aui-buttons">
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="RUN" />
+</div>
+</form>
+</div>
+
+
+<!-- Delete form with Mapping ID -->
+<div id="ActionRemindersDel" style="display: none">
+<form id="ActionRemindersDelForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" >
+<input type="hidden" id="configId" name="configId" class="text" value="0" />
+<div class="field-group">
+    <label for="configIds">
+        $i18n.getText("jira-action-reminders.option.config_id.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="text" id="configIds" name="configIds" class="text" disabled=""/>
+</div>
+<div class="aui-buttons">
+    <input class="aui-button aui-button-primary" type="submit" name="submitted" value="DELETE" />
 </div>
 </form>
 </div>
