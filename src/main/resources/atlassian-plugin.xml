@@ -23,7 +23,7 @@
     
     <!-- publish our component -->
     <component-import key="ao" name="Active Objects service" interface="com.atlassian.activeobjects.external.ActiveObjects" />
-    <ao key="jira-actionreminders-ao">
+    <ao key="jira-actionreminders-ao" name="Action Reminders AO Entity">
       <entity>com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO</entity>
     </ao> 
     <component key="jira-actionreminders-ao-manager" name="Action Reminders AO Manager" 

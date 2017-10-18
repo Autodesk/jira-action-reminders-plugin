@@ -42,6 +42,7 @@ public class AdskActionRemindersJobRunnerImpl implements AdskActionRemindersJobR
                 interval = DEFAULT_INTERVAL;
             }
         } catch (NumberFormatException e) {
+            logger.error(e);
             logger.debug("Action Reminders interval property is null so using default: "+ 
                     DEFAULT_INTERVAL);
             
