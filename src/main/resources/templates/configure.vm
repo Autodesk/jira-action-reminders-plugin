@@ -69,6 +69,7 @@
 <form id="ActionRemindersAddEditForm" class="aui" method="post" action="AdskActionRemindersConfigure.jspa?configId=$configId" onsubmit="return validateForm()">
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
+<input type="hidden" id="runAuthor" name="runAuthor" class="text" value="$!runAuthor" />
 <div class="field-group">
     <label for="configIds">
         $i18n.getText("jira-action-reminders.option.config_id.label"):
@@ -109,13 +110,8 @@
 <div class="field-group">
     <label for="runAuthor">
         $i18n.getText("jira-action-reminders.option.author.label"):
-        <span class="aui-icon icon-required"></span>
     </label>
-    <input type="text" id="runAuthor" name="runAuthor" class="text" placeholder="Your Run Author User ID" value="$!runAuthor" />
-    <a href="javascript:openUserPickerWindow('runAuthor');">
-         <img title="Ente the user name" name="multiuserImage" src="$!requestContext.canonicalBaseUrl/images/icons/filter_public.gif" hspace="0" height="16" width="16" border="0" align="absmiddle" >
-    </a>
-    <div class="description">$i18n.getText("jira-action-reminders.option.author.description")</div>
+    <input type="text" id="runAuthorx" name="runAuthorx" class="text" value="$!runAuthor" disabled=""/>
 </div>
 <div class="field-group">
     <label for="cronSchedule">
@@ -172,6 +168,7 @@
             >$projro</option>
         #end
     </select>
+    <span class="adsk_actionreminders_info" title="$i18n.getText("jira-action-reminders.option.notifyProjectrole.description")"></span>
 </div>
 <div class="field-group">
     <label for="notifyGroup">
@@ -185,6 +182,7 @@
             >$groupName</option>
         #end
     </select>
+    <span class="adsk_actionreminders_info" title="$i18n.getText("jira-action-reminders.option.notifyGroup.description")"></span>
 </div>
 <div class="field-group">
     <label for="message">
