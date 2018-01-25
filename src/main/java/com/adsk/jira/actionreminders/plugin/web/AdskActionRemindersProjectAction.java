@@ -1,5 +1,6 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
+import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
@@ -11,6 +12,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
+import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
+import static com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil.QUERY_LIMIT;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.security.groups.GroupManager;
 import com.atlassian.jira.security.roles.ProjectRole;
 import com.atlassian.jira.security.roles.ProjectRoleManager;
@@ -31,19 +35,22 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
     public static final TextUtils textUtils = new TextUtils();
     private String submitted;
     private String status;
-    
+    private int limit;
+    private final AdskActionRemindersUtil actionRemindersUtil;
     private final ActionRemindersAOMgr remindActionsMgr;
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final ProjectRoleManager projectRoleManager;
     private final GroupManager groupManager;
-    
-    public AdskActionRemindersProjectAction(ActionRemindersAOMgr remindActionsMgr, 
+    private final ApplicationProperties properties;
+    public AdskActionRemindersProjectAction(AdskActionRemindersUtil actionRemindersUtil, ActionRemindersAOMgr remindActionsMgr, 
             JiraAuthenticationContext jiraAuthenticationContext, ProjectRoleManager projectRoleManager, 
-            GroupManager groupManager) {
+            GroupManager groupManager, ApplicationProperties properties) {
+        this.actionRemindersUtil = actionRemindersUtil;
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.remindActionsMgr = remindActionsMgr;
         this.projectRoleManager = projectRoleManager;
         this.groupManager = groupManager;
+        this.properties = properties;
         //add default groups
         defaultGroups.add("jira-administrators");
         defaultGroups.add("jira-software-users");
@@ -80,8 +87,16 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
                 remindActionsMgr.addActionReminders(configBean);                    
                 status = "Added.";
             }
-        }
-        else if (this.submitted != null && "DELETE".equals(this.submitted)) {
+        } else if (this.submitted != null && "RUN".equals(this.submitted)) {
+            logger.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
+            if(configBean.getConfigId() > 0) {
+                logger.info("**** Processing On-Demand Action Reminder Config Id #"+ configBean.getConfigId());
+                ActionRemindersAO remindAction = remindActionsMgr.getActionReminderById(configBean.getConfigId()); 
+                actionRemindersUtil.process(remindAction, 
+                        actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus(), getLimit());
+                status = "Triggered! Config #"+ configBean.getConfigId();
+            }
+        } else if (this.submitted != null && "DELETE".equals(this.submitted)) {
             logger.debug("Deleting map Id -> "+ configBean.getConfigId());
             if(configBean.getConfigId() != 0) {
                 remindActionsMgr.removeActionReminders(configBean.getConfigId());
@@ -90,6 +105,21 @@ public class AdskActionRemindersProjectAction extends JiraWebActionSupport {
         }
         
         return "success";
+    }
+    
+    public int getLimit() {
+        try {
+            String queryLimit = properties.getString(QUERY_LIMIT);
+            if(queryLimit != null) {
+                limit = Integer.parseInt(queryLimit);
+            }else{
+                limit = 25;
+                properties.setString(QUERY_LIMIT, ""+limit);
+            }
+        }catch(ClassCastException e) {
+            logger.error(e);       
+        }
+        return limit;
     }
     
     public long getConfigId() {

@@ -69,8 +69,8 @@ public class AdskActionRemindersSchedulerImpl implements AdskActionRemindersSche
          * conversion here.
          */
          
-        //long interval = TimeUnit.MINUTES.toMillis(getInterval()); //testing purpose
-        long interval = TimeUnit.HOURS.toMillis(getInterval());
+        long interval = TimeUnit.MINUTES.toMillis(getInterval()); //testing purpose
+        //long interval = TimeUnit.HOURS.toMillis(getInterval());
                 
         if (!this.schedulerService.getRegisteredJobRunnerKeys().contains(getJobRunnerKey())) {        
           logger.debug("Registering JobRunner - "+ getJobRunnerKey().toString());

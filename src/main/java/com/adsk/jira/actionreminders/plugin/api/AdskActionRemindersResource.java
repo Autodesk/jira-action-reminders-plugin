@@ -51,7 +51,7 @@ public class AdskActionRemindersResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/config/id/{confId}")
     public Response runActionReminder(@PathParam("confId") String confId) {
-        logger.debug("running action reminder config - "+confId);
+        logger.info("**** Processing On-Demand Action Reminder Config Id #"+ confId);
         
         //message object
         MessageBean messageBean = new MessageBean();

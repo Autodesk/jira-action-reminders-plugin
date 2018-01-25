@@ -106,19 +106,19 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
      */
     public void run(Date last_run_datetime, Date next_run_datetime) {
         long startTime = System.currentTimeMillis();
-        logger.debug("######## Action Reminder Scheduler - START ##########");        
+        logger.info("######## Action Reminder Scheduler - START ##########");        
         
         boolean enableRemindersStatus = getRemindersStatus();
         boolean enableActionsStatus = getActionsStatus();
         int queryLimit = getQueryLimit();
         
         ActionRemindersAO[] actionReminders = actionRemindersAOMgr.getActiveActionReminders();
-        logger.debug("**** Total Active Action Reminders to process: "+ actionReminders.length);
+        logger.info("**** Total Active Action Reminders to process: "+ actionReminders.length);
         
         for(ActionRemindersAO action : actionReminders) {
             if(isValidCronExp(action.getCronSchedule())) {
                 Date nextValidTimeAfter = getNextValidTimeAfter(action.getCronSchedule(), last_run_datetime);
-                logger.debug("**** Processing Action Reminder Config Id #"+ action.getID());
+                logger.info("**** Processing Action Reminder Config Id #"+ action.getID());
                 logger.debug("**** Last Service Run Date:: "+ last_run_datetime.toString());
                 logger.debug("**** Next Service Run Date:: "+ next_run_datetime.toString());
                 logger.debug("**** Next Valid Action Reminder Run Date:: "+ nextValidTimeAfter.toString());
@@ -133,7 +133,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         }
                 
         long totalTime = System.currentTimeMillis() - startTime;
-        logger.debug("######## Action Reminder Scheduler - END. Took "+ totalTime/ 1000d +" Seconds ##########");
+        logger.info("######## Action Reminder Scheduler - END. Took "+ totalTime/ 1000d +" Seconds ##########");
     }
     
     public Date getNextValidTimeAfter(String cronExp, Date currentDate) {
@@ -201,19 +201,19 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     public void process(ActionRemindersAO map, boolean reminders, boolean actions, int queryLimit) {
         if(reminders == false && actions == false) {
-            logger.debug("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
+            logger.info("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
         }                             
         
         ApplicationUser runAppUser = userManager.getUserByName(map.getRunAuthor());
         if(runAppUser == null){
-            logger.debug("**** "+ map.getRunAuthor()+" - Run Author is Null/not exists!");
+            logger.warn("**** "+ map.getRunAuthor()+" - Run Author is Null/not exists!");
             return;
         }
         
         Project projectObj = projectManager.getProjectObjByKey(map.getProjectKey());
         if(projectObj == null){
-            logger.debug("**** "+ map.getProjectKey()+" - Project is Null/not exists!");
+            logger.warn("**** "+ map.getProjectKey()+" - Project is Null/not exists!");
             return;
         }
         
@@ -226,10 +226,12 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, secureQuery);
             
             if (parseResult.isValid()) {
-                logger.debug("**** Processing Secure Query -> "+ parseResult.getQuery());
+                logger.info("**** Processing Secure Query -> "+ parseResult.getQuery());
                 
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, queryLimit));
                 List<Issue> issues = searchResults.getIssues();
+                
+                logger.info("**** Secure Query Issue Count to process: "+ issues.size());
                 
                 if(issues.size() > 0) {
                     if(map.getConfigType().equals("action")) {                    
@@ -259,7 +261,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         }
         
         long totalTime = System.currentTimeMillis() - startTime;
-        logger.debug("**** Action Reminder Finished. Took "+ totalTime/ 1000d +" Seconds");
+        logger.info("**** Action Reminder #"+map.getID()+" Finished. Took "+ totalTime/ 1000d +" Seconds");
     }
     
     public void sendActions(ActionRemindersAO map, List<Issue> issues, ApplicationUser runUser) {
@@ -295,9 +297,9 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                             }
                         }
                     } else {
-                        logger.debug("** Issue transition validation errors: ");
+                        logger.warn("** Issue transition validation errors: ");
                         for(String e : validation.getErrorCollection().getErrorMessages()) {
-                            logger.debug(e);
+                            logger.error(e);
                         }
                     }
                     break;
@@ -305,7 +307,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             }
 
             if( is_action_exists == false ) {    
-                logger.debug("** Issue action is not valid - "+ map.getIssueAction());
+                logger.warn("** Issue action is not valid - "+ map.getIssueAction());
             }
         }
     }
@@ -356,7 +358,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                     emailAddrs.addAll(getWatchersUsers(issue));
                 }            
 
-                logger.debug("** Total email users size: "+ emailAddrs.size());
+                logger.info("** Total email users size: "+ emailAddrs.size());
 
                 for(String email : emailAddrs) {
                     sendMail(mailServer, email, subject, body, ccfrom);

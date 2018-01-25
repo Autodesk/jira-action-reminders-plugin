@@ -214,7 +214,7 @@
 
 <!-- Run form with Mapping ID -->
 <div id="ActionRemindersRun" style="display: none">
-<form id="ActionRemindersRunForm" class="aui" method="post" action="AdskActionRemindersConfigure.jspa?configId=$configId" >
+<form id="ActionRemindersRunForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" >
 <input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <div class="field-group">

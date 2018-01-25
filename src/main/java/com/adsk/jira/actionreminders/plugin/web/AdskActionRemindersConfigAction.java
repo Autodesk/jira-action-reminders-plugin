@@ -64,7 +64,7 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     public String doExecute() throws Exception {
                         
         logger.info("ConfigId: "+ configBean.getConfigId());
-        if (this.submitted != null && "RUN".equals(this.submitted)) {
+        /*if (this.submitted != null && "RUN".equals(this.submitted)) {
             Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
             if(project == null) {
                 return "error";
@@ -75,14 +75,15 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
             configBean.setProjectName(project.getName());
 
             logger.debug("Running map -> "+ configBean.getConfigId() +":"+ configBean.getQuery()+":"+ configBean.isActive());
-            if(configBean.getConfigId() > 0) {                
+            if(configBean.getConfigId() > 0) {
+                logger.info("**** Processing On-Demand Action Reminder Config Id #"+ configBean.getConfigId());
                 ActionRemindersAO remindAction = remindActionsMgr.getActionReminderById(configBean.getConfigId()); 
                 actionRemindersUtil.process(remindAction, 
                         actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus(), getLimit());
                 status = "Triggered!";
             }
         }        
-        else if (this.submitted != null && "SAVE".equals(this.submitted)) {
+        else */if (this.submitted != null && "SAVE".equals(this.submitted)) {
             Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
             if(project == null) {
                 return "error";
