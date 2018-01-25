@@ -22,7 +22,7 @@
     </organization>
 
     <name>Action Reminders For JIRA</name>
-    <description>This is the com.adsk.jira.remindersandactions.plugin:jira-reminders-and-actions-plugin plugin for Atlassian JIRA.</description>
+    <description>This plugin provides an automation to transition issues and send reminders to respective people using JQL query.</description>
     <packaging>atlassian-plugin</packaging>
 
     <dependencies>
