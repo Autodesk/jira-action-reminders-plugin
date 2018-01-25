@@ -6,7 +6,6 @@
 package com.adsk.jira.actionreminders.plugin.api;
 
 
-import java.util.Date;
 import net.java.ao.Entity;
 import net.java.ao.Preload;
 import net.java.ao.schema.Indexed;
@@ -31,8 +30,6 @@ public interface ActionRemindersAO extends Entity {
     public void setQuery(String query);
     public String getRunAuthor();
     public void setRunAuthor(String runAuthor);
-    public Date getLastRun();
-    public void setLastRun(Date lastRun);
     public String getCronSchedule();
     public void setCronSchedule(String cronSchedule);
     public boolean getNotifyAssignee();

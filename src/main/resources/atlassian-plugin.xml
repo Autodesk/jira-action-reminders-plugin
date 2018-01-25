@@ -80,7 +80,7 @@
     </web-item>    
       
     <!-- Project Admin Web Link -->
-    <web-section key="jira-actionreminders-project-section" name="Remind Actions Project Plugin" location="atl.jira.proj.config" i18n-name-key="jira-actionreminders.project.section" weight="201" application="jira"/>
+    <web-section key="jira-actionreminders-project-section" name="Remind Actions Project Plugin" location="atl.jira.proj.config" i18n-name-key="jira-actionreminders.project.section" weight="203" application="jira"/>
     <webwork1 key="jira-actionreminders-project-configure-action" name="Action Reminders Project Configure Action" i18n-name-key="jira-actionreminders-project-configure-action.name">
         <actions>
           <action name="com.adsk.jira.actionreminders.plugin.web.AdskActionRemindersProjectAction" alias="ActionRemindersProjectAction">

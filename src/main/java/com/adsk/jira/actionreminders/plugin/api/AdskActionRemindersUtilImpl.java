@@ -231,27 +231,27 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, queryLimit));
                 List<Issue> issues = searchResults.getIssues();
                 
-                if(map.getConfigType().equals("action")) {                    
-                    if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {                      
-                        logger.debug("**** Processing Issue action -> "+ map.getIssueAction());
-                        sendActions(map, issues, runAppUser);                    
+                if(issues.size() > 0) {
+                    if(map.getConfigType().equals("action")) {                    
+                        if(actions == true && map.getIssueAction() != null && !"".equals(map.getIssueAction())) {                      
+                            logger.debug("**** Processing Issue action -> "+ map.getIssueAction());
+                            sendActions(map, issues, runAppUser);                    
+                        }else{
+                            logger.warn("**** Sending issue actions disabled or missing action name.");
+                        }
+                    }else if(map.getConfigType().equals("reminder")) {                    
+                        if( reminders == true ) { // Remind or re-notify                        
+                            logger.debug("**** Sending reminders now ...");
+                            sendReminders(map, issues, runAppUser);
+                        }else{
+                            logger.warn("**** Sending reminders disabled.");
+                        }
                     }else{
-                        logger.warn("**** Sending issue actions disabled or missing action name.");
+                        logger.warn("**** Config Type is not valid!");
                     }
+                }else{
+                    logger.warn("**** Query return no issues!");
                 }
-                else if(map.getConfigType().equals("reminder")) {                    
-                    if( reminders == true ) { // Remind or re-notify
-                        logger.debug("**** Sending reminders now ...");
-                        sendReminders(map, issues, runAppUser);
-                    }else{
-                        logger.warn("**** Sending reminders disabled.");
-                    }
-                }
-                else {
-                    logger.warn("**** Config Type is not valid!");
-                }
-                    
-                actionRemindersAOMgr.setActionRemindersLastRun(map.getID()); // set last run
             }
         }
         catch(SearchException e) {
@@ -319,47 +319,52 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     }
     
     public void sendReminders(ActionRemindersAO map, List<Issue> issues, ApplicationUser runUser) {
-        
-        Set<String> emails = new HashSet<String>();
-        if(map.getNotifyProjectrole() != null && !"".equals(map.getNotifyProjectrole())) {
-            emails.addAll(getRoleUsers(map.getProjectKey(), map.getNotifyProjectrole()));
-        }
-        if(map.getNotifyGroup()!= null && !"".equals(map.getNotifyGroup())) {
-            emails.addAll(getGroupUsers(map.getNotifyGroup()));
-        }
-        
         SMTPMailServer mailServer = mailServerManager.getDefaultSMTPMailServer();
-        for(Issue issue : issues) {
-            logger.debug("** Processing issue -> "+ issue.getKey());        
+        if (mailServer != null) {            
         
-            String subject = MessageFormat.format("({0}) {1}", issue.getKey(), issue.getSummary());
-            String issueLink = MessageFormat.format("{0}/browse/{1}", BaseUrl, issue.getKey());
-            String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);        
-            String ccfrom = runUser != null ? runUser.getEmailAddress() : "";
-            Set<String> emailAddrs = new HashSet<String>();
-            emailAddrs.addAll(emails);
+            Set<String> emails = new HashSet<String>();
+            if(map.getNotifyProjectrole() != null && !"".equals(map.getNotifyProjectrole())) {
+                emails.addAll(getRoleUsers(map.getProjectKey(), map.getNotifyProjectrole()));
+            }
+            if(map.getNotifyGroup()!= null && !"".equals(map.getNotifyGroup())) {
+                emails.addAll(getGroupUsers(map.getNotifyGroup()));
+            }                
 
-            if(map.getNotifyAssignee()) {
-                if(issue.getAssigneeUser() != null) {
-                    emailAddrs.add(issue.getAssigneeUser().getEmailAddress());
+            for(Issue issue : issues) {
+                logger.debug("** Processing issue -> "+ issue.getKey());        
+
+                String subject = MessageFormat.format("({0}) {1}", issue.getKey(), issue.getSummary());
+                String issueLink = MessageFormat.format("{0}/browse/{1}", BaseUrl, issue.getKey());
+                String body = MessageFormat.format("{0}\n\n{1}", map.getMessage(), issueLink);        
+                String ccfrom = runUser != null ? runUser.getEmailAddress() : "";
+                Set<String> emailAddrs = new HashSet<String>();
+                emailAddrs.addAll(emails);
+
+                if(map.getNotifyAssignee()) {
+                    if(issue.getAssigneeUser() != null) {
+                        emailAddrs.add(issue.getAssigneeUser().getEmailAddress());
+                    }
+                }
+
+                if(map.getNotifyReporter()) {
+                    if(issue.getReporterUser() != null) {
+                        emailAddrs.add(issue.getReporterUser().getEmailAddress());
+                    }
+                }
+
+                if(map.getNotifyWatchers()) {
+                    emailAddrs.addAll(getWatchersUsers(issue));
+                }            
+
+                logger.debug("** Total email users size: "+ emailAddrs.size());
+
+                for(String email : emailAddrs) {
+                    sendMail(mailServer, email, subject, body, ccfrom);
                 }
             }
-
-            if(map.getNotifyReporter()) {
-                if(issue.getReporterUser() != null) {
-                    emailAddrs.add(issue.getReporterUser().getEmailAddress());
-                }
-            }
-
-            if(map.getNotifyWatchers()) {
-                emailAddrs.addAll(getWatchersUsers(issue));
-            }            
-
-            logger.debug("** Total email users size: "+ emailAddrs.size());
-
-            for(String email : emailAddrs) {
-                sendMail(mailServer, email, subject, body, ccfrom);
-            }
+        
+        }else{
+            logger.warn("Please make sure that a valid mailServer is configured");
         }
     }
     
@@ -405,18 +410,14 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     }
     
     public void sendMail(SMTPMailServer mailServer, String emailAddr, String subject, String body, String ccfrom) {
-        try {            
-            if (mailServer != null) {
-                Email email = new Email(emailAddr);
-                email.setSubject(subject);
-                email.setBody(body);
-                email.setFrom(ccfrom);
-                //email.setCc(ccfrom);                
-                mailServer.send(email);
-                logger.debug("* Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
-            } else {
-                logger.warn("Please make sure that a valid mailServer is configured");
-            }
+        try {
+            Email email = new Email(emailAddr);
+            email.setSubject(subject);
+            email.setBody(body);
+            email.setFrom(ccfrom);
+            //email.setCc(ccfrom);                
+            mailServer.send(email);
+            logger.debug("* Mail sent To: "+ emailAddr +" Cc: "+ ccfrom);
         } catch (MailException ex) {
             logger.error(ex);
         }

@@ -22,5 +22,4 @@ public interface ActionRemindersAOMgr {
     public void addActionReminders(ActionRemindersBean configBean);
     public void updateActionReminders(ActionRemindersBean configBean);
     public void removeActionReminders(long mapId);
-    public void setActionRemindersLastRun(long mapId);
 }

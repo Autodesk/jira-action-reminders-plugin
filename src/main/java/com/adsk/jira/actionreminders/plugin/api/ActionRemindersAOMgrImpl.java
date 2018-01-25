@@ -65,7 +65,6 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
             bean.setConfigType(map.getConfigType());
             bean.setIssueAction(map.getIssueAction());           
             bean.setRunAuthor(map.getRunAuthor());
-            bean.setLastRun(map.getLastRun());
             bean.setCronSchedule(map.getCronSchedule());
             bean.setNotifyAssignee(map.getNotifyAssignee());
             bean.setNotifyReporter(map.getNotifyReporter());
@@ -135,15 +134,5 @@ public class ActionRemindersAOMgrImpl implements ActionRemindersAOMgr {
         if(maps.length > 0) {
             ao.delete(maps[0]);
         }
-    }
-    
-    @Override
-    public void setActionRemindersLastRun(long mapId) {
-        final ActionRemindersAO[] maps = ao.find(ActionRemindersAO.class, Query.select().where("ID = ?", mapId));
-        if(maps.length > 0) {
-            final ActionRemindersAO map = maps[0];        
-            map.setLastRun(new Date());
-            map.save();
-        }
-    }
+    }    
 }

@@ -4,7 +4,6 @@ import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAO;
 import com.adsk.jira.actionreminders.plugin.model.ActionRemindersBean;
 import com.atlassian.jira.web.action.JiraWebActionSupport;
 import com.opensymphony.util.TextUtils;
-import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
@@ -116,7 +115,6 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
                 configBean.setIssueAction(map.getIssueAction());
                 configBean.setConfigType(map.getConfigType());
                 configBean.setRunAuthor(map.getRunAuthor());
-                configBean.setLastRun(map.getLastRun());
                 configBean.setCronSchedule(map.getCronSchedule());
                 configBean.setNotifyAssignee(map.getNotifyAssignee());
                 configBean.setNotifyReporter(map.getNotifyReporter());
@@ -214,14 +212,6 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
 
     public void setRunAuthor(String runAuthor) {
         configBean.setRunAuthor(runAuthor);
-    }            
-    
-    public Date getLastRun() {
-        return configBean.getLastRun();
-    }
-
-    public void setLastRun(Date lastRun) {
-        configBean.setLastRun(lastRun);
     }
     
     public String getCronSchedule() {
