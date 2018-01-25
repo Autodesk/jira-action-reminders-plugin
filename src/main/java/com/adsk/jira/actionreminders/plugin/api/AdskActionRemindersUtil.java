@@ -24,11 +24,13 @@ public interface AdskActionRemindersUtil {
     public void run(Date last_run_datetime, Date next_run_datetime);
     public Date getNextValidTimeAfter(String cronExp, Date currentDate);
     public boolean isValidCronExp(String cronExp);    
-    public void process(ActionRemindersAO map, boolean reminders, boolean actions);    
+    public void process(ActionRemindersAO map, boolean reminders, boolean actions, int queryLimit);    
     public void sendReminders(ActionRemindersAO map, List<Issue> issues, ApplicationUser runUser);
     public void sendActions(ActionRemindersAO map, List<Issue> issues, ApplicationUser runUser);
     public static final String ENABLE_REMINDERS = "com.adsk.jira.actionreminders.plugin.enableReminders";
     public static final String ENABLE_ACTIONS = "com.adsk.jira.actionreminders.plugin.enableActions";
+    public static final String QUERY_LIMIT = "com.adsk.jira.actionreminders.plugin.queryLimit";
+    public int getQueryLimit();
     public boolean getRemindersStatus();
     public boolean getActionsStatus();
     public String getResolutionId();

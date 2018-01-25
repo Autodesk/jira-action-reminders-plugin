@@ -6,6 +6,7 @@
 package com.adsk.jira.actionreminders.plugin.web;
 
 import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
+import static com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil.QUERY_LIMIT;
 import com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersJobRunner;
 import com.adsk.jira.actionreminders.plugin.schedule.AdskActionRemindersScheduler;
 import com.atlassian.jira.config.properties.ApplicationProperties;
@@ -24,8 +25,9 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
     private static final Logger logger = Logger.getLogger(AdskActionRemindersAdminAction.class);
     public static final TextUtils textUtils = new TextUtils();        
     private boolean enableReminders;
-    private boolean enableActions;
+    private boolean enableActions;    
     private long interval;
+    private int limit;
     private String submitted;
     private String status;
     
@@ -65,6 +67,24 @@ public class AdskActionRemindersAdminAction extends JiraWebActionSupport {
 
     public void setInterval(long interval) {
         this.interval = interval;
+    }
+    
+    public int getLimit() {
+        try {
+            String queryLimit = properties.getString(QUERY_LIMIT);
+            if(queryLimit != null) {
+                limit = Integer.parseInt(queryLimit);
+            }else{
+                limit = 25;
+                properties.setString(QUERY_LIMIT, ""+limit);
+            }
+        }catch(ClassCastException e) {
+            logger.error(e);       
+        }
+        return limit;
+    }
+    public void setLimit(int limit) {
+        properties.setString(QUERY_LIMIT, ""+limit);
     }
 
     public boolean isEnableReminders() {

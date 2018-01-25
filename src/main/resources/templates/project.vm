@@ -59,7 +59,7 @@
 <!-- Add or Edit Form -->
 
 <div id="ActionRemindersAddEdit" style="display: none">
-<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" >
+<form id="ActionRemindersAddEditForm" class="aui" method="post" action="ActionRemindersProjectAction.jspa?projectKey=$projectKey" onsubmit="return validateForm()">
 <input type="hidden" id="configId" name="configId" class="text" value="0" />
 <input type="hidden" id="projectKey" name="projectKey" class="text" value="$!projectKey" />
 <div class="field-group">
@@ -202,14 +202,15 @@
 
 <!-- config display -->
 
-<table class="aui" id="adsk_actionreminders_configs">
-    <tr><th>Config ID</th><th>Type</th><th>JQL Query</th><th>Author</th><th>Schedule</th><th>Active?</th><th></th></tr>
+<table class="aui" id="adsk_actionreminders_configs" style="width: 100%; table-layout: fixed; word-wrap: break-word;">
+    <tr><th width="10%">Config ID</th><th width="10%">Type</th><th width="40%">JQL Query</th>
+        <th width="10%">Author</th><th width="10%">Schedule</th><th width="10%">Active?</th><th width="10%"></th></tr>
     #foreach ($entry in $configList)
-        <tr><td>$entry.configId</td><td>$entry.configType</td><td>$entry.query</td><td>$entry.runAuthor</td><td>$entry.cronSchedule</td><td>$entry.active</td>
-            <td>
+        <tr><td width="10%">$entry.configId</td><td width="10%">$entry.configType</td><td width="40%">$entry.query</td>
+            <td width="10%">$entry.runAuthor</td><td width="10%">$entry.cronSchedule</td><td width="10%">$entry.active</td>
+            <td width="10%">
             <a class="adsk_actionreminders_edit" title="Configure Action Reminder" 
-                href="AdskActionRemindersConfigure.jspa?configId=$entry.configId"></a>
-            <!--<a href="#" class="adsk_actionreminders_delete" onClick="prepareDelete('$entry.configId')"></a>-->
+                    href="AdskActionRemindersConfigure.jspa?configId=$entry.configId"></a>
             </td>
         </tr>
     #end

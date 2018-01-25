@@ -66,6 +66,13 @@
     </select>
     <div class="description">$i18n.getText("jira-action-reminders.option.enableActions.description")</div>
 </div>
+<div class="field-group">
+    <label for="limit">
+        $i18n.getText("jira-action-reminders.option.limit.label"):
+        <span class="aui-icon icon-required"></span>
+    </label>
+    <input type="number" id="limit" name="limit" class="text" min="1" max="1000" value="$!limit"/>
+</div>
 <div class="aui-buttons">
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="SAVE" />
 </div>

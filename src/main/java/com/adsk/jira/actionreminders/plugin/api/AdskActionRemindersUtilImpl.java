@@ -110,6 +110,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         
         boolean enableRemindersStatus = getRemindersStatus();
         boolean enableActionsStatus = getActionsStatus();
+        int queryLimit = getQueryLimit();
         
         ActionRemindersAO[] actionReminders = actionRemindersAOMgr.getActiveActionReminders();
         logger.debug("**** Total Active Action Reminders to process: "+ actionReminders.length);
@@ -124,7 +125,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
                 
                 if(nextValidTimeAfter.before(next_run_datetime)) {
                     logger.debug("**** Cron schedule Valid - running");
-                    process(action, enableRemindersStatus, enableActionsStatus);
+                    process(action, enableRemindersStatus, enableActionsStatus, queryLimit);
                 }else{
                     logger.debug("**** Skipping Action Reminder Config Id #"+ action.getID());
                 }
@@ -148,6 +149,22 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
     
     public boolean isValidCronExp(String cronExp) {
         return CronExpression.isValidExpression(cronExp);
+    }
+    
+    public int getQueryLimit() {
+        int queryLimit = 25;
+        try {
+            String limit = properties.getString(QUERY_LIMIT);
+            if(limit != null) {
+                queryLimit = Integer.parseInt(limit);
+            }else{
+                queryLimit = 25;
+                properties.setString(QUERY_LIMIT, ""+queryLimit);
+            }
+        }catch(ClassCastException e) {
+            logger.error(e);       
+        }
+        return queryLimit;
     }
     
     public boolean getRemindersStatus() {
@@ -182,7 +199,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
         return enableActionsStatus;
     }
     
-    public void process(ActionRemindersAO map, boolean reminders, boolean actions) {
+    public void process(ActionRemindersAO map, boolean reminders, boolean actions, int queryLimit) {
         if(reminders == false && actions == false) {
             logger.debug("**** "+ map.getID()+" - Both reminders and actions are set false. Skipping!");
             return;
@@ -211,7 +228,7 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             if (parseResult.isValid()) {
                 logger.debug("**** Processing Secure Query -> "+ parseResult.getQuery());
                 
-                SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, 1000));
+                SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, queryLimit));
                 List<Issue> issues = searchResults.getIssues();
                 
                 if(map.getConfigType().equals("action")) {                    

@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.apache.velocity.util.StringUtils;
 import com.adsk.jira.actionreminders.plugin.api.ActionRemindersAOMgr;
 import com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil;
+import static com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil.QUERY_LIMIT;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -32,16 +34,18 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     public static final TextUtils textUtils = new TextUtils();
     private String submitted;
     private String status;
-    
+    private int limit;
+    private final ApplicationProperties properties;
     private final ActionRemindersAOMgr remindActionsMgr;
     private final AdskActionRemindersUtil actionRemindersUtil;
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final ProjectRoleManager projectRoleManager;
     private final GroupManager groupManager;
     
-    public AdskActionRemindersConfigAction(ActionRemindersAOMgr remindActionsMgr, 
+    public AdskActionRemindersConfigAction(ApplicationProperties properties, ActionRemindersAOMgr remindActionsMgr, 
             AdskActionRemindersUtil actionRemindersUtil, JiraAuthenticationContext jiraAuthenticationContext, 
             ProjectRoleManager projectRoleManager, GroupManager groupManager) {
+        this.properties = properties;
         this.remindActionsMgr = remindActionsMgr;
         this.actionRemindersUtil = actionRemindersUtil;
         this.jiraAuthenticationContext = jiraAuthenticationContext;
@@ -75,7 +79,7 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
             if(configBean.getConfigId() > 0) {                
                 ActionRemindersAO remindAction = remindActionsMgr.getActionReminderById(configBean.getConfigId()); 
                 actionRemindersUtil.process(remindAction, 
-                        actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus());
+                        actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus(), getLimit());
                 status = "Triggered!";
             }
         }        
@@ -135,6 +139,21 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
         }
         
         return "success";
+    }
+    
+    public int getLimit() {
+        try {
+            String queryLimit = properties.getString(QUERY_LIMIT);
+            if(queryLimit != null) {
+                limit = Integer.parseInt(queryLimit);
+            }else{
+                limit = 25;
+                properties.setString(QUERY_LIMIT, ""+limit);
+            }
+        }catch(ClassCastException e) {
+            logger.error(e);       
+        }
+        return limit;
     }
     
     public long getConfigId() {

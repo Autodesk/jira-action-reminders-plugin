@@ -13,7 +13,7 @@
     <resource type="i18n" name="i18n" location="jira-action-reminders-plugin"/>
     
     <!-- add our web resources -->
-    <web-resource key="jira-action-reminders-plugin-resources" name="jira-action-reminders-plugin Web Resources">        
+    <web-resource key="jira-action-reminders-plugin-resources" name="Action Reminders Plugin Web Resources">        
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <resource type="download" name="jira-action-reminders-plugin.css" location="/css/jira-action-reminders-plugin.css"/>
         <resource type="download" name="jira-action-reminders-plugin.js" location="/js/jira-action-reminders-plugin.js"/>
@@ -56,7 +56,7 @@
     </rest>       
     
     <!-- Web Options panel -->
-    <web-section key="jira-actionreminders.section" name="Action Reminders Section" 
+    <web-section key="jira-actionreminders-section" name="Action Reminders Section" 
         location="admin_plugins_menu" i18n-name-key="jira-actionreminders.section" weight="10" application="jira">
         <label key="jira-actionreminders.section.label" />
     </web-section>
@@ -70,6 +70,14 @@
           </action>
         </actions>
     </webwork1>
+    <web-item key="jira-actionreminders-configure-web-link" name="Action Reminders Configure Web Link" i18n-name-key="jira-actionreminders-configure-web-link.name"
+        section="admin_plugins_menu/jira-actionreminders-section" weight="10" application="jira">
+        <label key="jira-actionreminders-configure-web-link.label" />
+        <link linkId="jira-actionreminders-configure-web-link">/secure/ActionRemindersAdminAction.jspa</link>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.JiraGlobalPermissionCondition">
+	    <param name="permission">admin</param>
+	</condition>
+    </web-item>    
       
     <!-- Project Admin Web Link -->
     <web-section key="jira-actionreminders-project-section" name="Remind Actions Project Plugin" location="atl.jira.proj.config" i18n-name-key="jira-actionreminders.project.section" weight="201" application="jira"/>

@@ -5,7 +5,9 @@
  */
 package com.adsk.jira.actionreminders.plugin.api;
 
+import static com.adsk.jira.actionreminders.plugin.api.AdskActionRemindersUtil.QUERY_LIMIT;
 import com.adsk.jira.actionreminders.plugin.model.MessageBean;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.project.Project;
 import com.atlassian.jira.project.ProjectManager;
@@ -27,20 +29,21 @@ import org.apache.log4j.Logger;
 
 @Path("/run")
 public class AdskActionRemindersResource {
-    private static final Logger LOGGER = Logger.getLogger(AdskActionRemindersResource.class);    
+    private static final Logger logger = Logger.getLogger(AdskActionRemindersResource.class);    
     private final JiraAuthenticationContext jiraAuthenticationContext;
     private final PermissionManager permissionManager;
     private final ProjectManager projectManager;
     private final ActionRemindersAOMgr aremindersao;
     private final AdskActionRemindersUtil actionRemindersUtil;
-    
+    private final ApplicationProperties properties;
     public AdskActionRemindersResource(JiraAuthenticationContext jiraAuthenticationContext, PermissionManager permissionManager, 
-            ProjectManager projectManager, ActionRemindersAOMgr aremindersao, 
+            ProjectManager projectManager, ActionRemindersAOMgr aremindersao, ApplicationProperties properties, 
             AdskActionRemindersUtil actionRemindersUtil) {
         this.jiraAuthenticationContext = jiraAuthenticationContext;
         this.permissionManager = permissionManager;
         this.projectManager = projectManager;
         this.aremindersao = aremindersao;
+        this.properties = properties;
         this.actionRemindersUtil = actionRemindersUtil;
     }
     
@@ -48,7 +51,7 @@ public class AdskActionRemindersResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/config/id/{confId}")
     public Response runActionReminder(@PathParam("confId") String confId) {
-        LOGGER.debug("running action reminder config - "+confId);
+        logger.debug("running action reminder config - "+confId);
         
         //message object
         MessageBean messageBean = new MessageBean();
@@ -80,9 +83,21 @@ public class AdskActionRemindersResource {
                 messageBean.setMessage("[Error] Permission denied. Project is invalid.");
                 return Response.status(Response.Status.FORBIDDEN).entity(messageBean).build();
             }
-
+            
+            int limit = 10;
+            try {
+                String queryLimit = properties.getString(QUERY_LIMIT);
+                if(queryLimit != null) {
+                    limit = Integer.parseInt(queryLimit);
+                }else{
+                    limit = 10;
+                    properties.setString(QUERY_LIMIT, ""+limit);
+                }
+            }catch(ClassCastException e) {
+                logger.error(e);       
+            }
             actionRemindersUtil.process(actionReminder, 
-                    actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus());
+                    actionRemindersUtil.getRemindersStatus(), actionRemindersUtil.getActionsStatus(), limit);
 
             messageBean.setMessage("successful.");
             messageBean.setStatus(1);
