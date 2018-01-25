@@ -39,11 +39,6 @@
                 AJS.$("#issueActionFieldDiv").stop().slideUp();
             }
         }
-        function openUserPickerWindow(element){
-            var vWinUsers = window.open('$!requestContext.canonicalBaseUrl/secure/popups/UserPickerBrowser.jspa?formName=jiraform&multiSelect=false&element=' + element, 'UserPicker', 'status=yes,resizable=yes,top=100,left=200,width=580,height=750,scrollbars=yes');
-            vWinUsers.opener = self;
-            vWinUsers.focus();    
-         }
     </script>  
 </head>
 <body>
@@ -112,6 +107,7 @@
         $i18n.getText("jira-action-reminders.option.author.label"):
     </label>
     <input type="text" id="runAuthorx" name="runAuthorx" class="text" value="$!runAuthor" disabled=""/>
+    <span class="adsk_actionreminders_info" title="$i18n.getText("jira-action-reminders.option.runAuthor.description")"></span>
 </div>
 <div class="field-group">
     <label for="cronSchedule">

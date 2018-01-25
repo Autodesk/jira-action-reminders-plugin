@@ -1,7 +1,7 @@
 <atlassian-plugin-marketing>
     <screenshots>
-        <screenshot image="images/1-action-reminders-project-config.PNG"/>        
-        <screenshot image="images/2-action-reminders-add.PNG"/>
-        <screenshot image="images/3-action-reminders-edit.PNG"/>        
+        <screenshot image="images/1-action-reminders-plugin-config.JPG"/> 
+        <screenshot image="images/1-action-reminders-project-config.JPG"/>        
+        <screenshot image="images/2-action-reminders-add.JPG"/>
     </screenshots>
 </atlassian-plugin-marketing>
