@@ -29,7 +29,7 @@
 
 <p>
 <span class="AdskActionRemindersHeading">$i18n.getText("jira-action-reminders.option.label") Plugin Configure</span>
-<a href="https://git.autodesk.com/EngOps/jira-action-reminders-plugin/wiki" target="_blank" 
+<a href="https://github.com/Autodesk/jira-action-reminders-plugin/wiki" target="_blank" 
     class="adsk_actionreminders_question" title="Action Reminders Plugin Documentation"></a>
 <a href="#" class="adsk_actionreminders_config" onClick="prepareConfigure()" title="Prepare Action Reminder Configure"></a>
 <a href="#" class="adsk_actionreminders_schedule" onClick="prepareSchedule()" title="Prepare Action Reminder Schedule"></a>

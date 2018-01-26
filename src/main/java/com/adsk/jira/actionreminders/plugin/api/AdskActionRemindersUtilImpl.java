@@ -226,12 +226,12 @@ public final class AdskActionRemindersUtilImpl implements AdskActionRemindersUti
             SearchService.ParseResult parseResult =  searchService.parseQuery(runAppUser, secureQuery);
             
             if (parseResult.isValid()) {
-                logger.info("**** Processing Secure Query -> "+ parseResult.getQuery());
+                logger.info("**** Processing Secure Query: "+ parseResult.getQuery());
                 
                 SearchResults searchResults = searchService.search(runAppUser, parseResult.getQuery(), PagerFilter.newPageAlignedFilter(0, queryLimit));
                 List<Issue> issues = searchResults.getIssues();
                 
-                logger.info("**** Secure Query Issue Count to process: "+ issues.size());
+                logger.info("**** Secure Query Issue Count: "+ issues.size());
                 
                 if(issues.size() > 0) {
                     if(map.getConfigType().equals("action")) {                    
