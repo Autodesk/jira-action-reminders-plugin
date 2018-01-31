@@ -1,23 +1,24 @@
 /* global AJS */
 
 function validateForm() {
+    AJS.$("#AdskActionRemindersMessage").html("");
     if(AJS.$("#configType").val() === ""){
-        alert("Config Type Input required!");
+        AJS.$("#AdskActionRemindersMessage").html("<span style='color: red;'>Config Type Input required!</span>");
         return false;
     }else if(AJS.$("input[name=configType]:checked").val() === "action" && AJS.$("#issueAction").val() === ""){
-        alert("Issue Action Input required!");
+        AJS.$("#AdskActionRemindersMessage").html("<span style='color: red;'>Issue Action Input required!</span>");
         return false;        
     }else if(AJS.$("#query").val() === ""){
-        alert("JQL Query Input required!");
+        AJS.$("#AdskActionRemindersMessage").html("<span style='color: red;'>JQL Query Input required!</span>");
         return false;
     }else if(AJS.$("#runAuthor").val() === ""){
-        alert("Run Author Input required!");
+        AJS.$("#AdskActionRemindersMessage").html("<span style='color: red;'>Run Author Input required!</span>");
         return false;
     }else if(AJS.$("#cronSchedule").val() === ""){
-        alert("Cron Schedule Input required!");
+        AJS.$("#AdskActionRemindersMessage").html("<span style='color: red;'>Cron Schedule Input required!</span>");
         return false;
     }else if(AJS.$("#message").val() === ""){
-        alert("Message Input required!");
+        AJS.$("#AdskActionRemindersMessage").html("<span style='color: red;'>Message Input required!</span>");
         return false;
     }
     return true;
