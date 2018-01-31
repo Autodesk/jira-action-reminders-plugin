@@ -63,7 +63,7 @@ public class AdskActionRemindersConfigAction extends JiraWebActionSupport {
     @Override
     public String doExecute() throws Exception {
                         
-        logger.info("ConfigId: "+ configBean.getConfigId());
+        logger.debug("ConfigId: "+ configBean.getConfigId());
         /*if (this.submitted != null && "RUN".equals(this.submitted)) {
             Project project = getProjectManager().getProjectObjByKey(configBean.getProjectKey());
             if(project == null) {

@@ -205,6 +205,7 @@
     <input class="aui-button aui-button-primary" type="submit" name="submitted" value="SAVE" />
 </div>
 </form>
+<div id="AdskActionRemindersMessage" style="display: inline;"></div>
 </div>
 
 <!-- Run form with Mapping ID -->
